@@ -1,0 +1,251 @@
+{
+  "common": {
+    "header": {
+      "home": "Home",
+      "marketplace": "Marketplace",
+      "portfolio": "Portfolio",
+      "dashboard": "Dashboard",
+      "tagline": "Cattle Investment"
+    },
+    "actions": {
+      "continue": "Continue",
+      "submit": "Submit",
+      "sending": "Sending...",
+      "login": "Log In",
+      "logout": "Log Out",
+      "invest": "Invest",
+      "viewDetails": "View Details",
+      "back": "Back",
+      "close": "Close",
+      "save": "Save",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "filter": "Filter"
+    },
+    "nav": {
+      "home": "Home",
+      "dashboard": "Dashboard",
+      "portfolio": "Portfolio",
+      "marketplace": "Marketplace",
+      "position": "Position",
+      "profile": "Profile"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending",
+      "completed": "Completed",
+      "liquidated": "Liquidated",
+      "pendingSale": "Pending Sale"
+    },
+    "time": {
+      "days": "days",
+      "weeks": "weeks",
+      "months": "months",
+      "years": "years",
+      "daysRemaining": "{count} days remaining",
+      "since": "Since"
+    },
+    "currency": {
+      "usd": "USD",
+      "format": "${amount}"
+    }
+  },
+  "brand": {
+    "name": "YourCow",
+    "tagline": "Invest in real cattle assets",
+    "description": "Structured liquidity aligned with real production cycles",
+    "trustBadge": "Backed by real agricultural assets"
+  },
+  "investor": {
+    "welcome": {
+      "title": "Welcome to YourCow",
+      "cta": "Continue with Email",
+      "tagline": "Invest in real cattle assets",
+      "description": "Structured liquidity aligned with real production cycles"
+    },
+    "login": {
+      "title": "Log In",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "your@email.com",
+      "continueButton": "Continue",
+      "sendingButton": "Sending...",
+      "helperText": "Secure access. No passwords."
+    },
+    "dashboard": {
+      "title": "Your Portfolio",
+      "stats": {
+        "totalInvested": "Total Invested",
+        "currentValue": "Current Value (NAV-based)",
+        "gain": "Gain",
+        "status": "Status"
+      },
+      "status": {
+        "productionOngoing": "Production ongoing"
+      },
+      "nextLiquidityWindow": {
+        "title": "Next Liquidity Window",
+        "daysRemaining": "{count} days remaining"
+      },
+      "cta": "Invest in Cattle"
+    },
+    "marketplace": {
+      "title": "Available Cattle Lots",
+      "subtitle": "Invest in shares of real cattle herds. Each lot represents ownership in active agricultural assets.",
+      "filters": {
+        "label": "Filter:",
+        "all": "All Lots",
+        "breeding": "Breeding",
+        "fattening": "Fattening",
+        "dairy": "Dairy"
+      },
+      "emptyState": {
+        "title": "No lots available in this category",
+        "description": "Try selecting a different filter or check back soon for new opportunities"
+      },
+      "card": {
+        "location": "Location",
+        "duration": "Duration",
+        "expectedReturn": "Expected Return",
+        "fundingProgress": "Funding Progress",
+        "herdSize": "Herd Size",
+        "pricePerShare": "Price per Share",
+        "sharesAvailable": "Shares Available",
+        "investButton": "Invest Now"
+      }
+    },
+    "portfolio": {
+      "title": "Portfolio",
+      "subtitle": "Track your cattle investments",
+      "summary": {
+        "totalInvested": "Total Invested",
+        "currentValue": "Current Value",
+        "totalGain": "Total Gain",
+        "return": "Return"
+      },
+      "positions": {
+        "title": "Your Positions ({count})",
+        "currentValue": "Current Value",
+        "invested": "Invested",
+        "shares": "Shares"
+      },
+      "emptyState": {
+        "title": "No investments yet",
+        "description": "Start investing in cattle lots to build your portfolio",
+        "cta": "Browse Marketplace"
+      },
+      "status": {
+        "active": "Active",
+        "liquidated": "Liquidated",
+        "pendingSale": "Pending Sale"
+      }
+    },
+    "lotDetail": {
+      "title": "Lot Details",
+      "overview": "Overview",
+      "location": "Location",
+      "category": "Category",
+      "duration": "Duration",
+      "expectedReturn": "Expected Return",
+      "herdSize": "Herd Size",
+      "pricePerShare": "Price per Share",
+      "sharesAvailable": "Shares Available",
+      "fundingProgress": "Funding Progress",
+      "description": "Description",
+      "investButton": "Invest in this Lot",
+      "categories": {
+        "breeding": "Breeding",
+        "fattening": "Fattening",
+        "dairy": "Dairy"
+      }
+    },
+    "invest": {
+      "title": "Investment Amount",
+      "subtitle": "Choose how much you want to invest in {lotName}",
+      "amountLabel": "Amount to Invest",
+      "amountPlaceholder": "0",
+      "calculation": {
+        "shares": "Shares",
+        "pricePerShare": "Price per Share",
+        "totalShares": "Total Shares",
+        "sharesAvailable": "Shares Available"
+      },
+      "continueButton": "Continue to Confirmation",
+      "errors": {
+        "invalidAmount": "Please enter a valid amount",
+        "insufficientShares": "Not enough shares available",
+        "minimumAmount": "Minimum amount is ${amount}"
+      }
+    },
+    "confirmInvestment": {
+      "title": "Confirm Investment",
+      "subtitle": "Review your investment details",
+      "lot": "Lot",
+      "investmentAmount": "Investment Amount",
+      "shares": "Shares",
+      "pricePerShare": "Price per Share",
+      "expectedReturn": "Expected Return",
+      "duration": "Duration",
+      "confirmButton": "Confirm Investment",
+      "cancelButton": "Cancel",
+      "processing": "Processing..."
+    },
+    "investmentSuccess": {
+      "title": "Investment Successful!",
+      "message": "Your investment in {lotName} has been confirmed",
+      "details": {
+        "invested": "You invested",
+        "shares": "Shares",
+        "lot": "Lot"
+      },
+      "nextSteps": {
+        "title": "Next Steps",
+        "step1": "You'll receive a confirmation email with your investment details",
+        "step2": "You can track your investment in your portfolio",
+        "step3": "We'll notify you about important updates"
+      },
+      "actions": {
+        "viewPortfolio": "View Portfolio",
+        "viewPosition": "View Position",
+        "browseLots": "Browse More Lots"
+      }
+    },
+    "positionDetail": {
+      "title": "Position Details",
+      "overview": "Overview",
+      "investment": {
+        "title": "Investment",
+        "amount": "Investment Amount",
+        "date": "Investment Date",
+        "shares": "Shares",
+        "pricePerShare": "Price per Share"
+      },
+      "currentValue": {
+        "title": "Current Value",
+        "nav": "Current NAV",
+        "gain": "Gain",
+        "gainPercentage": "Return"
+      },
+      "lot": {
+        "title": "Lot Information",
+        "name": "Name",
+        "location": "Location",
+        "category": "Category",
+        "herdSize": "Herd Size"
+      },
+      "status": "Status",
+      "backButton": "Back to Portfolio"
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Connection error. Check your internet.",
+    "notFound": "Not found",
+    "unauthorized": "Unauthorized",
+    "invalidInput": "Invalid input"
+  },
+  "loading": {
+    "default": "Loading...",
+    "please_wait": "Please wait..."
+  }
+}

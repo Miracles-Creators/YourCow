@@ -11,7 +11,7 @@ import {
   FormErrorMessageState,
   getTopErrorMessage,
   isError,
-} from "~~/app/debug/_components/contract";
+} from "./";
 import { useTargetNetwork } from "~~/hooks/scaffold-stark/useTargetNetwork";
 import { useNetwork, useContract } from "@starknet-react/core";
 import { Abi } from "abi-wan-kanabi";
