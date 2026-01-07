@@ -11,9 +11,9 @@ pub fn u64_saturating_sub(a: u64, b: u64) -> u64 {
 
 #[inline(always)]
 pub fn u64_saturating_add(a: u64, b: u64) -> u64 {
-    let max_u64 = Bounded::<u64>::MAX;
-    if a > max_u64 - b {
-        max_u64
+    let max = Bounded::<u64>::MAX;
+    if a > max - b {
+        max
     } else {
         a + b
     }
@@ -21,9 +21,9 @@ pub fn u64_saturating_add(a: u64, b: u64) -> u64 {
 
 #[inline(always)]
 pub fn u256_saturating_add(a: u256, b: u256) -> u256 {
-    let max_u256 = Bounded::<u256>::MAX;
-    if a > max_u256 - b {
-        max_u256
+    let max = Bounded::<u256>::MAX;
+    if a > max - b {
+        max
     } else {
         a + b
     }
@@ -31,14 +31,14 @@ pub fn u256_saturating_add(a: u256, b: u256) -> u256 {
 
 #[inline(always)]
 pub fn u256_saturating_mul(a: u256, b: u256) -> u256 {
-    let max_u256 = Bounded::<u256>::MAX;
+    let max = Bounded::<u256>::MAX;
 
     if a == 0 || b == 0 {
         return 0;
     }
 
-    if a > max_u256 / b {
-        max_u256
+    if a > max / b {
+        max
     } else {
         a * b
     }

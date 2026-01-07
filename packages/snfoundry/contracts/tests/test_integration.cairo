@@ -163,11 +163,11 @@ fn test_complete_mvp_flow() {
     cheat_caller_address(
         protocol.animal_registry.contract_address, operator(), CheatSpan::TargetCalls(5),
     );
-    protocol.animal_registry.register_animal(animal_1, issuer(), profile_hash_1);
-    protocol.animal_registry.register_animal(animal_2, issuer(), profile_hash_2);
-    protocol.animal_registry.register_animal(animal_3, issuer(), profile_hash_3);
-    protocol.animal_registry.register_animal(animal_4, issuer(), profile_hash_4);
-    protocol.animal_registry.register_animal(animal_5, issuer(), profile_hash_5);
+    protocol.animal_registry.register_animal(animal_1, issuer(), profile_hash_1, 450_000);
+    protocol.animal_registry.register_animal(animal_2, issuer(), profile_hash_2, 455_000);
+    protocol.animal_registry.register_animal(animal_3, issuer(), profile_hash_3, 460_000);
+    protocol.animal_registry.register_animal(animal_4, issuer(), profile_hash_4, 465_000);
+    protocol.animal_registry.register_animal(animal_5, issuer(), profile_hash_5, 470_000);
 
     // Verify animals registered
     assert(protocol.animal_registry.animal_exists(animal_1), 'Animal 1 should exist');
@@ -196,6 +196,12 @@ fn test_complete_mvp_flow() {
 
     let animal_count = protocol.animal_registry.get_lot_animal_count(lot_id);
     assert(animal_count == 5, 'Should have 5 animals');
+
+    // Set lot initial weight (450kg + 455kg + 460kg + 465kg + 470kg = 2300kg)
+    cheat_caller_address(
+        protocol.lot_factory.contract_address, operator(), CheatSpan::TargetCalls(1),
+    );
+    protocol.lot_factory.set_lot_initial_weight(lot_id, 2_300_000); // 2300kg in grams
 
     // ========================================================================
     // STEP 4: Mint shares after fiat payments
@@ -288,11 +294,13 @@ fn test_complete_mvp_flow() {
     // Time to settle: animals sold, final accounting done
     let final_report_hash: felt252 = 'ipfs_final_settlement_report';
     let total_proceeds: u256 = 95_000_000_000; // $95,000 gross proceeds (in cents)
+    let final_total_weight_grams: u32 = 2_550_000; // 2,550 kg total (5 animals at ~510 kg avg)
+    let final_average_weight_grams: u32 = 510_000; // 510 kg average
 
     cheat_caller_address(
         protocol.settlement_registry.contract_address, operator(), CheatSpan::TargetCalls(1),
     );
-    protocol.settlement_registry.settle_lot(lot_id, final_report_hash, total_proceeds);
+    protocol.settlement_registry.settle_lot(lot_id, final_report_hash, total_proceeds, final_total_weight_grams, final_average_weight_grams);
 
     // Verify settlement recorded
     assert(protocol.settlement_registry.is_settled(lot_id), 'Should be settled');
@@ -361,7 +369,7 @@ fn test_transfer_fails_after_settlement() {
     start_cheat_block_timestamp_global(1735689600);
     let protocol = deploy_protocol();
 
-    // Quick setup: create lot, mint shares, settle
+    // Quick setup: create lot, register animals, mint shares, settle
     cheat_caller_address(
         protocol.lot_factory.contract_address, operator(), CheatSpan::TargetCalls(1),
     );
@@ -375,6 +383,20 @@ fn test_transfer_fails_after_settlement() {
             "Test Lot",
             "TST",
         );
+
+    // Register and assign animals to lot so it has initial weight
+    let animal_1 = create_animal_id(1);
+    cheat_caller_address(
+        protocol.animal_registry.contract_address, operator(), CheatSpan::TargetCalls(2),
+    );
+    protocol.animal_registry.register_animal(animal_1, issuer(), 'profile1', 450_000);
+    protocol.animal_registry.assign_to_lot(animal_1, lot_id);
+
+    // Set lot initial weight
+    cheat_caller_address(
+        protocol.lot_factory.contract_address, operator(), CheatSpan::TargetCalls(1),
+    );
+    protocol.lot_factory.set_lot_initial_weight(lot_id, 450_000);
 
     let shares_token_address = protocol.lot_factory.get_shares_token(lot_id);
     let shares_token = ILotSharesTokenDispatcher { contract_address: shares_token_address };
@@ -392,7 +414,7 @@ fn test_transfer_fails_after_settlement() {
     cheat_caller_address(
         protocol.settlement_registry.contract_address, operator(), CheatSpan::TargetCalls(1),
     );
-    protocol.settlement_registry.settle_lot(lot_id, 'report', 95_000_000_000);
+    protocol.settlement_registry.settle_lot(lot_id, 'report', 95_000_000_000, 2_550_000, 510_000);
 
     // Try to transfer (should panic with "Lot not transferable")
     cheat_caller_address(shares_token_address, investor_1(), CheatSpan::TargetCalls(1));
@@ -412,7 +434,7 @@ fn test_trace_correction_flow() {
     cheat_caller_address(
         protocol.animal_registry.contract_address, operator(), CheatSpan::TargetCalls(1),
     );
-    protocol.animal_registry.register_animal(animal_id, issuer(), 'profile');
+    protocol.animal_registry.register_animal(animal_id, issuer(), 'profile', 450_000);
 
     // Anchor initial root
     let initial_root: felt252 = 'initial_merkle_root';

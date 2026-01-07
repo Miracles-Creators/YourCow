@@ -39,7 +39,7 @@ fn test_register_animal_success() {
     let profile_hash: felt252 = 'profile_hash_1';
 
     cheat_caller_address(contract_address, operator(), CheatSpan::TargetCalls(1));
-    dispatcher.register_animal(animal_id, custodian_1(), profile_hash);
+    dispatcher.register_animal(animal_id, custodian_1(), profile_hash, 450_000); // 450 kg
 
     assert(dispatcher.animal_exists(animal_id), 'Animal should exist');
 
@@ -60,8 +60,8 @@ fn test_register_multiple_animals() {
     let dispatcher = IAnimalRegistryDispatcher { contract_address };
 
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash1');
-    dispatcher.register_animal(animal_id_2(), custodian_1(), 'hash2');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash1', 450_000);
+    dispatcher.register_animal(animal_id_2(), custodian_1(), 'hash2', 460_000);
     stop_cheat_caller_address(contract_address);
 
     assert(dispatcher.balance_of(custodian_1()) == 2, 'Should have 2 animals');
@@ -73,9 +73,9 @@ fn test_register_animal_batch_success() {
     let contract_address = deploy_animal_registry(lot_factory_address);
     let dispatcher = IAnimalRegistryDispatcher { contract_address };
 
-    let mut animal_ids: Array<u256> = array![];
-    animal_ids.append(animal_id_1());
-    animal_ids.append(animal_id_2());
+    let mut animals_with_weights: Array<(u256, u32)> = array![];
+    animals_with_weights.append((animal_id_1(), 450_000));
+    animals_with_weights.append((animal_id_2(), 460_000));
 
     let mut custodians: Array<ContractAddress> = array![];
     custodians.append(custodian_1());
@@ -86,7 +86,7 @@ fn test_register_animal_batch_success() {
     profile_hashes.append('hash2');
 
     cheat_caller_address(contract_address, operator(), CheatSpan::TargetCalls(1));
-    dispatcher.register_animal_batch(animal_ids.span(), custodians.span(), profile_hashes.span());
+    dispatcher.register_animal_batch(animals_with_weights.span(), custodians.span(), profile_hashes.span());
 
     assert(dispatcher.animal_exists(animal_id_1()), 'Animal 1 should exist');
     assert(dispatcher.animal_exists(animal_id_2()), 'Animal 2 should exist');
@@ -100,9 +100,9 @@ fn test_register_animal_batch_length_mismatch() {
     let contract_address = deploy_animal_registry(lot_factory_address);
     let dispatcher = IAnimalRegistryDispatcher { contract_address };
 
-    let mut animal_ids: Array<u256> = array![];
-    animal_ids.append(animal_id_1());
-    animal_ids.append(animal_id_2());
+    let mut animals_with_weights: Array<(u256, u32)> = array![];
+    animals_with_weights.append((animal_id_1(), 450_000));
+    animals_with_weights.append((animal_id_2(), 460_000));
 
     let mut custodians: Array<ContractAddress> = array![];
     custodians.append(custodian_1());
@@ -112,7 +112,7 @@ fn test_register_animal_batch_length_mismatch() {
     profile_hashes.append('hash2');
 
     cheat_caller_address(contract_address, operator(), CheatSpan::TargetCalls(1));
-    dispatcher.register_animal_batch(animal_ids.span(), custodians.span(), profile_hashes.span());
+    dispatcher.register_animal_batch(animals_with_weights.span(), custodians.span(), profile_hashes.span());
 }
 
 #[test]
@@ -123,7 +123,7 @@ fn test_register_animal_not_operator() {
     let dispatcher = IAnimalRegistryDispatcher { contract_address };
 
     cheat_caller_address(contract_address, other_user(), CheatSpan::TargetCalls(1));
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash', 450_000);
 }
 
 #[test]
@@ -134,8 +134,8 @@ fn test_register_animal_duplicate() {
     let dispatcher = IAnimalRegistryDispatcher { contract_address };
 
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash1');
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash2');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash1', 450_000);
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash2', 450_000);
 }
 
 // ----------------------------------------------------------------------------
@@ -154,7 +154,7 @@ fn test_assign_to_lot_success() {
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
 
     // Register animal
-    dispatcher.register_animal(animal_id, custodian_1(), 'hash');
+    dispatcher.register_animal(animal_id, custodian_1(), 'hash', 450_000);
 
     // Assign to lot
     dispatcher.assign_to_lot(animal_id, lot_id);
@@ -175,11 +175,11 @@ fn test_assign_multiple_animals_to_lot() {
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
 
     // Register and assign first animal
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash1');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash1', 450_000);
     dispatcher.assign_to_lot(animal_id_1(), lot_id);
 
     // Register and assign second animal
-    dispatcher.register_animal(animal_id_2(), custodian_1(), 'hash2');
+    dispatcher.register_animal(animal_id_2(), custodian_1(), 'hash2', 460_000);
     dispatcher.assign_to_lot(animal_id_2(), lot_id);
 
     stop_cheat_caller_address(contract_address);
@@ -195,8 +195,8 @@ fn test_assign_to_lot_batch_success() {
     let dispatcher = IAnimalRegistryDispatcher { contract_address };
 
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash1');
-    dispatcher.register_animal(animal_id_2(), custodian_1(), 'hash2');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash1', 450_000);
+    dispatcher.register_animal(animal_id_2(), custodian_1(), 'hash2', 460_000);
 
     let mut animal_ids: Array<u256> = array![];
     animal_ids.append(animal_id_1());
@@ -220,7 +220,7 @@ fn test_assign_already_assigned() {
 
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
 
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash', 450_000);
     dispatcher.assign_to_lot(animal_id_1(), lot_id);
 
     // Try to assign again
@@ -237,7 +237,7 @@ fn test_assign_dead_animal() {
 
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
 
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash', 450_000);
 
     // Mark as deceased
     dispatcher.set_animal_status(animal_id_1(), AnimalStatus::DECEASED);
@@ -259,7 +259,7 @@ fn test_remove_from_lot_success() {
 
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
 
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash', 450_000);
     dispatcher.assign_to_lot(animal_id_1(), lot_id);
 
     // Remove from lot
@@ -279,8 +279,8 @@ fn test_remove_from_lot_batch_success() {
     let dispatcher = IAnimalRegistryDispatcher { contract_address };
 
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash1');
-    dispatcher.register_animal(animal_id_2(), custodian_1(), 'hash2');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash1', 450_000);
+    dispatcher.register_animal(animal_id_2(), custodian_1(), 'hash2', 460_000);
     dispatcher.assign_to_lot(animal_id_1(), lot_id);
     dispatcher.assign_to_lot(animal_id_2(), lot_id);
 
@@ -305,7 +305,7 @@ fn test_remove_not_in_lot() {
 
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
 
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash', 450_000);
     dispatcher.remove_from_lot(animal_id_1());
 }
 
@@ -321,7 +321,7 @@ fn test_set_animal_status() {
 
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
 
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash', 450_000);
     dispatcher.set_animal_status(animal_id_1(), AnimalStatus::SOLD);
 
     stop_cheat_caller_address(contract_address);
@@ -336,8 +336,8 @@ fn test_set_animal_status_batch_success() {
     let dispatcher = IAnimalRegistryDispatcher { contract_address };
 
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash1');
-    dispatcher.register_animal(animal_id_2(), custodian_1(), 'hash2');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash1', 450_000);
+    dispatcher.register_animal(animal_id_2(), custodian_1(), 'hash2', 460_000);
 
     let mut animal_ids: Array<u256> = array![];
     animal_ids.append(animal_id_1());
@@ -359,7 +359,7 @@ fn test_set_invalid_status() {
 
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
 
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash', 450_000);
     dispatcher.set_animal_status(animal_id_1(), 99); // Invalid status
 }
 
@@ -375,7 +375,7 @@ fn test_transfer_custody_success() {
 
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
 
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash', 450_000);
     dispatcher.transfer_custody(animal_id_1(), custodian_2());
 
     stop_cheat_caller_address(contract_address);
@@ -395,7 +395,7 @@ fn test_transfer_custody_same() {
 
     cheat_caller_address(contract_address, operator(), CheatSpan::Indefinite);
 
-    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash');
+    dispatcher.register_animal(animal_id_1(), custodian_1(), 'hash', 450_000);
     dispatcher.transfer_custody(animal_id_1(), custodian_1());
 }
 
