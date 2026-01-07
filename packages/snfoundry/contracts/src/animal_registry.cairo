@@ -26,7 +26,8 @@ pub struct Animal {
     pub status: u8, // AnimalStatus: Alive, Sold, Deceased, Removed
     pub current_lot_id: u256, // 0 if not assigned to any lot
     pub profile_hash: felt252, // Poseidon hash of off-chain profile
-    pub created_at: u64 // Timestamp of registration
+    pub created_at: u64, // Timestamp of registration
+    pub initial_weight_grams: u32 // Initial weight at registration (in grams, e.g., 250kg = 250000g)
 }
 
 // ----------------------------------------------------------------------------
@@ -40,12 +41,13 @@ pub trait IAnimalRegistry<TContractState> {
         animal_id: u256,
         custodian: ContractAddress,
         profile_hash: felt252,
+        initial_weight_grams: u32,
     );
-    /// @notice Batch register animals with per-animal custodians and profile hashes.
-    /// @dev All input spans must have the same length.
+    /// @notice Batch register animals with per-animal custodians, profile hashes, and initial weights.
+    /// @dev All input spans must have the same length. Animals are paired with their weights to prevent mismatch.
     fn register_animal_batch(
         ref self: TContractState,
-        animal_ids: Span<u256>,
+        animals_with_weights: Span<(u256, u32)>, // (animal_id, initial_weight_grams)
         custodians: Span<ContractAddress>,
         profile_hashes: Span<felt252>,
     );
@@ -81,6 +83,10 @@ pub trait IAnimalRegistry<TContractState> {
     fn animal_exists(self: @TContractState, animal_id: u256) -> bool;
     fn get_protocol_operator(self: @TContractState) -> ContractAddress;
     fn get_lot_factory(self: @TContractState) -> ContractAddress;
+
+    // Weight tracking view functions
+    /// @notice Get the initial weight of an animal.
+    fn get_animal_initial_weight(self: @TContractState, animal_id: u256) -> u32;
 
     // ERC721-like view functions
     fn owner_of(self: @TContractState, token_id: u256) -> ContractAddress;
@@ -145,6 +151,7 @@ pub mod AnimalRegistry {
         pub custodian: ContractAddress,
         pub profile_hash: felt252,
         pub created_at: u64,
+        pub initial_weight_grams: u32,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -249,11 +256,13 @@ pub mod AnimalRegistry {
             animal_id: u256,
             custodian: ContractAddress,
             profile_hash: felt252,
+            initial_weight_grams: u32,
         ) {
             self.assert_only_operator();
 
             // Validate inputs
             assert(!custodian.is_zero(), 'Custodian cannot be zero');
+            assert(initial_weight_grams > 0, 'Weight must be > 0');
 
             // Check animal doesn't already exist
             let existing = self.animals.read(animal_id);
@@ -268,6 +277,7 @@ pub mod AnimalRegistry {
                 current_lot_id: 0, // Not assigned to any lot
                 profile_hash,
                 created_at,
+                initial_weight_grams,
             };
 
             // Store animal
@@ -278,24 +288,36 @@ pub mod AnimalRegistry {
             self.custodian_balance.write(custodian, current_balance + 1);
 
             // Emit event
-            self.emit(AnimalRegistered { animal_id, custodian, profile_hash, created_at });
+            self
+                .emit(
+                    AnimalRegistered {
+                        animal_id, custodian, profile_hash, created_at, initial_weight_grams,
+                    },
+                );
         }
 
         fn register_animal_batch(
             ref self: ContractState,
-            animal_ids: Span<u256>,
+            animals_with_weights: Span<(u256, u32)>,
             custodians: Span<ContractAddress>,
             profile_hashes: Span<felt252>,
         ) {
             self.assert_only_operator();
 
-            let count = animal_ids.len();
+            let count = animals_with_weights.len();
             assert(count == custodians.len(), 'Length mismatch');
             assert(count == profile_hashes.len(), 'Length mismatch');
 
             let mut i: u32 = 0;
             while i < count {
-                self.register_animal(*animal_ids.at(i), *custodians.at(i), *profile_hashes.at(i));
+                let (animal_id, weight) = *animals_with_weights.at(i);
+                self
+                    .register_animal(
+                        animal_id,
+                        *custodians.at(i),
+                        *profile_hashes.at(i),
+                        weight,
+                    );
                 i += 1;
             }
         }
@@ -303,73 +325,31 @@ pub mod AnimalRegistry {
         fn assign_to_lot(ref self: ContractState, animal_id: u256, lot_id: u256) {
             // Reentrancy guard: prevent reentrant calls during cross-contract interaction
             self.reentrancy_guard.start();
-
             self.assert_only_operator();
 
-            // Get animal
-            let mut animal = self.animals.read(animal_id);
-            assert(animal.created_at != 0, 'Animal does not exist');
-
-            // Only Alive animals can be assigned
-            assert(animal.status == AnimalStatus::ALIVE, 'Animal must be alive');
-
-            // Check not already assigned to a lot
-            assert(animal.current_lot_id == 0, 'Already assigned to lot');
-
-            // Validate lot status (must be ACTIVE)
-            // CROSS-CONTRACT CALL: Protected by reentrancy guard
-            let lot_factory = self.lot_factory.read();
-            assert(!lot_factory.is_zero(), 'LotFactory not set');
-            let lot_factory_dispatcher = ILotFactoryDispatcher { contract_address: lot_factory };
-            let lot_status = lot_factory_dispatcher.get_lot_status(lot_id);
-            assert(lot_status == LotStatus::ACTIVE, 'Lot not active');
-
-            // Assign to lot
-            animal.current_lot_id = lot_id;
-            self.animals.write(animal_id, animal);
-
-            // Increment lot animal count
-            let current_count = self.lot_animal_count.read(lot_id);
-            self.lot_animal_count.write(lot_id, current_count + 1);
-
-            // Emit event
-            self.emit(AnimalAssigned { animal_id, lot_id, assigned_by: get_caller_address() });
+            self._assign_to_lot_internal(animal_id, lot_id);
 
             self.reentrancy_guard.end();
         }
 
         fn assign_to_lot_batch(ref self: ContractState, animal_ids: Span<u256>, lot_id: u256) {
+            // Reentrancy guard: protect batch operation with single guard
+            self.reentrancy_guard.start();
             self.assert_only_operator();
 
             let count = animal_ids.len();
             let mut i: u32 = 0;
             while i < count {
-                self.assign_to_lot(*animal_ids.at(i), lot_id);
+                self._assign_to_lot_internal(*animal_ids.at(i), lot_id);
                 i += 1;
             }
+
+            self.reentrancy_guard.end();
         }
 
         fn remove_from_lot(ref self: ContractState, animal_id: u256) {
             self.assert_only_operator();
-
-            // Get animal
-            let mut animal = self.animals.read(animal_id);
-            assert(animal.created_at != 0, 'Animal does not exist');
-
-            // Check is assigned to a lot
-            let lot_id = animal.current_lot_id;
-            assert(lot_id != 0, 'Not assigned to any lot');
-
-            // Remove from lot
-            animal.current_lot_id = 0;
-            self.animals.write(animal_id, animal);
-
-            // Decrement lot animal count
-            let current_count = self.lot_animal_count.read(lot_id);
-            self.lot_animal_count.write(lot_id, current_count - 1);
-
-            // Emit event
-            self.emit(AnimalRemoved { animal_id, lot_id, removed_by: get_caller_address() });
+            self._remove_from_lot_internal(animal_id);
         }
 
         fn remove_from_lot_batch(ref self: ContractState, animal_ids: Span<u256>) {
@@ -378,7 +358,7 @@ pub mod AnimalRegistry {
             let count = animal_ids.len();
             let mut i: u32 = 0;
             while i < count {
-                self.remove_from_lot(*animal_ids.at(i));
+                self._remove_from_lot_internal(*animal_ids.at(i));
                 i += 1;
             }
         }
@@ -521,6 +501,15 @@ pub mod AnimalRegistry {
             self.lot_factory.read()
         }
 
+        // --------------------------------------------------------------------
+        // Weight tracking view functions
+        // --------------------------------------------------------------------
+        fn get_animal_initial_weight(self: @ContractState, animal_id: u256) -> u32 {
+            let animal = self.animals.read(animal_id);
+            assert(animal.created_at != 0, 'Animal does not exist');
+            animal.initial_weight_grams
+        }
+
         // ERC721-like view functions
         fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
             let animal = self.animals.read(token_id);
@@ -552,6 +541,65 @@ pub mod AnimalRegistry {
                     || status == AnimalStatus::REMOVED,
                 'Invalid status',
             );
+        }
+
+        /// @dev Internal function for assigning animal to lot without reentrancy guard
+        /// @dev Used by both assign_to_lot and assign_to_lot_batch to avoid double locking
+        fn _assign_to_lot_internal(ref self: ContractState, animal_id: u256, lot_id: u256) {
+            // Get animal
+            let mut animal = self.animals.read(animal_id);
+            assert(animal.created_at != 0, 'Animal does not exist');
+
+            // Only Alive animals can be assigned
+            assert(animal.status == AnimalStatus::ALIVE, 'Animal must be alive');
+
+            // Check not already assigned to a lot
+            assert(animal.current_lot_id == 0, 'Already assigned to lot');
+
+            // Validate weight
+            assert(animal.initial_weight_grams > 0, 'Animal has no weight');
+
+            // Validate lot status (must be ACTIVE)
+            // CROSS-CONTRACT CALL: Protected by caller's reentrancy guard
+            let lot_factory = self.lot_factory.read();
+            assert(!lot_factory.is_zero(), 'LotFactory not set');
+            let lot_factory_dispatcher = ILotFactoryDispatcher { contract_address: lot_factory };
+            let lot_status = lot_factory_dispatcher.get_lot_status(lot_id);
+            assert(lot_status == LotStatus::ACTIVE, 'Lot not active');
+
+            // Assign to lot
+            animal.current_lot_id = lot_id;
+            self.animals.write(animal_id, animal);
+
+            // Increment lot animal count
+            let current_count = self.lot_animal_count.read(lot_id);
+            self.lot_animal_count.write(lot_id, current_count + 1);
+
+            // Emit event
+            self.emit(AnimalAssigned { animal_id, lot_id, assigned_by: get_caller_address() });
+        }
+
+        /// @dev Internal function for removing animal from lot
+        /// @dev Used by both remove_from_lot and remove_from_lot_batch
+        fn _remove_from_lot_internal(ref self: ContractState, animal_id: u256) {
+            // Get animal
+            let mut animal = self.animals.read(animal_id);
+            assert(animal.created_at != 0, 'Animal does not exist');
+
+            // Check is assigned to a lot
+            let lot_id = animal.current_lot_id;
+            assert(lot_id != 0, 'Not assigned to any lot');
+
+            // Remove from lot
+            animal.current_lot_id = 0;
+            self.animals.write(animal_id, animal);
+
+            // Decrement lot animal count
+            let current_count = self.lot_animal_count.read(lot_id);
+            self.lot_animal_count.write(lot_id, current_count - 1);
+
+            // Emit event
+            self.emit(AnimalRemoved { animal_id, lot_id, removed_by: get_caller_address() });
         }
     }
 }

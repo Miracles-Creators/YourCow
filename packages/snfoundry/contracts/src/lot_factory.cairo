@@ -22,7 +22,9 @@ pub struct Lot {
     pub total_shares: u256, // Total shares available for this lot
     pub initial_price_per_share: u256, // Price per share at issuance (in smallest unit, e.g., cents)
     pub metadata_hash: felt252, // Poseidon hash of off-chain lot metadata
-    pub created_at: u64 // Timestamp of lot creation
+    pub created_at: u64, // Timestamp of lot creation
+    pub total_initial_weight_grams: u32, // Total initial weight (set by backend)
+    pub total_current_weight_grams: u32 // Current total weight (set by backend)
 }
 
 // ----------------------------------------------------------------------------
@@ -51,6 +53,16 @@ pub trait ILotFactory<TContractState> {
 
     fn set_lot_status(ref self: TContractState, lot_id: u256, new_status: u8);
 
+    /// @notice Sets the total initial weight of a lot (called by backend after animals assigned).
+    /// @param lot_id The lot ID.
+    /// @param weight_grams Total initial weight in grams.
+    fn set_lot_initial_weight(ref self: TContractState, lot_id: u256, weight_grams: u32);
+
+    /// @notice Sets the current total weight of a lot (called by backend for weight updates).
+    /// @param lot_id The lot ID.
+    /// @param weight_grams Current total weight in grams.
+    fn set_lot_current_weight(ref self: TContractState, lot_id: u256, weight_grams: u32);
+
     // Admin functions
     /// @notice Updates the protocol operator (backend signer).
     fn set_protocol_operator(ref self: TContractState, new_operator: ContractAddress);
@@ -73,6 +85,14 @@ pub trait ILotFactory<TContractState> {
     fn get_protocol_operator(self: @TContractState) -> ContractAddress;
     fn get_settlement_registry(self: @TContractState) -> ContractAddress;
     fn get_shares_token_class_hash(self: @TContractState) -> starknet::ClassHash;
+
+    // Weight tracking view functions
+    /// @notice Get the total initial weight of a lot.
+    fn get_lot_initial_weight(self: @TContractState, lot_id: u256) -> u32;
+    /// @notice Get the current total weight of a lot.
+    fn get_lot_current_weight(self: @TContractState, lot_id: u256) -> u32;
+    /// @notice Get the weight gain of a lot (current - initial).
+    fn get_lot_weight_gain(self: @TContractState, lot_id: u256) -> u32;
 }
 
 // ----------------------------------------------------------------------------
@@ -113,6 +133,7 @@ pub mod LotFactory {
         OwnableEvent: OwnableComponent::Event,
         LotCreated: LotCreated,
         LotStatusChanged: LotStatusChanged,
+        LotWeightUpdated: LotWeightUpdated,
         ProtocolOperatorUpdated: ProtocolOperatorUpdated,
         SettlementRegistryUpdated: SettlementRegistryUpdated,
     }
@@ -137,6 +158,16 @@ pub mod LotFactory {
         pub old_status: u8,
         pub new_status: u8,
         pub changed_by: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct LotWeightUpdated {
+        #[key]
+        pub lot_id: u256,
+        pub weight_type: felt252, // 'INITIAL' or 'CURRENT'
+        pub old_weight_grams: u32,
+        pub new_weight_grams: u32,
+        pub updated_by: ContractAddress,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -260,6 +291,8 @@ pub mod LotFactory {
                 initial_price_per_share,
                 metadata_hash,
                 created_at,
+                total_initial_weight_grams: 0, // Set by backend later
+                total_current_weight_grams: 0, // Set by backend later
             };
 
             // Store lot and token mapping
@@ -324,6 +357,78 @@ pub mod LotFactory {
 
             // Emit event
             self.emit(LotStatusChanged { lot_id, old_status, new_status, changed_by: caller });
+        }
+
+        fn set_lot_initial_weight(ref self: ContractState, lot_id: u256, weight_grams: u32) {
+            // Only protocol operator can set weight
+            self.assert_only_operator();
+
+            // Validate lot exists
+            let mut lot = self.lots.read(lot_id);
+            assert(lot.created_at != 0, 'Lot does not exist');
+
+            // Validate weight
+            assert(weight_grams > 0, 'Weight must be > 0');
+
+            // Prevent overwriting already set initial weight
+            assert(lot.total_initial_weight_grams == 0, 'Initial weight already set');
+
+            // Store old weight for event
+            let old_weight = lot.total_initial_weight_grams;
+
+            // Update initial weight
+            lot.total_initial_weight_grams = weight_grams;
+
+            // Only set current weight if it hasn't been set yet
+            // This prevents overwriting a previously updated current weight
+            if lot.total_current_weight_grams == 0 {
+                lot.total_current_weight_grams = weight_grams;
+            }
+
+            self.lots.write(lot_id, lot);
+
+            // Emit event
+            self
+                .emit(
+                    LotWeightUpdated {
+                        lot_id,
+                        weight_type: 'INITIAL',
+                        old_weight_grams: old_weight,
+                        new_weight_grams: weight_grams,
+                        updated_by: get_caller_address(),
+                    },
+                );
+        }
+
+        fn set_lot_current_weight(ref self: ContractState, lot_id: u256, weight_grams: u32) {
+            // Only protocol operator can set weight
+            self.assert_only_operator();
+
+            // Validate lot exists
+            let mut lot = self.lots.read(lot_id);
+            assert(lot.created_at != 0, 'Lot does not exist');
+
+            // Validate weight
+            assert(weight_grams > 0, 'Weight must be > 0');
+
+            // Store old weight for event
+            let old_weight = lot.total_current_weight_grams;
+
+            // Update current weight
+            lot.total_current_weight_grams = weight_grams;
+            self.lots.write(lot_id, lot);
+
+            // Emit event
+            self
+                .emit(
+                    LotWeightUpdated {
+                        lot_id,
+                        weight_type: 'CURRENT',
+                        old_weight_grams: old_weight,
+                        new_weight_grams: weight_grams,
+                        updated_by: get_caller_address(),
+                    },
+                );
         }
 
         // --------------------------------------------------------------------
@@ -405,6 +510,26 @@ pub mod LotFactory {
 
         fn get_shares_token_class_hash(self: @ContractState) -> ClassHash {
             self.shares_token_class_hash.read()
+        }
+
+        // --------------------------------------------------------------------
+        // Weight tracking view functions
+        // --------------------------------------------------------------------
+        fn get_lot_initial_weight(self: @ContractState, lot_id: u256) -> u32 {
+            self.lots.read(lot_id).total_initial_weight_grams
+        }
+
+        fn get_lot_current_weight(self: @ContractState, lot_id: u256) -> u32 {
+            self.lots.read(lot_id).total_current_weight_grams
+        }
+
+        fn get_lot_weight_gain(self: @ContractState, lot_id: u256) -> u32 {
+            let lot = self.lots.read(lot_id);
+            if lot.total_current_weight_grams >= lot.total_initial_weight_grams {
+                lot.total_current_weight_grams - lot.total_initial_weight_grams
+            } else {
+                0 // Weight loss case
+            }
         }
     }
 

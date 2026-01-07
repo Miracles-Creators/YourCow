@@ -173,3 +173,19 @@ pub mod AnimalStatus {
 pub const ROLE_PROTOCOL_ADMIN: felt252 = 'PROTOCOL_ADMIN';
 pub const ROLE_PROTOCOL_OPERATOR: felt252 = 'PROTOCOL_OPERATOR';
 pub const ROLE_ATTESTOR: felt252 = 'ATTESTOR';
+
+// ----------------------------------------------------------------------------
+// WEIGHT TRACKING CONSTANTS
+// ----------------------------------------------------------------------------
+// Weight units: All weights are stored in GRAMS for precision without decimals
+// Example: 250kg = 250,000 grams
+
+// Minimum animal weight: 50kg (50,000 grams) - minimum for a small calf
+pub const MIN_ANIMAL_WEIGHT_GRAMS: u64 = 50000;
+
+// Maximum animal weight: 550kg (550,000 grams) - maximum for a large bull
+pub const MAX_ANIMAL_WEIGHT_GRAMS: u64 = 650000;
+
+// Weight tolerance in basis points (1% = 100 basis points)
+// Used for validating weight measurements within acceptable error margin
+pub const WEIGHT_TOLERANCE_BASIS_POINTS: u32 = 100;
