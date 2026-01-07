@@ -1,26 +1,12 @@
-import type { Metadata } from "next";
-import { ScaffoldStarkAppWithProviders } from "~~/components/ScaffoldStarkAppWithProviders";
-import "~~/styles/globals.css";
-import { ThemeProvider } from "~~/components/ThemeProvider";
-
-export const metadata: Metadata = {
-  title: "Scaffold-Stark",
-  description: "Fast track your starknet journey",
-  icons: "/logo.ico",
-};
-
-const ScaffoldStarkApp = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <html suppressHydrationWarning>
-      <body suppressHydrationWarning>
-        <ThemeProvider enableSystem>
-          <ScaffoldStarkAppWithProviders>
-            {children}
-          </ScaffoldStarkAppWithProviders>
-        </ThemeProvider>
-      </body>
-    </html>
-  );
-};
-
-export default ScaffoldStarkApp;
+/**
+ * Root layout - DO NOT EDIT
+ * This layout is required for Next.js i18n routing
+ * All app logic should be in app/[locale]/layout.tsx
+ */
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return children;
+}

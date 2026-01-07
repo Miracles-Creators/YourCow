@@ -5,7 +5,7 @@ import {
   CheckCircleIcon,
   DocumentDuplicateIcon,
 } from "@heroicons/react/24/outline";
-import { decodeContractResponse } from "~~/app/debug/_components/contract";
+import { decodeContractResponse } from "./";
 
 export const TxReceipt = (
   txResult:

@@ -1,0 +1,251 @@
+{
+  "common": {
+    "header": {
+      "home": "Inicio",
+      "marketplace": "Mercado",
+      "portfolio": "Portafolio",
+      "dashboard": "Panel",
+      "tagline": "Inversión en Ganado"
+    },
+    "actions": {
+      "continue": "Continuar",
+      "submit": "Enviar",
+      "sending": "Enviando...",
+      "login": "Iniciar Sesión",
+      "logout": "Cerrar Sesión",
+      "invest": "Invertir",
+      "viewDetails": "Ver Detalles",
+      "back": "Volver",
+      "close": "Cerrar",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "filter": "Filtrar"
+    },
+    "nav": {
+      "home": "Inicio",
+      "dashboard": "Panel",
+      "portfolio": "Portafolio",
+      "marketplace": "Mercado",
+      "position": "Posición",
+      "profile": "Perfil"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "pending": "Pendiente",
+      "completed": "Completado",
+      "liquidated": "Liquidado",
+      "pendingSale": "Venta Pendiente"
+    },
+    "time": {
+      "days": "días",
+      "weeks": "semanas",
+      "months": "meses",
+      "years": "años",
+      "daysRemaining": "{count} días restantes",
+      "since": "Desde"
+    },
+    "currency": {
+      "usd": "USD",
+      "format": "${amount}"
+    }
+  },
+  "brand": {
+    "name": "YourCow",
+    "tagline": "Invierte en activos ganaderos reales",
+    "description": "Liquidez estructurada alineada con ciclos de producción reales",
+    "trustBadge": "Respaldado por activos agrícolas reales"
+  },
+  "investor": {
+    "welcome": {
+      "title": "Bienvenido a YourCow",
+      "cta": "Continuar con Email",
+      "tagline": "Invierte en activos ganaderos reales",
+      "description": "Liquidez estructurada alineada con ciclos de producción reales"
+    },
+    "login": {
+      "title": "Iniciar Sesión",
+      "emailLabel": "Dirección de email",
+      "emailPlaceholder": "tu@email.com",
+      "continueButton": "Continuar",
+      "sendingButton": "Enviando...",
+      "helperText": "Acceso seguro. Sin contraseñas."
+    },
+    "dashboard": {
+      "title": "Tu Portafolio",
+      "stats": {
+        "totalInvested": "Total Invertido",
+        "currentValue": "Valor Actual (basado en NAV)",
+        "gain": "Ganancia",
+        "status": "Estado"
+      },
+      "status": {
+        "productionOngoing": "Producción en curso"
+      },
+      "nextLiquidityWindow": {
+        "title": "Próxima Ventana de Liquidez",
+        "daysRemaining": "{count} días restantes"
+      },
+      "cta": "Invertir en Ganado"
+    },
+    "marketplace": {
+      "title": "Lotes de Ganado Disponibles",
+      "subtitle": "Invierte en acciones de rebaños de ganado reales. Cada lote representa propiedad en activos agrícolas activos.",
+      "filters": {
+        "label": "Filtrar:",
+        "all": "Todos los Lotes",
+        "breeding": "Cría",
+        "fattening": "Engorde",
+        "dairy": "Lechería"
+      },
+      "emptyState": {
+        "title": "No hay lotes disponibles en esta categoría",
+        "description": "Prueba seleccionando un filtro diferente o vuelve pronto para nuevas oportunidades"
+      },
+      "card": {
+        "location": "Ubicación",
+        "duration": "Duración",
+        "expectedReturn": "Retorno Esperado",
+        "fundingProgress": "Progreso de Financiamiento",
+        "herdSize": "Tamaño del Rebaño",
+        "pricePerShare": "Precio por Acción",
+        "sharesAvailable": "Acciones Disponibles",
+        "investButton": "Invertir Ahora"
+      }
+    },
+    "portfolio": {
+      "title": "Portafolio",
+      "subtitle": "Rastrea tus inversiones en ganado",
+      "summary": {
+        "totalInvested": "Total Invertido",
+        "currentValue": "Valor Actual",
+        "totalGain": "Ganancia Total",
+        "return": "Retorno"
+      },
+      "positions": {
+        "title": "Tus Posiciones ({count})",
+        "currentValue": "Valor Actual",
+        "invested": "Invertido",
+        "shares": "Acciones"
+      },
+      "emptyState": {
+        "title": "Aún no tienes inversiones",
+        "description": "Comienza a invertir en lotes de ganado para construir tu portafolio",
+        "cta": "Explorar Mercado"
+      },
+      "status": {
+        "active": "Activo",
+        "liquidated": "Liquidado",
+        "pendingSale": "Venta Pendiente"
+      }
+    },
+    "lotDetail": {
+      "title": "Detalle del Lote",
+      "overview": "Resumen",
+      "location": "Ubicación",
+      "category": "Categoría",
+      "duration": "Duración",
+      "expectedReturn": "Retorno Esperado",
+      "herdSize": "Tamaño del Rebaño",
+      "pricePerShare": "Precio por Acción",
+      "sharesAvailable": "Acciones Disponibles",
+      "fundingProgress": "Progreso de Financiamiento",
+      "description": "Descripción",
+      "investButton": "Invertir en este Lote",
+      "categories": {
+        "breeding": "Cría",
+        "fattening": "Engorde",
+        "dairy": "Lechería"
+      }
+    },
+    "invest": {
+      "title": "Cantidad de Inversión",
+      "subtitle": "Elige cuánto quieres invertir en {lotName}",
+      "amountLabel": "Cantidad a Invertir",
+      "amountPlaceholder": "0",
+      "calculation": {
+        "shares": "Acciones",
+        "pricePerShare": "Precio por Acción",
+        "totalShares": "Total de Acciones",
+        "sharesAvailable": "Acciones Disponibles"
+      },
+      "continueButton": "Continuar a Confirmación",
+      "errors": {
+        "invalidAmount": "Ingresa una cantidad válida",
+        "insufficientShares": "No hay suficientes acciones disponibles",
+        "minimumAmount": "La cantidad mínima es ${amount}"
+      }
+    },
+    "confirmInvestment": {
+      "title": "Confirmar Inversión",
+      "subtitle": "Revisa los detalles de tu inversión",
+      "lot": "Lote",
+      "investmentAmount": "Cantidad de Inversión",
+      "shares": "Acciones",
+      "pricePerShare": "Precio por Acción",
+      "expectedReturn": "Retorno Esperado",
+      "duration": "Duración",
+      "confirmButton": "Confirmar Inversión",
+      "cancelButton": "Cancelar",
+      "processing": "Procesando..."
+    },
+    "investmentSuccess": {
+      "title": "¡Inversión Exitosa!",
+      "message": "Tu inversión en {lotName} ha sido confirmada",
+      "details": {
+        "invested": "Invertiste",
+        "shares": "Acciones",
+        "lot": "Lote"
+      },
+      "nextSteps": {
+        "title": "Próximos Pasos",
+        "step1": "Recibirás un email de confirmación con los detalles de tu inversión",
+        "step2": "Puedes rastrear tu inversión en tu portafolio",
+        "step3": "Te notificaremos sobre actualizaciones importantes"
+      },
+      "actions": {
+        "viewPortfolio": "Ver Portafolio",
+        "viewPosition": "Ver Posición",
+        "browseLots": "Explorar Más Lotes"
+      }
+    },
+    "positionDetail": {
+      "title": "Detalle de Posición",
+      "overview": "Resumen",
+      "investment": {
+        "title": "Inversión",
+        "amount": "Cantidad Invertida",
+        "date": "Fecha de Inversión",
+        "shares": "Acciones",
+        "pricePerShare": "Precio por Acción"
+      },
+      "currentValue": {
+        "title": "Valor Actual",
+        "nav": "NAV Actual",
+        "gain": "Ganancia",
+        "gainPercentage": "Retorno"
+      },
+      "lot": {
+        "title": "Información del Lote",
+        "name": "Nombre",
+        "location": "Ubicación",
+        "category": "Categoría",
+        "herdSize": "Tamaño del Rebaño"
+      },
+      "status": "Estado",
+      "backButton": "Volver al Portafolio"
+    }
+  },
+  "errors": {
+    "generic": "Algo salió mal. Por favor intenta de nuevo.",
+    "network": "Error de conexión. Verifica tu internet.",
+    "notFound": "No encontrado",
+    "unauthorized": "No autorizado",
+    "invalidInput": "Entrada inválida"
+  },
+  "loading": {
+    "default": "Cargando...",
+    "please_wait": "Por favor espera..."
+  }
+}

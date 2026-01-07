@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 import webpack from "webpack";
 import nextPWA from "next-pwa";
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin('./lib/i18n/request.ts');
 
 const withPWA = nextPWA({
   dest: "public",
@@ -14,6 +17,20 @@ const nextConfig = {
   logging: {
     incomingRequests: false,
   },
+  // Enable file watching in development
+  experimental: {
+    // Ensure proper file watching
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  // Force webpack to watch for changes
+  onDemandEntries: {
+    // Period (in ms) where the server will keep pages in the buffer
+    maxInactiveAge: 25 * 1000,
+    // Number of pages that should be kept simultaneously without being disposed
+    pagesBufferLength: 2,
+  },
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [
@@ -25,6 +42,11 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "img.starkurabu.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
         pathname: "/**",
       },
     ],
@@ -48,10 +70,17 @@ const nextConfig = {
       config.infrastructureLogging = {
         level: "error",
       };
+
+      // Ensure file watching works properly in development
+      config.watchOptions = {
+        poll: 1000, // Check for changes every second
+        aggregateTimeout: 300, // Delay before rebuilding
+        ignored: /node_modules/,
+      };
     }
 
     return config;
   },
 };
 
-export default withPWA(nextConfig);
+export default withNextIntl(withPWA(nextConfig));

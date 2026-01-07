@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 
 const ContractUI = dynamic(
   () =>
-    import("~~/app/debug/_components/contract/ContractUI").then(
+    import("./contract/ContractUI").then(
       (mod) => mod.ContractUI,
     ),
   { ssr: false },
