@@ -9,17 +9,20 @@ import { Header } from "~~/components/Header";
 
 import { appChains, connectors } from "~~/services/web3/connectors";
 import provider from "~~/services/web3/provider";
-import { useNativeCurrencyPrice } from "~~/hooks/scaffold-stark/useNativeCurrencyPrice";
+// SCAFFOLD-STARK: Commented out for YourCow - causes transaction errors
+// import { useNativeCurrencyPrice } from "~~/hooks/scaffold-stark/useNativeCurrencyPrice";
 
-const Footer = dynamic(
-  () => import("~~/components/Footer").then((mod) => mod.Footer),
-  {
-    ssr: false,
-  },
-);
+// SCAFFOLD-STARK: Footer commented out - not needed for YourCow
+// const Footer = dynamic(
+//   () => import("~~/components/Footer").then((mod) => mod.Footer),
+//   {
+//     ssr: false,
+//   },
+// );
 
 const ScaffoldStarkApp = ({ children }: { children: React.ReactNode }) => {
-  useNativeCurrencyPrice();
+  // SCAFFOLD-STARK: Price hook commented out - causes errors on language switch
+  // useNativeCurrencyPrice();
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
   return (
@@ -33,12 +36,13 @@ const ScaffoldStarkApp = ({ children }: { children: React.ReactNode }) => {
         ) : (
           <>
             <div className="circle-gradient w-[330px] h-[330px]"></div>
-            <div className="circle-gradient-blue w-[330px] h-[630px]"></div>
+            <div className="circle-gradient-blue w-[630px] h-[630px]"></div>
           </>
         )}
         <Header />
         <main className="relative flex flex-col flex-1">{children}</main>
-        <Footer />
+        {/* SCAFFOLD-STARK: Footer commented out */}
+        {/* <Footer /> */}
       </div>
       <Toaster />
     </>
