@@ -3,6 +3,359 @@
  * You should not edit it manually or your changes might be overwritten.
  */
 
-const configExternalContracts = {} as const;
+const configExternalContracts = {
+  devnet: {
+    LotSharesToken: {
+      address:
+        "0x06BAF765B600E9b658CbCf7395f8055413a15ebbc83Cc430fD6da58ad4aeACc9",
+      classHash:
+        "0x5199187fb32a9b835573ff43382b6b1f575779dbf88885c91822f4ddd07831e",
+      abi: [
+        {
+          type: "impl",
+          name: "LotSharesTokenImpl",
+          interface_name: "contracts::lot_shares_token::ILotSharesToken",
+        },
+        {
+          type: "struct",
+          name: "core::byte_array::ByteArray",
+          members: [
+            {
+              name: "data",
+              type: "core::array::Array::<core::bytes_31::bytes31>",
+            },
+            { name: "pending_word", type: "core::felt252" },
+            { name: "pending_word_len", type: "core::integer::u32" },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::integer::u256",
+          members: [
+            { name: "low", type: "core::integer::u128" },
+            { name: "high", type: "core::integer::u128" },
+          ],
+        },
+        {
+          type: "enum",
+          name: "core::bool",
+          variants: [
+            { name: "False", type: "()" },
+            { name: "True", type: "()" },
+          ],
+        },
+        {
+          type: "interface",
+          name: "contracts::lot_shares_token::ILotSharesToken",
+          items: [
+            {
+              type: "function",
+              name: "name",
+              inputs: [],
+              outputs: [{ type: "core::byte_array::ByteArray" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "symbol",
+              inputs: [],
+              outputs: [{ type: "core::byte_array::ByteArray" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "decimals",
+              inputs: [],
+              outputs: [{ type: "core::integer::u8" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "total_supply",
+              inputs: [],
+              outputs: [{ type: "core::integer::u256" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "balance_of",
+              inputs: [
+                {
+                  name: "account",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [{ type: "core::integer::u256" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "allowance",
+              inputs: [
+                {
+                  name: "owner",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "spender",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [{ type: "core::integer::u256" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "transfer",
+              inputs: [
+                {
+                  name: "recipient",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                { name: "amount", type: "core::integer::u256" },
+              ],
+              outputs: [{ type: "core::bool" }],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "transfer_from",
+              inputs: [
+                {
+                  name: "sender",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "recipient",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                { name: "amount", type: "core::integer::u256" },
+              ],
+              outputs: [{ type: "core::bool" }],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "approve",
+              inputs: [
+                {
+                  name: "spender",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                { name: "amount", type: "core::integer::u256" },
+              ],
+              outputs: [{ type: "core::bool" }],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "lot_id",
+              inputs: [],
+              outputs: [{ type: "core::integer::u256" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "lot_factory",
+              inputs: [],
+              outputs: [
+                { type: "core::starknet::contract_address::ContractAddress" },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "protocol_operator",
+              inputs: [],
+              outputs: [
+                { type: "core::starknet::contract_address::ContractAddress" },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "settlement_registry",
+              inputs: [],
+              outputs: [
+                { type: "core::starknet::contract_address::ContractAddress" },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "is_frozen",
+              inputs: [],
+              outputs: [{ type: "core::bool" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "total_shares",
+              inputs: [],
+              outputs: [{ type: "core::integer::u256" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "is_fully_funded",
+              inputs: [],
+              outputs: [{ type: "core::bool" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "mint",
+              inputs: [
+                {
+                  name: "to",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                { name: "amount", type: "core::integer::u256" },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "freeze",
+              inputs: [],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_settlement_registry",
+              inputs: [
+                {
+                  name: "settlement_registry",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+          ],
+        },
+        {
+          type: "constructor",
+          name: "constructor",
+          inputs: [
+            { name: "name", type: "core::byte_array::ByteArray" },
+            { name: "symbol", type: "core::byte_array::ByteArray" },
+            { name: "lot_id", type: "core::integer::u256" },
+            {
+              name: "lot_factory",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "protocol_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            { name: "total_shares", type: "core::integer::u256" },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::lot_shares_token::LotSharesToken::Transfer",
+          kind: "struct",
+          members: [
+            {
+              name: "from",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "to",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            { name: "value", type: "core::integer::u256", kind: "data" },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::lot_shares_token::LotSharesToken::Approval",
+          kind: "struct",
+          members: [
+            {
+              name: "owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "spender",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            { name: "value", type: "core::integer::u256", kind: "data" },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::lot_shares_token::LotSharesToken::SharesMinted",
+          kind: "struct",
+          members: [
+            {
+              name: "to",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            { name: "amount", type: "core::integer::u256", kind: "data" },
+            {
+              name: "new_total_supply",
+              type: "core::integer::u256",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::lot_shares_token::LotSharesToken::TokenFrozen",
+          kind: "struct",
+          members: [
+            { name: "lot_id", type: "core::integer::u256", kind: "key" },
+            {
+              name: "frozen_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "total_supply_at_freeze",
+              type: "core::integer::u256",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::lot_shares_token::LotSharesToken::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "Transfer",
+              type: "contracts::lot_shares_token::LotSharesToken::Transfer",
+              kind: "nested",
+            },
+            {
+              name: "Approval",
+              type: "contracts::lot_shares_token::LotSharesToken::Approval",
+              kind: "nested",
+            },
+            {
+              name: "SharesMinted",
+              type: "contracts::lot_shares_token::LotSharesToken::SharesMinted",
+              kind: "nested",
+            },
+            {
+              name: "TokenFrozen",
+              type: "contracts::lot_shares_token::LotSharesToken::TokenFrozen",
+              kind: "nested",
+            },
+          ],
+        },
+      ],
+    },
+  },
+} as const;
 
 export default configExternalContracts;

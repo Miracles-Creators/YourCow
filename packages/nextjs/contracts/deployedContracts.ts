@@ -5,9 +5,2156 @@
 
 const deployedContracts = {
   devnet: {
+    LotFactory: {
+      address:
+        "0x6b93b82db51f8066492fa3e7c0c6bf6c43f0f99604f7fda1df2632d3a44ae17",
+      abi: [
+        {
+          type: "impl",
+          name: "LotFactoryImpl",
+          interface_name: "contracts::lot_factory::ILotFactory",
+        },
+        {
+          type: "struct",
+          name: "core::integer::u256",
+          members: [
+            {
+              name: "low",
+              type: "core::integer::u128",
+            },
+            {
+              name: "high",
+              type: "core::integer::u128",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::byte_array::ByteArray",
+          members: [
+            {
+              name: "data",
+              type: "core::array::Array::<core::bytes_31::bytes31>",
+            },
+            {
+              name: "pending_word",
+              type: "core::felt252",
+            },
+            {
+              name: "pending_word_len",
+              type: "core::internal::bounded_int::BoundedInt::<0, 30>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "contracts::lot_factory::Lot",
+          members: [
+            {
+              name: "issuer",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "status",
+              type: "core::integer::u8",
+            },
+            {
+              name: "total_shares",
+              type: "core::integer::u256",
+            },
+            {
+              name: "initial_price_per_share",
+              type: "core::integer::u256",
+            },
+            {
+              name: "metadata_hash",
+              type: "core::felt252",
+            },
+            {
+              name: "created_at",
+              type: "core::integer::u64",
+            },
+          ],
+        },
+        {
+          type: "interface",
+          name: "contracts::lot_factory::ILotFactory",
+          items: [
+            {
+              type: "function",
+              name: "create_lot",
+              inputs: [
+                {
+                  name: "issuer",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "total_shares",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "initial_price_per_share",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "metadata_hash",
+                  type: "core::felt252",
+                },
+                {
+                  name: "token_name",
+                  type: "core::byte_array::ByteArray",
+                },
+                {
+                  name: "token_symbol",
+                  type: "core::byte_array::ByteArray",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u256",
+                },
+              ],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_lot_status",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "new_status",
+                  type: "core::integer::u8",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_protocol_operator",
+              inputs: [
+                {
+                  name: "new_operator",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_settlement_registry",
+              inputs: [
+                {
+                  name: "settlement_registry",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_shares_token_class_hash",
+              inputs: [
+                {
+                  name: "class_hash",
+                  type: "core::starknet::class_hash::ClassHash",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "get_lot",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "contracts::lot_factory::Lot",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_lot_status",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u8",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_initial_price_per_share",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u256",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_shares_token",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_next_lot_id",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::integer::u256",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_protocol_operator",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_settlement_registry",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_shares_token_class_hash",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::class_hash::ClassHash",
+                },
+              ],
+              state_mutability: "view",
+            },
+          ],
+        },
+        {
+          type: "impl",
+          name: "OwnableImpl",
+          interface_name: "openzeppelin_interfaces::access::ownable::IOwnable",
+        },
+        {
+          type: "interface",
+          name: "openzeppelin_interfaces::access::ownable::IOwnable",
+          items: [
+            {
+              type: "function",
+              name: "owner",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "transfer_ownership",
+              inputs: [
+                {
+                  name: "new_owner",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "renounce_ownership",
+              inputs: [],
+              outputs: [],
+              state_mutability: "external",
+            },
+          ],
+        },
+        {
+          type: "constructor",
+          name: "constructor",
+          inputs: [
+            {
+              name: "owner",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "protocol_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "shares_token_class_hash",
+              type: "core::starknet::class_hash::ClassHash",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnershipTransferred",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+              kind: "nested",
+            },
+            {
+              name: "OwnershipTransferStarted",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+              kind: "nested",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::lot_factory::LotFactory::LotCreated",
+          kind: "struct",
+          members: [
+            {
+              name: "lot_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "issuer",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "total_shares",
+              type: "core::integer::u256",
+              kind: "data",
+            },
+            {
+              name: "initial_price_per_share",
+              type: "core::integer::u256",
+              kind: "data",
+            },
+            {
+              name: "metadata_hash",
+              type: "core::felt252",
+              kind: "data",
+            },
+            {
+              name: "shares_token",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "created_at",
+              type: "core::integer::u64",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::lot_factory::LotFactory::LotStatusChanged",
+          kind: "struct",
+          members: [
+            {
+              name: "lot_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "old_status",
+              type: "core::integer::u8",
+              kind: "data",
+            },
+            {
+              name: "new_status",
+              type: "core::integer::u8",
+              kind: "data",
+            },
+            {
+              name: "changed_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::lot_factory::LotFactory::ProtocolOperatorUpdated",
+          kind: "struct",
+          members: [
+            {
+              name: "old_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "new_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "updated_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::lot_factory::LotFactory::SettlementRegistryUpdated",
+          kind: "struct",
+          members: [
+            {
+              name: "old_registry",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "new_registry",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "updated_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::lot_factory::LotFactory::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnableEvent",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+              kind: "flat",
+            },
+            {
+              name: "LotCreated",
+              type: "contracts::lot_factory::LotFactory::LotCreated",
+              kind: "nested",
+            },
+            {
+              name: "LotStatusChanged",
+              type: "contracts::lot_factory::LotFactory::LotStatusChanged",
+              kind: "nested",
+            },
+            {
+              name: "ProtocolOperatorUpdated",
+              type: "contracts::lot_factory::LotFactory::ProtocolOperatorUpdated",
+              kind: "nested",
+            },
+            {
+              name: "SettlementRegistryUpdated",
+              type: "contracts::lot_factory::LotFactory::SettlementRegistryUpdated",
+              kind: "nested",
+            },
+          ],
+        },
+      ],
+      classHash:
+        "0x7b5aa71cc16dab6b8a33b77270ebec8727fe21277ce65b9539fa8e1021320f1",
+    },
+    AnimalRegistry: {
+      address:
+        "0x120414c42c1230cb28a020bc325ff5d58e420a61f8762b869618c61b5e1861d",
+      abi: [
+        {
+          type: "impl",
+          name: "AnimalRegistryImpl",
+          interface_name: "contracts::animal_registry::IAnimalRegistry",
+        },
+        {
+          type: "struct",
+          name: "core::integer::u256",
+          members: [
+            {
+              name: "low",
+              type: "core::integer::u128",
+            },
+            {
+              name: "high",
+              type: "core::integer::u128",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::array::Span::<core::integer::u256>",
+          members: [
+            {
+              name: "snapshot",
+              type: "@core::array::Array::<core::integer::u256>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::array::Span::<core::starknet::contract_address::ContractAddress>",
+          members: [
+            {
+              name: "snapshot",
+              type: "@core::array::Array::<core::starknet::contract_address::ContractAddress>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::array::Span::<core::felt252>",
+          members: [
+            {
+              name: "snapshot",
+              type: "@core::array::Array::<core::felt252>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "contracts::animal_registry::Animal",
+          members: [
+            {
+              name: "custodian",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "status",
+              type: "core::integer::u8",
+            },
+            {
+              name: "current_lot_id",
+              type: "core::integer::u256",
+            },
+            {
+              name: "profile_hash",
+              type: "core::felt252",
+            },
+            {
+              name: "created_at",
+              type: "core::integer::u64",
+            },
+          ],
+        },
+        {
+          type: "enum",
+          name: "core::bool",
+          variants: [
+            {
+              name: "False",
+              type: "()",
+            },
+            {
+              name: "True",
+              type: "()",
+            },
+          ],
+        },
+        {
+          type: "interface",
+          name: "contracts::animal_registry::IAnimalRegistry",
+          items: [
+            {
+              type: "function",
+              name: "register_animal",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "custodian",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "profile_hash",
+                  type: "core::felt252",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "register_animal_batch",
+              inputs: [
+                {
+                  name: "animal_ids",
+                  type: "core::array::Span::<core::integer::u256>",
+                },
+                {
+                  name: "custodians",
+                  type: "core::array::Span::<core::starknet::contract_address::ContractAddress>",
+                },
+                {
+                  name: "profile_hashes",
+                  type: "core::array::Span::<core::felt252>",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "assign_to_lot",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "assign_to_lot_batch",
+              inputs: [
+                {
+                  name: "animal_ids",
+                  type: "core::array::Span::<core::integer::u256>",
+                },
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "remove_from_lot",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "remove_from_lot_batch",
+              inputs: [
+                {
+                  name: "animal_ids",
+                  type: "core::array::Span::<core::integer::u256>",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_animal_status",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "new_status",
+                  type: "core::integer::u8",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_animal_status_batch",
+              inputs: [
+                {
+                  name: "animal_ids",
+                  type: "core::array::Span::<core::integer::u256>",
+                },
+                {
+                  name: "new_status",
+                  type: "core::integer::u8",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "transfer_custody",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "new_custodian",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_protocol_operator",
+              inputs: [
+                {
+                  name: "new_operator",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_lot_factory",
+              inputs: [
+                {
+                  name: "new_lot_factory",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "get_animal",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "contracts::animal_registry::Animal",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_custodian",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_animal_status",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u8",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_current_lot",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u256",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_lot_animal_count",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u256",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "animal_exists",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::bool",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_protocol_operator",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_lot_factory",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "owner_of",
+              inputs: [
+                {
+                  name: "token_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "balance_of",
+              inputs: [
+                {
+                  name: "owner",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u256",
+                },
+              ],
+              state_mutability: "view",
+            },
+          ],
+        },
+        {
+          type: "impl",
+          name: "OwnableImpl",
+          interface_name: "openzeppelin_interfaces::access::ownable::IOwnable",
+        },
+        {
+          type: "interface",
+          name: "openzeppelin_interfaces::access::ownable::IOwnable",
+          items: [
+            {
+              type: "function",
+              name: "owner",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "transfer_ownership",
+              inputs: [
+                {
+                  name: "new_owner",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "renounce_ownership",
+              inputs: [],
+              outputs: [],
+              state_mutability: "external",
+            },
+          ],
+        },
+        {
+          type: "constructor",
+          name: "constructor",
+          inputs: [
+            {
+              name: "owner",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "protocol_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "lot_factory",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnershipTransferred",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+              kind: "nested",
+            },
+            {
+              name: "OwnershipTransferStarted",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+              kind: "nested",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_security::reentrancyguard::ReentrancyGuardComponent::Event",
+          kind: "enum",
+          variants: [],
+        },
+        {
+          type: "event",
+          name: "contracts::animal_registry::AnimalRegistry::AnimalRegistered",
+          kind: "struct",
+          members: [
+            {
+              name: "animal_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "custodian",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "profile_hash",
+              type: "core::felt252",
+              kind: "data",
+            },
+            {
+              name: "created_at",
+              type: "core::integer::u64",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::animal_registry::AnimalRegistry::AnimalAssigned",
+          kind: "struct",
+          members: [
+            {
+              name: "animal_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "lot_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "assigned_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::animal_registry::AnimalRegistry::AnimalRemoved",
+          kind: "struct",
+          members: [
+            {
+              name: "animal_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "lot_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "removed_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::animal_registry::AnimalRegistry::AnimalStatusChanged",
+          kind: "struct",
+          members: [
+            {
+              name: "animal_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "old_status",
+              type: "core::integer::u8",
+              kind: "data",
+            },
+            {
+              name: "new_status",
+              type: "core::integer::u8",
+              kind: "data",
+            },
+            {
+              name: "changed_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::animal_registry::AnimalRegistry::CustodyTransferred",
+          kind: "struct",
+          members: [
+            {
+              name: "animal_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "from",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "to",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::animal_registry::AnimalRegistry::ProtocolOperatorUpdated",
+          kind: "struct",
+          members: [
+            {
+              name: "old_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "new_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "updated_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::animal_registry::AnimalRegistry::LotFactoryUpdated",
+          kind: "struct",
+          members: [
+            {
+              name: "old_factory",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "new_factory",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "updated_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::animal_registry::AnimalRegistry::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnableEvent",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+              kind: "flat",
+            },
+            {
+              name: "ReentrancyGuardEvent",
+              type: "openzeppelin_security::reentrancyguard::ReentrancyGuardComponent::Event",
+              kind: "flat",
+            },
+            {
+              name: "AnimalRegistered",
+              type: "contracts::animal_registry::AnimalRegistry::AnimalRegistered",
+              kind: "nested",
+            },
+            {
+              name: "AnimalAssigned",
+              type: "contracts::animal_registry::AnimalRegistry::AnimalAssigned",
+              kind: "nested",
+            },
+            {
+              name: "AnimalRemoved",
+              type: "contracts::animal_registry::AnimalRegistry::AnimalRemoved",
+              kind: "nested",
+            },
+            {
+              name: "AnimalStatusChanged",
+              type: "contracts::animal_registry::AnimalRegistry::AnimalStatusChanged",
+              kind: "nested",
+            },
+            {
+              name: "CustodyTransferred",
+              type: "contracts::animal_registry::AnimalRegistry::CustodyTransferred",
+              kind: "nested",
+            },
+            {
+              name: "ProtocolOperatorUpdated",
+              type: "contracts::animal_registry::AnimalRegistry::ProtocolOperatorUpdated",
+              kind: "nested",
+            },
+            {
+              name: "LotFactoryUpdated",
+              type: "contracts::animal_registry::AnimalRegistry::LotFactoryUpdated",
+              kind: "nested",
+            },
+          ],
+        },
+      ],
+      classHash:
+        "0x5b0df8760d69cb4f90c56b1d7968792079cccc9e17b97e4501aa97fcd1da82e",
+    },
+    TraceabilityOracle: {
+      address:
+        "0x35b4318013a1e3d9c14807834ab1b93249e493acc4ff18fd28da58cbd76b3eb",
+      abi: [
+        {
+          type: "impl",
+          name: "TraceabilityOracleImpl",
+          interface_name: "contracts::traceability_oracle::ITraceabilityOracle",
+        },
+        {
+          type: "struct",
+          name: "core::integer::u256",
+          members: [
+            {
+              name: "low",
+              type: "core::integer::u128",
+            },
+            {
+              name: "high",
+              type: "core::integer::u128",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::array::Span::<core::integer::u256>",
+          members: [
+            {
+              name: "snapshot",
+              type: "@core::array::Array::<core::integer::u256>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::array::Span::<core::felt252>",
+          members: [
+            {
+              name: "snapshot",
+              type: "@core::array::Array::<core::felt252>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::array::Span::<core::integer::u32>",
+          members: [
+            {
+              name: "snapshot",
+              type: "@core::array::Array::<core::integer::u32>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "contracts::traceability_oracle::TraceAnchor",
+          members: [
+            {
+              name: "root",
+              type: "core::felt252",
+            },
+            {
+              name: "timestamp",
+              type: "core::integer::u64",
+            },
+            {
+              name: "event_count",
+              type: "core::integer::u32",
+            },
+          ],
+        },
+        {
+          type: "interface",
+          name: "contracts::traceability_oracle::ITraceabilityOracle",
+          items: [
+            {
+              type: "function",
+              name: "anchor_trace",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "root",
+                  type: "core::felt252",
+                },
+                {
+                  name: "event_count",
+                  type: "core::integer::u32",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "anchor_trace_batch",
+              inputs: [
+                {
+                  name: "animal_ids",
+                  type: "core::array::Span::<core::integer::u256>",
+                },
+                {
+                  name: "roots",
+                  type: "core::array::Span::<core::felt252>",
+                },
+                {
+                  name: "event_counts",
+                  type: "core::array::Span::<core::integer::u32>",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "correct_trace",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "new_root",
+                  type: "core::felt252",
+                },
+                {
+                  name: "new_event_count",
+                  type: "core::integer::u32",
+                },
+                {
+                  name: "correction_reason",
+                  type: "core::felt252",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_attestor",
+              inputs: [
+                {
+                  name: "new_attestor",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "get_last_root",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::felt252",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_last_timestamp",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u64",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_trace_anchor",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "contracts::traceability_oracle::TraceAnchor",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_attestor",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_correction_count",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u32",
+                },
+              ],
+              state_mutability: "view",
+            },
+          ],
+        },
+        {
+          type: "impl",
+          name: "OwnableImpl",
+          interface_name: "openzeppelin_interfaces::access::ownable::IOwnable",
+        },
+        {
+          type: "interface",
+          name: "openzeppelin_interfaces::access::ownable::IOwnable",
+          items: [
+            {
+              type: "function",
+              name: "owner",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "transfer_ownership",
+              inputs: [
+                {
+                  name: "new_owner",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "renounce_ownership",
+              inputs: [],
+              outputs: [],
+              state_mutability: "external",
+            },
+          ],
+        },
+        {
+          type: "constructor",
+          name: "constructor",
+          inputs: [
+            {
+              name: "owner",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "attestor",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnershipTransferred",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+              kind: "nested",
+            },
+            {
+              name: "OwnershipTransferStarted",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+              kind: "nested",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::traceability_oracle::TraceabilityOracle::AnimalTraceAnchored",
+          kind: "struct",
+          members: [
+            {
+              name: "animal_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "root",
+              type: "core::felt252",
+              kind: "data",
+            },
+            {
+              name: "event_count",
+              type: "core::integer::u32",
+              kind: "data",
+            },
+            {
+              name: "timestamp",
+              type: "core::integer::u64",
+              kind: "data",
+            },
+            {
+              name: "attestor",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::traceability_oracle::TraceabilityOracle::AnimalTraceCorrected",
+          kind: "struct",
+          members: [
+            {
+              name: "animal_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "old_root",
+              type: "core::felt252",
+              kind: "data",
+            },
+            {
+              name: "new_root",
+              type: "core::felt252",
+              kind: "data",
+            },
+            {
+              name: "new_event_count",
+              type: "core::integer::u32",
+              kind: "data",
+            },
+            {
+              name: "correction_reason",
+              type: "core::felt252",
+              kind: "data",
+            },
+            {
+              name: "correction_number",
+              type: "core::integer::u32",
+              kind: "data",
+            },
+            {
+              name: "timestamp",
+              type: "core::integer::u64",
+              kind: "data",
+            },
+            {
+              name: "attestor",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::traceability_oracle::TraceabilityOracle::AttestorChanged",
+          kind: "struct",
+          members: [
+            {
+              name: "old_attestor",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "new_attestor",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "changed_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::traceability_oracle::TraceabilityOracle::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnableEvent",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+              kind: "flat",
+            },
+            {
+              name: "AnimalTraceAnchored",
+              type: "contracts::traceability_oracle::TraceabilityOracle::AnimalTraceAnchored",
+              kind: "nested",
+            },
+            {
+              name: "AnimalTraceCorrected",
+              type: "contracts::traceability_oracle::TraceabilityOracle::AnimalTraceCorrected",
+              kind: "nested",
+            },
+            {
+              name: "AttestorChanged",
+              type: "contracts::traceability_oracle::TraceabilityOracle::AttestorChanged",
+              kind: "nested",
+            },
+          ],
+        },
+      ],
+      classHash:
+        "0x46a6478609f9114304a247d1d604ba829fa7c72ef8593827f826e87cbbc8922",
+    },
+    SettlementRegistry: {
+      address:
+        "0x186fc29efdd80a0df9c84403d519afef53fe113f2dcba08fc2183cc3212fdc0",
+      abi: [
+        {
+          type: "impl",
+          name: "SettlementRegistryImpl",
+          interface_name: "contracts::settlement_registry::ISettlementRegistry",
+        },
+        {
+          type: "struct",
+          name: "core::integer::u256",
+          members: [
+            {
+              name: "low",
+              type: "core::integer::u128",
+            },
+            {
+              name: "high",
+              type: "core::integer::u128",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "contracts::settlement_registry::Settlement",
+          members: [
+            {
+              name: "settled_at",
+              type: "core::integer::u64",
+            },
+            {
+              name: "final_report_hash",
+              type: "core::felt252",
+            },
+            {
+              name: "total_proceeds",
+              type: "core::integer::u256",
+            },
+            {
+              name: "settled_by",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+        },
+        {
+          type: "enum",
+          name: "core::bool",
+          variants: [
+            {
+              name: "False",
+              type: "()",
+            },
+            {
+              name: "True",
+              type: "()",
+            },
+          ],
+        },
+        {
+          type: "interface",
+          name: "contracts::settlement_registry::ISettlementRegistry",
+          items: [
+            {
+              type: "function",
+              name: "settle_lot",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "final_report_hash",
+                  type: "core::felt252",
+                },
+                {
+                  name: "total_proceeds",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_protocol_operator",
+              inputs: [
+                {
+                  name: "new_operator",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_lot_factory",
+              inputs: [
+                {
+                  name: "new_lot_factory",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "get_settlement",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "contracts::settlement_registry::Settlement",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "is_settled",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::bool",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_lot_factory",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_protocol_operator",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+          ],
+        },
+        {
+          type: "impl",
+          name: "OwnableImpl",
+          interface_name: "openzeppelin_interfaces::access::ownable::IOwnable",
+        },
+        {
+          type: "interface",
+          name: "openzeppelin_interfaces::access::ownable::IOwnable",
+          items: [
+            {
+              type: "function",
+              name: "owner",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "transfer_ownership",
+              inputs: [
+                {
+                  name: "new_owner",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "renounce_ownership",
+              inputs: [],
+              outputs: [],
+              state_mutability: "external",
+            },
+          ],
+        },
+        {
+          type: "constructor",
+          name: "constructor",
+          inputs: [
+            {
+              name: "owner",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "protocol_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "lot_factory",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnershipTransferred",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+              kind: "nested",
+            },
+            {
+              name: "OwnershipTransferStarted",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+              kind: "nested",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_security::reentrancyguard::ReentrancyGuardComponent::Event",
+          kind: "enum",
+          variants: [],
+        },
+        {
+          type: "event",
+          name: "contracts::settlement_registry::SettlementRegistry::LotSettled",
+          kind: "struct",
+          members: [
+            {
+              name: "lot_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "final_report_hash",
+              type: "core::felt252",
+              kind: "data",
+            },
+            {
+              name: "total_proceeds",
+              type: "core::integer::u256",
+              kind: "data",
+            },
+            {
+              name: "settled_at",
+              type: "core::integer::u64",
+              kind: "data",
+            },
+            {
+              name: "settled_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "shares_token",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::settlement_registry::SettlementRegistry::ProtocolOperatorUpdated",
+          kind: "struct",
+          members: [
+            {
+              name: "old_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "new_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "updated_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::settlement_registry::SettlementRegistry::LotFactoryUpdated",
+          kind: "struct",
+          members: [
+            {
+              name: "old_factory",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "new_factory",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "updated_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::settlement_registry::SettlementRegistry::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnableEvent",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+              kind: "flat",
+            },
+            {
+              name: "ReentrancyGuardEvent",
+              type: "openzeppelin_security::reentrancyguard::ReentrancyGuardComponent::Event",
+              kind: "flat",
+            },
+            {
+              name: "LotSettled",
+              type: "contracts::settlement_registry::SettlementRegistry::LotSettled",
+              kind: "nested",
+            },
+            {
+              name: "ProtocolOperatorUpdated",
+              type: "contracts::settlement_registry::SettlementRegistry::ProtocolOperatorUpdated",
+              kind: "nested",
+            },
+            {
+              name: "LotFactoryUpdated",
+              type: "contracts::settlement_registry::SettlementRegistry::LotFactoryUpdated",
+              kind: "nested",
+            },
+          ],
+        },
+      ],
+      classHash:
+        "0x11802db60bc05b5a268b06b128ab1eafbe68181ba15f2c0ef9c0ad38064125",
+    },
     YourContract: {
       address:
-        "0x1923d7a1a6c39c69ad8da2359053d9d2afe92fe476af97963387f36471c4d9b",
+        "0x331aa3a16a75c81687da3539a793e8500daf788d5fff9a8b85c40378dcc9a59",
       abi: [
         {
           type: "impl",
@@ -274,278 +2421,6 @@ const deployedContracts = {
       ],
       classHash:
         "0x73e64394744804c476eb7a4ad56902d49e77565ad413e6a34726b4914cc4d1b",
-    },
-  },
-  sepolia: {
-    YourContract: {
-      address:
-        "0x13fb0e8e1e3a8473422d70620ab9bba6fb1b33c643881fa08e0fae2c2efa54a",
-      abi: [
-        {
-          type: "impl",
-          name: "YourContractImpl",
-          interface_name: "contracts::your_contract::IYourContract",
-        },
-        {
-          type: "struct",
-          name: "core::byte_array::ByteArray",
-          members: [
-            {
-              name: "data",
-              type: "core::array::Array::<core::bytes_31::bytes31>",
-            },
-            {
-              name: "pending_word",
-              type: "core::felt252",
-            },
-            {
-              name: "pending_word_len",
-              type: "core::integer::u32",
-            },
-          ],
-        },
-        {
-          type: "struct",
-          name: "core::integer::u256",
-          members: [
-            {
-              name: "low",
-              type: "core::integer::u128",
-            },
-            {
-              name: "high",
-              type: "core::integer::u128",
-            },
-          ],
-        },
-        {
-          type: "enum",
-          name: "core::option::Option::<core::integer::u256>",
-          variants: [
-            {
-              name: "Some",
-              type: "core::integer::u256",
-            },
-            {
-              name: "None",
-              type: "()",
-            },
-          ],
-        },
-        {
-          type: "enum",
-          name: "core::bool",
-          variants: [
-            {
-              name: "False",
-              type: "()",
-            },
-            {
-              name: "True",
-              type: "()",
-            },
-          ],
-        },
-        {
-          type: "interface",
-          name: "contracts::your_contract::IYourContract",
-          items: [
-            {
-              type: "function",
-              name: "greeting",
-              inputs: [],
-              outputs: [
-                {
-                  type: "core::byte_array::ByteArray",
-                },
-              ],
-              state_mutability: "view",
-            },
-            {
-              type: "function",
-              name: "set_greeting",
-              inputs: [
-                {
-                  name: "new_greeting",
-                  type: "core::byte_array::ByteArray",
-                },
-                {
-                  name: "amount_strk",
-                  type: "core::option::Option::<core::integer::u256>",
-                },
-              ],
-              outputs: [],
-              state_mutability: "external",
-            },
-            {
-              type: "function",
-              name: "withdraw",
-              inputs: [],
-              outputs: [],
-              state_mutability: "external",
-            },
-            {
-              type: "function",
-              name: "premium",
-              inputs: [],
-              outputs: [
-                {
-                  type: "core::bool",
-                },
-              ],
-              state_mutability: "view",
-            },
-          ],
-        },
-        {
-          type: "impl",
-          name: "OwnableImpl",
-          interface_name: "openzeppelin_access::ownable::interface::IOwnable",
-        },
-        {
-          type: "interface",
-          name: "openzeppelin_access::ownable::interface::IOwnable",
-          items: [
-            {
-              type: "function",
-              name: "owner",
-              inputs: [],
-              outputs: [
-                {
-                  type: "core::starknet::contract_address::ContractAddress",
-                },
-              ],
-              state_mutability: "view",
-            },
-            {
-              type: "function",
-              name: "transfer_ownership",
-              inputs: [
-                {
-                  name: "new_owner",
-                  type: "core::starknet::contract_address::ContractAddress",
-                },
-              ],
-              outputs: [],
-              state_mutability: "external",
-            },
-            {
-              type: "function",
-              name: "renounce_ownership",
-              inputs: [],
-              outputs: [],
-              state_mutability: "external",
-            },
-          ],
-        },
-        {
-          type: "constructor",
-          name: "constructor",
-          inputs: [
-            {
-              name: "owner",
-              type: "core::starknet::contract_address::ContractAddress",
-            },
-          ],
-        },
-        {
-          type: "event",
-          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
-          kind: "struct",
-          members: [
-            {
-              name: "previous_owner",
-              type: "core::starknet::contract_address::ContractAddress",
-              kind: "key",
-            },
-            {
-              name: "new_owner",
-              type: "core::starknet::contract_address::ContractAddress",
-              kind: "key",
-            },
-          ],
-        },
-        {
-          type: "event",
-          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
-          kind: "struct",
-          members: [
-            {
-              name: "previous_owner",
-              type: "core::starknet::contract_address::ContractAddress",
-              kind: "key",
-            },
-            {
-              name: "new_owner",
-              type: "core::starknet::contract_address::ContractAddress",
-              kind: "key",
-            },
-          ],
-        },
-        {
-          type: "event",
-          name: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
-          kind: "enum",
-          variants: [
-            {
-              name: "OwnershipTransferred",
-              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
-              kind: "nested",
-            },
-            {
-              name: "OwnershipTransferStarted",
-              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
-              kind: "nested",
-            },
-          ],
-        },
-        {
-          type: "event",
-          name: "contracts::your_contract::YourContract::GreetingChanged",
-          kind: "struct",
-          members: [
-            {
-              name: "greeting_setter",
-              type: "core::starknet::contract_address::ContractAddress",
-              kind: "key",
-            },
-            {
-              name: "new_greeting",
-              type: "core::byte_array::ByteArray",
-              kind: "key",
-            },
-            {
-              name: "premium",
-              type: "core::bool",
-              kind: "data",
-            },
-            {
-              name: "value",
-              type: "core::option::Option::<core::integer::u256>",
-              kind: "data",
-            },
-          ],
-        },
-        {
-          type: "event",
-          name: "contracts::your_contract::YourContract::Event",
-          kind: "enum",
-          variants: [
-            {
-              name: "OwnableEvent",
-              type: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
-              kind: "flat",
-            },
-            {
-              name: "GreetingChanged",
-              type: "contracts::your_contract::YourContract::GreetingChanged",
-              kind: "nested",
-            },
-          ],
-        },
-      ],
-      classHash:
-        "0x48982488d0c174566ce66c575b8ab07211f22689acba2abd1a97c83a0f824a4",
     },
   },
 } as const;
