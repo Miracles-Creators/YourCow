@@ -502,6 +502,62 @@ const deployContract = async (
   };
 };
 
+const declareContract = async (params: {
+  contract: string;
+  contractName?: string;
+  options?: UniversalDetails;
+}): Promise<{ classHash: string }> => {
+  const { contract, contractName, options } = params;
+  let compiledContractCasm;
+  let compiledContractSierra;
+
+  try {
+    compiledContractCasm = JSON.parse(
+      fs
+        .readFileSync(findContractFile(contract, "compiled_contract_class"))
+        .toString("ascii")
+    );
+  } catch (error) {
+    if (error.message.includes("Could not find")) {
+      console.error(
+        red(`The contract "${contract}" doesn't exist or is not compiled`)
+      );
+    } else {
+      console.error(red("Error reading compiled contract class file: "), error);
+    }
+    return {
+      classHash: "",
+    };
+  }
+
+  try {
+    compiledContractSierra = JSON.parse(
+      fs
+        .readFileSync(findContractFile(contract, "contract_class"))
+        .toString("ascii")
+    );
+  } catch (error) {
+    console.error(red("Error reading contract class file: "), error);
+    return {
+      classHash: "",
+    };
+  }
+
+  console.log(yellow("Declaring Contract "), contractName || contract);
+
+  const { classHash } = await declareIfNot_NotWait(
+    {
+      contract: compiledContractSierra,
+      casm: compiledContractCasm,
+    },
+    options
+  );
+
+  return {
+    classHash: classHash,
+  };
+};
+
 const executeDeployCalls = async (options?: UniversalDetails) => {
   if (deployCalls.length < 1) {
     throw new Error(
@@ -742,6 +798,7 @@ const assertDeployerSignable = async () => {
 
 export {
   deployContract,
+  declareContract,
   provider,
   deployer,
   loadExistingDeployments,
