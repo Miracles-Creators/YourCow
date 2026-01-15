@@ -1,0 +1,233 @@
+// YourCow Backend Database Schema for Prisma 7.x
+// This file defines the off-chain data models that complement the on-chain smart contracts
+// 
+// Design Principles:
+// 1. On-chain = integrity, Off-chain = storage and business logic
+// 2. All on-chain references are stored as strings for flexibility
+// 3. Rich metadata lives here, hashes live on-chain
+// 4. Audit trail is append-only (no deletions, only status changes)
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// PRODUCERS & LOTS
+// ============================================
+// Producer = Ganadero/Feedlot que tokeniza lotes
+// Producer = Custodian (MVP: misma entidad)
+
+model Producer {
+  id            String         @id @default(uuid())
+  name          String
+  walletAddress String?        @unique
+  senasaId      String         @unique // RENSPA number
+  email         String         @unique
+  status        ProducerStatus @default(ACTIVE)
+  lots          Lot[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+enum ProducerStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+model Lot {
+  id            String    @id @default(uuid())
+  name          String
+  description   String
+  totalShares   Int
+  pricePerShare Decimal
+  startDate     DateTime?
+  endDate       DateTime?
+  status        LotStatus @default(DRAFT)
+
+  // On-chain data (filled AFTER deploy)
+  onChainLotId String? @unique // lot_id from contract
+  tokenAddress String? // ERC20 shares token address
+  txHash       String? // Creation tx hash    
+
+  // Relations
+  producerId String
+  producer   Producer    @relation(fields: [producerId], references: [id])
+  animals    Animal[]
+  payments   Payment[]
+  settlement Settlement?
+
+  // Metadata
+  metadata Json? // location, expectedAnimals, etc
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum LotStatus {
+  DRAFT // Created in db, not on-chain
+  PENDING_DEPLOY // Deploying on-chain
+  FUNDING // Active, accepting investments
+  FUNDED // Reached the goal
+  ACTIVE // In fattening
+  SETTLING
+  COMPLETED
+}
+
+// ============================================
+// ANIMALS & TRACEABILITY
+// ============================================
+
+model Animal {
+  id  String @id @default(uuid())
+  eid String @unique // Electronic ID (SENASA ear tag)
+
+  // On-chain data (filled after registration)
+  onChainId String? @unique // animal_id on contract (u256 as string)
+
+  // Relations
+  lotId String?
+  lot   Lot?    @relation(fields: [lotId], references: [id])
+
+  // Animal data
+  custodian   String // Feedlot wallet address
+  status      AnimalStatus @default(ALIVE)
+  profile     Json // breed, birthDate, initialWeight, sex, etc
+  profileHash String? // Poseidon hash of profile
+
+  // Traceability
+  traceEvents TraceabilityEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum AnimalStatus {
+  ALIVE
+  SOLD
+  DECEASED
+  REMOVED
+}
+
+model TraceabilityEvent {
+  id String @id @default(uuid())
+
+  // Relations
+  animalId String
+  animal   Animal @relation(fields: [animalId], references: [id])
+
+  // Event data
+  eventType  TraceEventType
+  timestamp  DateTime
+  data       Json // Event-specific data (weight, vaccine, location, etc)
+  recordedBy String // User/worker ID who recorded
+
+  // Anchoring data (filled after on-chain anchoring)
+  merkleRoot String?
+  anchoredAt DateTime?
+
+  createdAt DateTime @default(now())
+}
+
+enum TraceEventType {
+  WEIGHING
+  VACCINATION
+  MOVEMENT
+  HEALTH_CHECK
+  FEEDING
+  TREATMENT
+}
+
+// ============================================
+// INVESTORS & PAYMENTS
+// ============================================
+
+model Investor {
+  id            String    @id @default(uuid())
+  walletAddress String    @unique
+  email         String    @unique
+  name          String?
+  kycStatus     KycStatus @default(PENDING)
+  payments      Payment[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Payment {
+  id              String @id @default(uuid())
+  paymentIntentId String @unique // Stripe/MercadoPago ID
+
+  // Relations
+  investorId String
+  investor   Investor @relation(fields: [investorId], references: [id])
+  lotId      String
+  lot        Lot      @relation(fields: [lotId], references: [id])
+
+  // Payment details
+  amountFiat   Int // In cents
+  currency     String // USD, ARS
+  sharesAmount String // u256 as string
+  status       PaymentStatus @default(PENDING)
+
+  // On-chain data (filled after minting)
+  txHash String? // Starknet tx hash of mint
+
+  createdAt   DateTime  @default(now())
+  confirmedAt DateTime?
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  REFUNDED
+}
+
+// ============================================
+// SETTLEMENTS
+// ============================================
+// Settlement = Liquidación final del lote
+// DB first: se crea en DB, luego se ancla on-chain
+
+model Settlement {
+  id    String @id @default(uuid())
+  lotId String @unique
+  lot   Lot    @relation(fields: [lotId], references: [id])
+
+  // Settlement data
+  totalProceeds           Decimal // Total proceeds in fiat (cents)
+  currency                String  @default("USD")
+  finalReportHash         String  // Poseidon hash of final report
+  finalReportUrl          String? // Link to IPFS/S3
+
+  // Weight stats (grams)
+  finalTotalWeightGrams   Int
+  finalAverageWeightGrams Int
+  initialTotalWeightGrams Int
+
+  // On-chain sync status
+  onChainStatus SettlementOnChainStatus @default(PENDING)
+  onChainTxHash String?
+
+  // Timestamps
+  settledAt DateTime? // When settlement was executed on-chain
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+enum SettlementOnChainStatus {
+  PENDING  // Created in DB, not yet on-chain
+  SYNCING  // Transaction sent, waiting confirmation
+  SYNCED   // Confirmed on-chain
+  FAILED   // Transaction failed
+}
