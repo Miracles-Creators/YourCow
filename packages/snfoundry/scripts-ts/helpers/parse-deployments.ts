@@ -4,6 +4,7 @@ import prettier from "prettier";
 import { Abi, CompiledSierra } from "starknet";
 
 const TARGET_DIR = path.join(__dirname, "../../../nextjs/contracts");
+const BACKEND_TARGET_DIR = path.join(__dirname, "../../../backend/src/starknet/config");
 const deploymentsDir = path.join(__dirname, "../../deployments");
 const files = fs.readdirSync(deploymentsDir);
 
@@ -116,6 +117,32 @@ const generateTsAbis = async () => {
   console.log(
     `📝 Updated TypeScript contract definition file on ${TARGET_DIR}/deployedContracts.ts`
   );
+
+  // Also copy to backend
+  if (fs.existsSync(BACKEND_TARGET_DIR)) {
+    fs.writeFileSync(
+      path.join(BACKEND_TARGET_DIR, "deployed-contracts.ts"),
+      formattedContent
+    );
+    console.log(
+      `📝 Updated backend contract definition file on ${BACKEND_TARGET_DIR}/deployed-contracts.ts`
+    );
+
+    // Copy external contracts if exists
+    const externalContractsPath = path.join(TARGET_DIR, "configExternalContracts.ts");
+    if (fs.existsSync(externalContractsPath)) {
+      const externalContent = fs
+        .readFileSync(externalContractsPath, "utf8")
+        .replace(/configExternalContracts/g, "externalContracts");
+      fs.writeFileSync(
+        path.join(BACKEND_TARGET_DIR, "external-contracts.ts"),
+        externalContent
+      );
+      console.log(
+        `📝 Updated backend external contracts file on ${BACKEND_TARGET_DIR}/external-contracts.ts`
+      );
+    }
+  }
 };
 
 generateTsAbis();

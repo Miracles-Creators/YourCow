@@ -47,9 +47,9 @@ import { green, red, yellow } from "./helpers/colorize-log";
  */
 
 /**
- * BeefChain Protocol Deployment Script
+ * YourCow Protocol Deployment Script
  *
- * Deploys all BeefChain contracts in the correct order:
+ * Deploys all YourCow contracts in the correct order:
  * 1. LotSharesToken - Declare only (to get class hash for LotFactory)
  * 2. LotFactory - Creates and manages lots (uses LotSharesToken class hash)
  * 3. AnimalRegistry - Registers animals (ERC721-like)
@@ -59,8 +59,8 @@ import { green, red, yellow } from "./helpers/colorize-log";
  * Note: LotSharesToken instances are deployed per-lot by LotFactory.create_lot()
  */
 
-const deployBeefChainProtocol = async (): Promise<void> => {
-  console.log(yellow("\n📦 Deploying BeefChain Protocol Contracts...\n"));
+const deployYourCowProtocol = async (): Promise<void> => {
+  console.log(yellow("\n📦 Deploying YourCow Protocol Contracts...\n"));
 
   // The deployer acts as both owner and protocol_operator for initial setup
   // In production, these should be different addresses
@@ -124,7 +124,7 @@ const deployBeefChainProtocol = async (): Promise<void> => {
     },
   });
 
-  console.log(green("\n✅ BeefChain Protocol deployed successfully!\n"));
+  console.log(green("\n✅ YourCow Protocol deployed successfully!\n"));
   console.log(yellow("Note: After deployment, you need to:"));
   console.log(yellow("  1. Call LotFactory.set_settlement_registry(settlement_registry_address)"));
   console.log(yellow("  2. LotSharesToken will be deployed automatically when calling LotFactory.create_lot()\n"));
@@ -146,8 +146,8 @@ const main = async (): Promise<void> => {
 
     await Promise.all([assertRpcNetworkActive(), assertDeployerSignable()]);
 
-    // Deploy BeefChain Protocol
-    await deployBeefChainProtocol();
+    // Deploy YourCow Protocol
+    await deployYourCowProtocol();
 
     // Deploy the example contract
     await deployYourContract();
