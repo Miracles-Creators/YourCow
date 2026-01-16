@@ -5,6 +5,9 @@
       "marketplace": "Mercado",
       "portfolio": "Portafolio",
       "dashboard": "Panel",
+      "producerDashboard": "Panel del Productor",
+      "createLot": "Crear Lote",
+      "submittedLots": "Enviados",
       "tagline": "Inversión en Ganado"
     },
     "actions": {

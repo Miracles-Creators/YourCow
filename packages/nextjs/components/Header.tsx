@@ -36,14 +36,37 @@ export const menuLinks: HeaderMenuLink[] = [
   // },
 ];
 
+const producerLinks: HeaderMenuLink[] = [
+  {
+    translationKey: "producerDashboard",
+    href: "/producer",
+  },
+  {
+    translationKey: "createLot",
+    href: "/producer/lots/new",
+  },
+  {
+    translationKey: "submittedLots",
+    href: "/producer/lots/submitted",
+  },
+];
+
 export const HeaderMenuLinks = () => {
   const pathname = usePathname();
   const t = useTranslations('common.header');
+  const isProducerRoute = pathname.startsWith("/producer");
+  const links = isProducerRoute ? producerLinks : menuLinks;
+  const activeHref =
+    links
+      .map(link => link.href)
+      .sort((a, b) => b.length - a.length)
+      .find(href => pathname === href || pathname.startsWith(`${href}/`)) ??
+    "";
 
   return (
     <>
-      {menuLinks.map(({ translationKey, href, icon }) => {
-        const isActive = pathname === href;
+      {links.map(({ translationKey, href, icon }) => {
+        const isActive = activeHref === href;
         return (
           <li key={href}>
             <Link

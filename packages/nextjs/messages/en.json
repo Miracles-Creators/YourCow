@@ -5,6 +5,9 @@
       "marketplace": "Marketplace",
       "portfolio": "Portfolio",
       "dashboard": "Dashboard",
+      "producerDashboard": "Producer Dashboard",
+      "createLot": "Create Lot",
+      "submittedLots": "Submitted",
       "tagline": "Cattle Investment"
     },
     "actions": {
