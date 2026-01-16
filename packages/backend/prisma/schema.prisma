@@ -1,11 +1,12 @@
 // YourCow Backend Database Schema for Prisma 7.x
 // This file defines the off-chain data models that complement the on-chain smart contracts
-// 
+//
 // Design Principles:
 // 1. On-chain = integrity, Off-chain = storage and business logic
 // 2. All on-chain references are stored as strings for flexibility
 // 3. Rich metadata lives here, hashes live on-chain
 // 4. Audit trail is append-only (no deletions, only status changes)
+// 5. DB-first: write off-chain record before sending on-chain tx
 
 generator client {
   provider = "prisma-client-js"
@@ -17,34 +18,94 @@ datasource db {
 }
 
 // ============================================
-// PRODUCERS & LOTS
+// USERS, KYC, ROLES
 // ============================================
-// Producer = Ganadero/Feedlot que tokeniza lotes
-// Producer = Custodian (MVP: misma entidad)
 
-model Producer {
-  id            String         @id @default(uuid())
-  name          String
-  walletAddress String?        @unique
-  senasaId      String         @unique // RENSPA number
-  email         String         @unique
-  status        ProducerStatus @default(ACTIVE)
-  lots          Lot[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+model User {
+  id            String     @id @default(uuid())
+  role          UserRole
+  walletAddress String?    @unique
+  email         String     @unique
+  name          String?
+  status        UserStatus @default(ACTIVE)
+  kycProfile    KycProfile?
+  producer      ProducerProfile? @relation("ProducerUser")
+  payments      Payment[]
+  shareBalances ShareBalance[]
+  shareTransfersFrom ShareTransfer[] @relation("ShareTransferFrom")
+  shareTransfersTo   ShareTransfer[] @relation("ShareTransferTo")
+  producerApprovals  ProducerProfile[] @relation("ProducerApprovedBy")
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+enum UserRole {
+  INVESTOR
+  PRODUCER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+model KycProfile {
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id])
+  status      KycStatus @default(PENDING)
+  level       KycLevel  @default(BASIC)
+  provider    String
+  providerRef String    @unique
+  reviewedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum KycLevel {
+  BASIC
+  ADVANCED
+}
+
+model ProducerProfile {
+  id           String         @id @default(uuid())
+  userId       String         @unique
+  user         User           @relation("ProducerUser", fields: [userId], references: [id])
+  senasaId     String         @unique
+  status       ProducerStatus @default(PENDING)
+  approvedById String?
+  approvedBy   User?          @relation("ProducerApprovedBy", fields: [approvedById], references: [id])
+  approvedAt   DateTime?
+  lots         Lot[]
+
+  @@index([approvedById])
 }
 
 enum ProducerStatus {
+  PENDING
   ACTIVE
   SUSPENDED
+  REJECTED
 }
+
+// ============================================
+// LOTS & ANIMALS
+// ============================================
 
 model Lot {
   id            String    @id @default(uuid())
   name          String
   description   String
-  totalShares   Int
-  pricePerShare Decimal
+  totalShares   String    // u256 as string
+  pricePerShare String    // u256 as string (smallest unit)
   startDate     DateTime?
   endDate       DateTime?
   status        LotStatus @default(DRAFT)
@@ -52,20 +113,30 @@ model Lot {
   // On-chain data (filled AFTER deploy)
   onChainLotId String? @unique // lot_id from contract
   tokenAddress String? // ERC20 shares token address
-  txHash       String? // Creation tx hash    
+  txHash       String? // Creation tx hash
+  metadataHash String? // Poseidon hash of metadata
+  onChainStatus OnChainSyncStatus @default(PENDING)
 
   // Relations
-  producerId String
-  producer   Producer    @relation(fields: [producerId], references: [id])
-  animals    Animal[]
-  payments   Payment[]
-  settlement Settlement?
+  producerProfileId String
+  producer          ProducerProfile @relation(fields: [producerProfileId], references: [id])
+  animals           Animal[]
+  payments          Payment[]
+  settlement        Settlement?
+  shareBalances     ShareBalance[]
+  shareTransfers    ShareTransfer[]
 
   // Metadata
   metadata Json? // location, expectedAnimals, etc
 
+  // Weight stats (grams) mirrored off-chain for queries
+  initialTotalWeightGrams Int?
+  currentTotalWeightGrams Int?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([producerProfileId])
 }
 
 enum LotStatus {
@@ -78,16 +149,14 @@ enum LotStatus {
   COMPLETED
 }
 
-// ============================================
-// ANIMALS & TRACEABILITY
-// ============================================
-
 model Animal {
   id  String @id @default(uuid())
   eid String @unique // Electronic ID (SENASA ear tag)
 
   // On-chain data (filled after registration)
   onChainId String? @unique // animal_id on contract (u256 as string)
+  registrationTxHash String?
+  onChainStatus OnChainSyncStatus @default(PENDING)
 
   // Relations
   lotId String?
@@ -101,9 +170,12 @@ model Animal {
 
   // Traceability
   traceEvents TraceabilityEvent[]
+  traceAnchors TraceAnchor[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([lotId])
 }
 
 enum AnimalStatus {
@@ -131,6 +203,8 @@ model TraceabilityEvent {
   anchoredAt DateTime?
 
   createdAt DateTime @default(now())
+
+  @@index([animalId])
 }
 
 enum TraceEventType {
@@ -142,48 +216,51 @@ enum TraceEventType {
   TREATMENT
 }
 
-// ============================================
-// INVESTORS & PAYMENTS
-// ============================================
+model TraceAnchor {
+  id         String   @id @default(uuid())
+  animalId   String
+  animal     Animal   @relation(fields: [animalId], references: [id])
+  root       String   // felt252 as string
+  eventCount Int
+  timestamp  DateTime
+  correctionReason String?
+  txHash     String?
+  onChainStatus OnChainSyncStatus @default(PENDING)
+  createdAt  DateTime @default(now())
 
-model Investor {
-  id            String    @id @default(uuid())
-  walletAddress String    @unique
-  email         String    @unique
-  name          String?
-  kycStatus     KycStatus @default(PENDING)
-  payments      Payment[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  @@index([animalId])
 }
 
-enum KycStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
+// ============================================
+// INVESTMENTS & PAYMENTS
+// ============================================
 
 model Payment {
   id              String @id @default(uuid())
   paymentIntentId String @unique // Stripe/MercadoPago ID
 
   // Relations
-  investorId String
-  investor   Investor @relation(fields: [investorId], references: [id])
-  lotId      String
-  lot        Lot      @relation(fields: [lotId], references: [id])
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+  lotId  String
+  lot    Lot  @relation(fields: [lotId], references: [id])
 
   // Payment details
   amountFiat   Int // In cents
   currency     String // USD, ARS
   sharesAmount String // u256 as string
   status       PaymentStatus @default(PENDING)
+  sourceApp    AppContext     @default(WEB)
 
   // On-chain data (filled after minting)
   txHash String? // Starknet tx hash of mint
+  onChainStatus OnChainSyncStatus @default(PENDING)
 
   createdAt   DateTime  @default(now())
   confirmedAt DateTime?
+
+  @@index([userId])
+  @@index([lotId])
 }
 
 enum PaymentStatus {
@@ -193,10 +270,57 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum AppContext {
+  WEB
+  MOBILE
+  ADMIN
+  API
+}
+
+model ShareBalance {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  lotId       String
+  lot         Lot      @relation(fields: [lotId], references: [id])
+  amount      BigInt
+  lastSyncedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, lotId])
+  @@index([lotId])
+}
+
+model ShareTransfer {
+  id        String   @id @default(uuid())
+  lotId     String
+  lot       Lot      @relation(fields: [lotId], references: [id])
+  fromUserId String?
+  fromUser   User?    @relation("ShareTransferFrom", fields: [fromUserId], references: [id])
+  toUserId   String
+  toUser     User     @relation("ShareTransferTo", fields: [toUserId], references: [id])
+  amount    BigInt
+  kind      ShareTransferKind
+  txHash    String   @unique
+  onChainStatus OnChainSyncStatus @default(PENDING)
+  createdAt DateTime @default(now())
+
+  @@index([lotId])
+  @@index([fromUserId])
+  @@index([toUserId])
+}
+
+enum ShareTransferKind {
+  MINT
+  TRANSFER
+  BURN
+}
+
 // ============================================
 // SETTLEMENTS
 // ============================================
-// Settlement = Liquidación final del lote
+// Settlement = Liquidacion final del lote
 // DB first: se crea en DB, luego se ancla on-chain
 
 model Settlement {
@@ -205,10 +329,11 @@ model Settlement {
   lot   Lot    @relation(fields: [lotId], references: [id])
 
   // Settlement data
-  totalProceeds           Decimal // Total proceeds in fiat (cents)
+  totalProceeds           String  // u256 as string (fiat in smallest unit)
   currency                String  @default("USD")
   finalReportHash         String  // Poseidon hash of final report
   finalReportUrl          String? // Link to IPFS/S3
+  settledBy               String? // Contract address that executed settlement
 
   // Weight stats (grams)
   finalTotalWeightGrams   Int
@@ -216,7 +341,7 @@ model Settlement {
   initialTotalWeightGrams Int
 
   // On-chain sync status
-  onChainStatus SettlementOnChainStatus @default(PENDING)
+  onChainStatus OnChainSyncStatus @default(PENDING)
   onChainTxHash String?
 
   // Timestamps
@@ -225,7 +350,7 @@ model Settlement {
   updatedAt DateTime  @updatedAt
 }
 
-enum SettlementOnChainStatus {
+enum OnChainSyncStatus {
   PENDING  // Created in DB, not yet on-chain
   SYNCING  // Transaction sent, waiting confirmation
   SYNCED   // Confirmed on-chain

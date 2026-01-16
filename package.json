@@ -7,7 +7,8 @@
   "workspaces": {
     "packages": [
       "packages/snfoundry",
-      "packages/nextjs"
+      "packages/nextjs",
+      "packages/backend"
     ]
   },
   "scripts": {
@@ -27,7 +28,14 @@
     "test:nextjs": "yarn workspace @ss-2/nextjs test",
     "vercel": "yarn workspace @ss-2/nextjs vercel",
     "vercel:yolo": "yarn workspace @ss-2/nextjs vercel:yolo",
-    "verify": "yarn workspace @ss-2/snfoundry verify"
+    "verify": "yarn workspace @ss-2/snfoundry verify",
+    "backend:dev": "yarn workspace @ss-2/backend dev",
+    "backend:build": "yarn workspace @ss-2/backend build",
+    "backend:start": "yarn workspace @ss-2/backend start",
+    "backend:db:generate": "yarn workspace @ss-2/backend db:generate",
+    "backend:db:push": "yarn workspace @ss-2/backend db:push",
+    "backend:db:migrate": "yarn workspace @ss-2/backend db:migrate",
+    "backend:db:studio": "yarn workspace @ss-2/backend db:studio"
   },
   "dependencies": {
     "postcss": "^8.4.38"

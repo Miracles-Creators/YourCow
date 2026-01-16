@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { Settlement, SettlementOnChainStatus } from "@prisma/client";
+import { OnChainSyncStatus, Settlement } from "@prisma/client";
 
 import { PrismaService } from "../../../database/prisma.service";
 import { CreateSettlementDto } from "./dto/create-settlement.dto";
@@ -35,10 +35,10 @@ export class SettlementsService {
 
   async updateOnChainStatus(
     lotId: string,
-    status: SettlementOnChainStatus,
+    status: OnChainSyncStatus,
     txHash?: string,
   ): Promise<Settlement> {
-    const data: { onChainStatus: SettlementOnChainStatus; onChainTxHash?: string; settledAt?: Date } = {
+    const data: { onChainStatus: OnChainSyncStatus; onChainTxHash?: string; settledAt?: Date } = {
       onChainStatus: status,
     };
 
@@ -46,7 +46,7 @@ export class SettlementsService {
       data.onChainTxHash = txHash;
     }
 
-    if (status === SettlementOnChainStatus.SYNCED) {
+    if (status === OnChainSyncStatus.SYNCED) {
       data.settledAt = new Date();
     }
 
@@ -60,7 +60,7 @@ export class SettlementsService {
     return this.prisma.settlement.findMany({
       where: {
         onChainStatus: {
-          in: [SettlementOnChainStatus.PENDING, SettlementOnChainStatus.FAILED],
+          in: [OnChainSyncStatus.PENDING, OnChainSyncStatus.FAILED],
         },
       },
       orderBy: { createdAt: "asc" },

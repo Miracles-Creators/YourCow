@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { Investor } from "@prisma/client";
+import { User, UserRole } from "@prisma/client";
 
 import { PrismaService } from "../../../database/prisma.service";
 import { CreateInvestorDto } from "./dto/create-investor.dto";
@@ -8,9 +8,10 @@ import { CreateInvestorDto } from "./dto/create-investor.dto";
 export class InvestorsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createInvestor(data: CreateInvestorDto): Promise<Investor> {
-    return this.prisma.investor.create({
+  async createInvestor(data: CreateInvestorDto): Promise<User> {
+    return this.prisma.user.create({
       data: {
+        role: UserRole.INVESTOR,
         walletAddress: data.walletAddress,
         email: data.email,
         name: data.name ?? null,
@@ -18,23 +19,23 @@ export class InvestorsService {
     });
   }
 
-  async getInvestorById(id: string): Promise<Investor> {
-    const investor = await this.prisma.investor.findUnique({ where: { id } });
-    if (!investor) {
+  async getInvestorById(id: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user || user.role !== UserRole.INVESTOR) {
       throw new NotFoundException("Investor not found");
     }
 
-    return investor;
+    return user;
   }
 
-  async getInvestorByWallet(walletAddress: string): Promise<Investor> {
-    const investor = await this.prisma.investor.findUnique({
+  async getInvestorByWallet(walletAddress: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({
       where: { walletAddress },
     });
-    if (!investor) {
+    if (!user || user.role !== UserRole.INVESTOR) {
       throw new NotFoundException("Investor not found");
     }
 
-    return investor;
+    return user;
   }
 }

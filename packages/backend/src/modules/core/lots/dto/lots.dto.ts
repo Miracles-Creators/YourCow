@@ -12,7 +12,7 @@ export class CreateLotDto {
   producerId!: string;
   name!: string;
   description!: string;
-  totalShares!: number;
+  totalShares!: string;
   pricePerShare!: string;
   startDate?: string;
   endDate?: string;

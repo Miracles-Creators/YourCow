@@ -7,6 +7,7 @@ import { StarknetModule } from "./starknet";
 // Core modules (DB first)
 import { ProducersModule } from "./modules/core/producers/producers.module";
 import { InvestorsModule } from "./modules/core/investors/investors.module";
+import { AdminsModule } from "./modules/core/admins/admins.module";
 import { LotsModule } from "./modules/core/lots/lots.module";
 import { AnimalsModule } from "./modules/core/animals/animals.module";
 import { PaymentsModule } from "./modules/core/payments/payments.module";
@@ -28,6 +29,7 @@ import { SettlementRegistryModule } from "./modules/onchain/settlement-registry/
     // Core modules (DB)
     ProducersModule,
     InvestorsModule,
+    AdminsModule,
     LotsModule,
     AnimalsModule,
     PaymentsModule,

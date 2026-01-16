@@ -7,7 +7,7 @@ const deployedContracts = {
   devnet: {
     LotFactory: {
       address:
-        "0x6b93b82db51f8066492fa3e7c0c6bf6c43f0f99604f7fda1df2632d3a44ae17",
+        "0x5b3c4db2eeb1bff19f4c0d74152fcedc5034723571baf0ae962eed4a9f225c3",
       abi: [
         {
           type: "impl",
@@ -74,6 +74,14 @@ const deployedContracts = {
               name: "created_at",
               type: "core::integer::u64",
             },
+            {
+              name: "total_initial_weight_grams",
+              type: "core::integer::u32",
+            },
+            {
+              name: "total_current_weight_grams",
+              type: "core::integer::u32",
+            },
           ],
         },
         {
@@ -127,6 +135,38 @@ const deployedContracts = {
                 {
                   name: "new_status",
                   type: "core::integer::u8",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_lot_initial_weight",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "weight_grams",
+                  type: "core::integer::u32",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_lot_current_weight",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "weight_grams",
+                  type: "core::integer::u32",
                 },
               ],
               outputs: [],
@@ -272,6 +312,54 @@ const deployedContracts = {
               outputs: [
                 {
                   type: "core::starknet::class_hash::ClassHash",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_lot_initial_weight",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u32",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_lot_current_weight",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u32",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_lot_weight_gain",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u32",
                 },
               ],
               state_mutability: "view",
@@ -459,6 +547,38 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "contracts::lot_factory::LotFactory::LotWeightUpdated",
+          kind: "struct",
+          members: [
+            {
+              name: "lot_id",
+              type: "core::integer::u256",
+              kind: "key",
+            },
+            {
+              name: "weight_type",
+              type: "core::felt252",
+              kind: "data",
+            },
+            {
+              name: "old_weight_grams",
+              type: "core::integer::u32",
+              kind: "data",
+            },
+            {
+              name: "new_weight_grams",
+              type: "core::integer::u32",
+              kind: "data",
+            },
+            {
+              name: "updated_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
           name: "contracts::lot_factory::LotFactory::ProtocolOperatorUpdated",
           kind: "struct",
           members: [
@@ -522,6 +642,11 @@ const deployedContracts = {
               kind: "nested",
             },
             {
+              name: "LotWeightUpdated",
+              type: "contracts::lot_factory::LotFactory::LotWeightUpdated",
+              kind: "nested",
+            },
+            {
               name: "ProtocolOperatorUpdated",
               type: "contracts::lot_factory::LotFactory::ProtocolOperatorUpdated",
               kind: "nested",
@@ -535,11 +660,11 @@ const deployedContracts = {
         },
       ],
       classHash:
-        "0x7b5aa71cc16dab6b8a33b77270ebec8727fe21277ce65b9539fa8e1021320f1",
+        "0xb64117ec130b5e7165eadcda751ed3924f65544b7aa0bb1513e1794a389bdb",
     },
     AnimalRegistry: {
       address:
-        "0x120414c42c1230cb28a020bc325ff5d58e420a61f8762b869618c61b5e1861d",
+        "0x271b6acb0559f324ecef042eb18fd59a906e7eb085bb2dee909d35b38baea0",
       abi: [
         {
           type: "impl",
@@ -562,11 +687,11 @@ const deployedContracts = {
         },
         {
           type: "struct",
-          name: "core::array::Span::<core::integer::u256>",
+          name: "core::array::Span::<(core::integer::u256, core::integer::u32)>",
           members: [
             {
               name: "snapshot",
-              type: "@core::array::Array::<core::integer::u256>",
+              type: "@core::array::Array::<(core::integer::u256, core::integer::u32)>",
             },
           ],
         },
@@ -587,6 +712,16 @@ const deployedContracts = {
             {
               name: "snapshot",
               type: "@core::array::Array::<core::felt252>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::array::Span::<core::integer::u256>",
+          members: [
+            {
+              name: "snapshot",
+              type: "@core::array::Array::<core::integer::u256>",
             },
           ],
         },
@@ -613,6 +748,10 @@ const deployedContracts = {
             {
               name: "created_at",
               type: "core::integer::u64",
+            },
+            {
+              name: "initial_weight_grams",
+              type: "core::integer::u32",
             },
           ],
         },
@@ -650,6 +789,10 @@ const deployedContracts = {
                   name: "profile_hash",
                   type: "core::felt252",
                 },
+                {
+                  name: "initial_weight_grams",
+                  type: "core::integer::u32",
+                },
               ],
               outputs: [],
               state_mutability: "external",
@@ -659,8 +802,8 @@ const deployedContracts = {
               name: "register_animal_batch",
               inputs: [
                 {
-                  name: "animal_ids",
-                  type: "core::array::Span::<core::integer::u256>",
+                  name: "animals_with_weights",
+                  type: "core::array::Span::<(core::integer::u256, core::integer::u32)>",
                 },
                 {
                   name: "custodians",
@@ -922,6 +1065,22 @@ const deployedContracts = {
             },
             {
               type: "function",
+              name: "get_animal_initial_weight",
+              inputs: [
+                {
+                  name: "animal_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u32",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
               name: "owner_of",
               inputs: [
                 {
@@ -1093,6 +1252,11 @@ const deployedContracts = {
             {
               name: "created_at",
               type: "core::integer::u64",
+              kind: "data",
+            },
+            {
+              name: "initial_weight_grams",
+              type: "core::integer::u32",
               kind: "data",
             },
           ],
@@ -1288,11 +1452,11 @@ const deployedContracts = {
         },
       ],
       classHash:
-        "0x5b0df8760d69cb4f90c56b1d7968792079cccc9e17b97e4501aa97fcd1da82e",
+        "0xfa3703a79342ce32180056a4dde4c76f92406df3e2ab9bc9ecb80c9a89fa15",
     },
     TraceabilityOracle: {
       address:
-        "0x35b4318013a1e3d9c14807834ab1b93249e493acc4ff18fd28da58cbd76b3eb",
+        "0x2236720e52a811f339e98e9dc9e6a4a54b4d192ee394feebfe183174764b5d",
       abi: [
         {
           type: "impl",
@@ -1758,7 +1922,7 @@ const deployedContracts = {
     },
     SettlementRegistry: {
       address:
-        "0x186fc29efdd80a0df9c84403d519afef53fe113f2dcba08fc2183cc3212fdc0",
+        "0x4bbee64515f1d493b41f9e64c50e1c367c7b950bac277b7d7e55222689b67d9",
       abi: [
         {
           type: "impl",
@@ -1799,6 +1963,18 @@ const deployedContracts = {
               name: "settled_by",
               type: "core::starknet::contract_address::ContractAddress",
             },
+            {
+              name: "final_total_weight_grams",
+              type: "core::integer::u32",
+            },
+            {
+              name: "final_average_weight_grams",
+              type: "core::integer::u32",
+            },
+            {
+              name: "initial_total_weight_grams",
+              type: "core::integer::u32",
+            },
           ],
         },
         {
@@ -1812,6 +1988,36 @@ const deployedContracts = {
             {
               name: "True",
               type: "()",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "contracts::settlement_registry::WeightStats",
+          members: [
+            {
+              name: "initial_weight_grams",
+              type: "core::integer::u32",
+            },
+            {
+              name: "final_weight_grams",
+              type: "core::integer::u32",
+            },
+            {
+              name: "weight_gain_grams",
+              type: "core::integer::u32",
+            },
+            {
+              name: "weight_gain_percentage",
+              type: "core::integer::u16",
+            },
+            {
+              name: "days_in_feedlot",
+              type: "core::integer::u64",
+            },
+            {
+              name: "avg_daily_gain_grams",
+              type: "core::integer::u32",
             },
           ],
         },
@@ -1834,6 +2040,14 @@ const deployedContracts = {
                 {
                   name: "total_proceeds",
                   type: "core::integer::u256",
+                },
+                {
+                  name: "final_total_weight_grams",
+                  type: "core::integer::u32",
+                },
+                {
+                  name: "final_average_weight_grams",
+                  type: "core::integer::u32",
                 },
               ],
               outputs: [],
@@ -1913,6 +2127,22 @@ const deployedContracts = {
               outputs: [
                 {
                   type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_lot_weight_stats",
+              inputs: [
+                {
+                  name: "lot_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "contracts::settlement_registry::WeightStats",
                 },
               ],
               state_mutability: "view",
@@ -2070,6 +2300,26 @@ const deployedContracts = {
               type: "core::starknet::contract_address::ContractAddress",
               kind: "data",
             },
+            {
+              name: "initial_weight_grams",
+              type: "core::integer::u32",
+              kind: "data",
+            },
+            {
+              name: "final_weight_grams",
+              type: "core::integer::u32",
+              kind: "data",
+            },
+            {
+              name: "weight_gain_grams",
+              type: "core::integer::u32",
+              kind: "data",
+            },
+            {
+              name: "weight_gain_percentage",
+              type: "core::integer::u16",
+              kind: "data",
+            },
           ],
         },
         {
@@ -2150,11 +2400,11 @@ const deployedContracts = {
         },
       ],
       classHash:
-        "0x11802db60bc05b5a268b06b128ab1eafbe68181ba15f2c0ef9c0ad38064125",
+        "0x13fce223d5ff6f359e3bfb904ec04aadda6b629e5627b0179f6f9e0f6e7b5b7",
     },
     YourContract: {
       address:
-        "0x331aa3a16a75c81687da3539a793e8500daf788d5fff9a8b85c40378dcc9a59",
+        "0x537cddbab6efd542626aae892466d9814046029fb4649a831b166d2fa5c2b25",
       abi: [
         {
           type: "impl",

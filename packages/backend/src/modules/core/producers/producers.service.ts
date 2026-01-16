@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { Producer } from "@prisma/client";
+import { ProducerProfile, ProducerStatus, UserRole } from "@prisma/client";
 
 import { PrismaService } from "../../../database/prisma.service";
 import { CreateProducerDto } from "./dto/create-producer.dto";
@@ -8,25 +8,36 @@ import { CreateProducerDto } from "./dto/create-producer.dto";
 export class ProducersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createProducer(data: CreateProducerDto): Promise<Producer> {
-    return this.prisma.producer.create({
+  async createProducer(data: CreateProducerDto): Promise<ProducerProfile> {
+    return this.prisma.producerProfile.create({
       data: {
-        name: data.name,
-        email: data.email,
         senasaId: data.senasaId,
-        walletAddress: data.walletAddress ?? null,
+        status: ProducerStatus.PENDING,
+        user: {
+          create: {
+            role: UserRole.PRODUCER,
+            name: data.name,
+            email: data.email,
+            walletAddress: data.walletAddress ?? null,
+          },
+        },
       },
+      include: { user: true },
     });
   }
 
-  async listProducers(): Promise<Producer[]> {
-    return this.prisma.producer.findMany({
-      orderBy: { createdAt: "desc" },
+  async listProducers(): Promise<ProducerProfile[]> {
+    return this.prisma.producerProfile.findMany({
+      include: { user: true },
+      orderBy: { user: { createdAt: "desc" } },
     });
   }
 
-  async getProducerById(id: string): Promise<Producer> {
-    const producer = await this.prisma.producer.findUnique({ where: { id } });
+  async getProducerById(id: string): Promise<ProducerProfile> {
+    const producer = await this.prisma.producerProfile.findUnique({
+      where: { id },
+      include: { user: true },
+    });
     if (!producer) {
       throw new NotFoundException("Producer not found");
     }
@@ -34,7 +45,10 @@ export class ProducersService {
     return producer;
   }
 
-  async getProducerByWallet(walletAddress: string): Promise<Producer | null> {
-    return this.prisma.producer.findUnique({ where: { walletAddress } });
+  async getProducerByWallet(walletAddress: string): Promise<ProducerProfile | null> {
+    return this.prisma.producerProfile.findFirst({
+      where: { user: { walletAddress } },
+      include: { user: true },
+    });
   }
 }
