@@ -12,7 +12,7 @@ export class PaymentsService {
     return this.prisma.payment.create({
       data: {
         paymentIntentId: data.paymentIntentId,
-        investorId: data.investorId,
+        userId: data.investorId,
         lotId: data.lotId,
         amountFiat: data.amountFiat,
         currency: data.currency,
@@ -43,7 +43,7 @@ export class PaymentsService {
 
   async listByInvestor(investorId: string): Promise<Payment[]> {
     return this.prisma.payment.findMany({
-      where: { investorId },
+      where: { userId: investorId },
       orderBy: { createdAt: "desc" },
     });
   }

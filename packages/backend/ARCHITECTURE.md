@@ -4,6 +4,79 @@
 
 NestJS backend for YourCow Protocol - a livestock tokenization platform on Starknet. Handles off-chain business logic and orchestrates on-chain smart contract interactions.
 
+## Database Model (Current, DB-First Mirror)
+
+The database is the source of truth. Every on-chain action must have an off-chain record first.
+We write to the DB, then submit the on-chain transaction, and finally update the DB with
+`txHash` and `onChainStatus`.
+
+### Core Entities
+
+**User**
+- `role`: INVESTOR | PRODUCER | ADMIN (fixed at creation)
+- Shared identity fields: `email`, `walletAddress`, `name`, `status`
+- Relationships:
+  - Optional `KycProfile` (required to operate, not required to sign up)
+  - Optional `ProducerProfile` (only for PRODUCER role)
+
+**KycProfile**
+- One-to-one with `User`
+- Stores KYC provider, reference, and review status
+
+**ProducerProfile**
+- One-to-one with `User`
+- `senasaId`, approval workflow (`status`, `approvedById`, `approvedAt`)
+
+**Lot**
+- Created by `ProducerProfile`
+- Off-chain mirror of on-chain `LotFactory` data:
+  - `totalShares` and `pricePerShare` stored as strings (u256)
+  - `metadataHash`, `onChainLotId`, `tokenAddress`, `txHash`, `onChainStatus`
+  - Weight snapshots (`initialTotalWeightGrams`, `currentTotalWeightGrams`)
+
+**Animal**
+- Identified by `eid` (SENASA ear tag)
+- Mirrors `AnimalRegistry`:
+  - `onChainId`, `registrationTxHash`, `onChainStatus`
+  - `custodian`, `status`, `profile`, `profileHash`
+
+**TraceabilityEvent** (off-chain)
+- Per-animal events (weighting, vaccination, movement, etc.)
+
+**TraceAnchor** (on-chain mirror)
+- Mirrors `TraceabilityOracle` anchors:
+  - `root`, `eventCount`, `timestamp`, optional `correctionReason`
+  - `txHash`, `onChainStatus`
+
+**Payment**
+- Fiat payment and mint intent:
+  - `paymentIntentId`, `userId`, `lotId`, `amountFiat`, `sharesAmount`
+  - `txHash`, `onChainStatus`
+
+**ShareBalance / ShareTransfer**
+- Mirror of ERC20 ledger for each lot token
+- `ShareTransfer` is append-only and tied to an on-chain `txHash`
+
+**Settlement**
+- Mirrors `SettlementRegistry`:
+  - `totalProceeds` (u256 string), `finalReportHash`, weights
+  - `settledBy`, `onChainTxHash`, `onChainStatus`, `settledAt`
+
+### Key Relationships
+- User 1--1 KycProfile (optional)
+- User 1--1 ProducerProfile (only if role = PRODUCER)
+- ProducerProfile 1--N Lot
+- Lot 1--N Animal
+- Animal 1--N TraceabilityEvent
+- Animal 1--N TraceAnchor
+- User 1--N Payment, ShareBalance, ShareTransfer (from/to)
+- Lot 1--N Payment, ShareBalance, ShareTransfer
+- Lot 1--1 Settlement
+
+### On-Chain Sync Rules
+- Every on-chain entity has `onChainStatus` (PENDING, SYNCING, SYNCED, FAILED).
+- Flow: insert DB row (PENDING) -> submit tx (SYNCING + txHash) -> confirm (SYNCED).
+
 ## Tech Stack
 
 - **Framework:** NestJS 10.x + TypeScript

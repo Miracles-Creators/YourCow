@@ -7,6 +7,9 @@ export * from "./producers/producers.service";
 export * from "./investors/investors.module";
 export * from "./investors/investors.service";
 
+export * from "./admins/admins.module";
+export * from "./admins/admins.service";
+
 export * from "./lots/lots.module";
 export * from "./lots/lots.service";
 

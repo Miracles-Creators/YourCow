@@ -15,7 +15,7 @@ export class LotsService {
   async createLot(data: CreateLotDto): Promise<Lot> {
     return this.prisma.lot.create({
       data: {
-        producerId: data.producerId,
+        producerProfileId: data.producerId,
         name: data.name,
         description: data.description,
         totalShares: data.totalShares,
@@ -61,7 +61,7 @@ export class LotsService {
   async approveAndDeployLot(id: string, data: ApproveLotDto): Promise<Lot> {
     const lot = await this.prisma.lot.findUnique({
       where: { id },
-      include: { producer: true },
+      include: { producer: { include: { user: true } } },
     });
 
     if (!lot) {
@@ -72,7 +72,7 @@ export class LotsService {
       throw new BadRequestException("Lot is not pending approval");
     }
 
-    const producerAddress = data.producerAddress ?? lot.producer.walletAddress;
+    const producerAddress = data.producerAddress ?? lot.producer.user.walletAddress;
     if (!producerAddress) {
       throw new BadRequestException("Producer wallet address is required");
     }
