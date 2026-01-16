@@ -1,17 +1,45 @@
 /**
  * Shared UI Components
  *
- * These are generic, reusable components used across the entire application
- * (investor, admin, operator screens, etc.)
+ * Generic, reusable primitives used across the entire application.
+ * These components are NOT branded - feature-specific styling should
+ * be applied by composing these with feature-specific wrappers.
  *
- * TODO: Add shared components here as needed:
- * - Button (generic, not branded)
- * - Input
- * - Card
- * - Modal
- * - Badge
- * - etc.
+ * Usage:
+ *   import { Button, Card, Badge } from "~/components/ui";
  */
 
-// Export shared components here
-// export { Button } from "./Button";
+// Core Components
+export { Button } from "./Button";
+export type { ButtonProps } from "./Button";
+
+export {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "./Card";
+export type {
+  CardProps,
+  CardHeaderProps,
+  CardTitleProps,
+  CardDescriptionProps,
+  CardContentProps,
+  CardFooterProps,
+  CardVariant,
+  CardAccent,
+} from "./Card";
+
+export { Input } from "./Input";
+export type { InputProps } from "./Input";
+
+export { Badge } from "./Badge";
+export type { BadgeProps, BadgeTone, BadgeSize } from "./Badge";
+
+export { ProgressBar } from "./ProgressBar";
+export type { ProgressBarProps, ProgressBarColor, ProgressBarSize } from "./ProgressBar";
+
+export { Section } from "./Section";
+export type { SectionProps, SectionAccent } from "./Section";
