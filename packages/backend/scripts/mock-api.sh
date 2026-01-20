@@ -32,7 +32,7 @@ investor_id=$(printf '%s' "$investor_json" | json_get "id")
 
 
 echo "Creating producer..."
-producer_json=$(post "producers" '{"name":"Demo Producer","email":"producer+demo@yourcow.io","senasaId":"RENSPA-001","walletAddress":"0xPRODUCER1"}')
+producer_json=$(post "producers" '{"name":"Demo Producer","email":"producer+demo@yourcow.io","senasaId":"RENSPA-001","location":"Cordoba, AR","phone":"+54 351 555 1234","yearsOperating":12,"walletAddress":"0xPRODUCER1"}')
 producer_id=$(printf '%s' "$producer_json" | json_get "id")
 producer_user_id=$(printf '%s' "$producer_json" | json_get "user.id")
 
@@ -70,4 +70,3 @@ echo "\nSample reads:"
 get "lots/$lot_id" | head -c 200; echo
 get "payments/lot/$lot_id" | head -c 200; echo
 get "settlements/lot/$lot_id" | head -c 200; echo
-
