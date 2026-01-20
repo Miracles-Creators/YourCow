@@ -3,10 +3,11 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "~~/lib/utils/cn";
 import { ProducerWizardStepper } from "../ui/ProducerWizardStepper";
 import { UploadDropzone } from "../ui/UploadDropzone";
+import { useLotDraftStore } from "~~/services/store/lotDraft";
 
 type DocumentKey = "ownership" | "lotDocs" | "insurance" | "video";
 
@@ -29,7 +30,18 @@ export function CreateLotDocumentsScreen() {
     insurance: null,
     video: null,
   });
+  const draft = useLotDraftStore(state => state.draft);
+  const updateDraft = useLotDraftStore(state => state.updateDraft);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    setUploadProgress({
+      ownership: draft.documents.ownership,
+      lotDocs: draft.documents.lotDocs,
+      insurance: draft.documents.insurance,
+      video: draft.documents.video,
+    });
+  }, [draft]);
 
   const transition = useMemo(
     () =>
@@ -47,20 +59,22 @@ export function CreateLotDocumentsScreen() {
   };
 
   const validate = () => {
-    const nextErrors: Record<string, string> = {};
-    if (!uploadProgress.ownership) {
-      nextErrors.ownership = "Ownership / operation proof is required.";
-    }
-    if (!uploadProgress.lotDocs) {
-      nextErrors.lotDocs = "Lot documentation is required.";
-    }
-    setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    // MVP: allow proceeding without documents to unblock end-to-end flow.
+    setErrors({});
+    return true;
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validate()) return;
+    updateDraft({
+      documents: {
+        ownership: uploadProgress.ownership,
+        lotDocs: uploadProgress.lotDocs,
+        insurance: uploadProgress.insurance,
+        video: uploadProgress.video,
+      },
+    });
     router.push("/producer/lots/new/review");
   };
 

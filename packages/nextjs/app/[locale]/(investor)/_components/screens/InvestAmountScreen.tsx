@@ -12,10 +12,12 @@ import {
   calculateShares,
   getLotById,
 } from "../../_constants/mockData";
+import { useLot } from "~~/hooks/lots/useLot";
+import { mapLotToInvestorLot } from "~~/lib/api/adapters";
 import { PrimaryButton } from "../ui/PrimaryButton";
 
 interface InvestAmountScreenProps {
-  lotId: string;
+  lotId: number;
 }
 
 const MIN_INVESTMENT = 10000;
@@ -29,7 +31,8 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
   const tCommon = useTranslations("common");
 
   const router = useRouter();
-  const lot = getLotById(lotId);
+  const { data: lotData } = useLot(lotId);
+  const lot = lotData ? mapLotToInvestorLot(lotData) : getLotById(String(lotId));
   const [amount, setAmount] = useState("");
   const [shares, setShares] = useState(0);
   const [participation, setParticipation] = useState(0);

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { mockPositions, type Position } from "../../_constants/mockData";
+import { useMe } from "~~/hooks/auth/useMe";
 import { cn } from "~~/lib/utils/cn";
 
 /**
@@ -18,6 +19,8 @@ import { cn } from "~~/lib/utils/cn";
  */
 export function PortfolioScreen() {
   const t = useTranslations("investor.portfolio");
+
+  useMe();
 
   // Calculate portfolio totals
   const totalInvested = mockPositions.reduce(

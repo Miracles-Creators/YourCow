@@ -13,10 +13,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { getLotById } from "../../_constants/mockData";
+import { useLot } from "~~/hooks/lots/useLot";
+import { mapLotToInvestorLot } from "~~/lib/api/adapters";
 import { cn } from "~~/lib/utils/cn";
 
 interface LotDetailScreenProps {
-  lotId: string;
+  lotId: number;
 }
 
 /**
@@ -27,7 +29,8 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
   const t = useTranslations("investor.lotDetail");
   const tCommon = useTranslations("common");
 
-  const lot = getLotById(lotId);
+  const { data: lotData } = useLot(lotId);
+  const lot = lotData ? mapLotToInvestorLot(lotData) : getLotById(String(lotId));
 
   if (!lot) {
     return (

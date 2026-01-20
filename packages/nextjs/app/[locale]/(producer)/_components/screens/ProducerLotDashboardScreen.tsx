@@ -3,8 +3,12 @@
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { z } from "zod";
 import { cn } from "~~/lib/utils/cn";
+import { useAnimalsByLot } from "~~/hooks/animals/useAnimalsByLot";
+import { useCreateAnimal } from "~~/hooks/animals/useCreateAnimal";
+import { useQueryClient } from "@tanstack/react-query";
 import { FundingProgress } from "../ui/FundingProgress";
 import { StatusPill } from "../ui/StatusPill";
 
@@ -23,10 +27,28 @@ const mockLot = {
   },
 };
 
+const AnimalFormSchema = z.object({
+  eid: z.string().min(1, "EID is required."),
+  custodian: z.string().min(1, "Custodian wallet is required."),
+  breed: z.string().min(1, "Breed is required."),
+  initialWeight: z.string().optional(),
+});
+
 export function ProducerLotDashboardScreen() {
   const prefersReducedMotion = useReducedMotion();
   const params = useParams();
   const lotId = typeof params.lotId === "string" ? params.lotId : "lot-001";
+  const queryClient = useQueryClient();
+  const animalsQuery = useAnimalsByLot(lotId);
+  const createAnimal = useCreateAnimal();
+  const [animalForm, setAnimalForm] = useState({
+    eid: "",
+    custodian: "",
+    breed: "",
+    initialWeight: "",
+  });
+  const [animalError, setAnimalError] = useState("");
+  const [animalSuccess, setAnimalSuccess] = useState("");
   const transition = useMemo(
     () =>
       prefersReducedMotion
@@ -34,6 +56,43 @@ export function ProducerLotDashboardScreen() {
         : { duration: 0.4, ease: [0.4, 0, 0.2, 1] as const },
     [prefersReducedMotion],
   );
+
+  const handleAnimalChange = (field: keyof typeof animalForm, value: string) => {
+    setAnimalForm(prev => ({ ...prev, [field]: value }));
+    setAnimalError("");
+    setAnimalSuccess("");
+  };
+
+  const handleAddAnimal = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setAnimalError("");
+    setAnimalSuccess("");
+
+    const parsed = AnimalFormSchema.safeParse(animalForm);
+    if (!parsed.success) {
+      setAnimalError(parsed.error.issues[0]?.message ?? "Invalid data.");
+      return;
+    }
+
+    try {
+      await createAnimal.mutateAsync({
+        eid: parsed.data.eid,
+        custodian: parsed.data.custodian,
+        lotId,
+        profile: {
+          breed: parsed.data.breed,
+          initialWeight: parsed.data.initialWeight || undefined,
+        },
+      });
+      setAnimalSuccess("Animal registered.");
+      setAnimalForm({ eid: "", custodian: "", breed: "", initialWeight: "" });
+      queryClient.invalidateQueries({ queryKey: ["animals", "lot", lotId] });
+    } catch (error) {
+      setAnimalError(
+        error instanceof Error ? error.message : "Failed to register animal.",
+      );
+    }
+  };
 
   return (
     <motion.div
@@ -126,6 +185,127 @@ export function ProducerLotDashboardScreen() {
             {mockLot.trustPreview.hasVideo ? "Available" : "Not added"}
           </li>
         </ul>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white p-5 shadow-sm">
+          <h2 className="text-sm font-semibold text-vaca-neutral-gray-700">
+            Animals in this lot
+          </h2>
+          <div className="mt-4 space-y-3 text-sm text-vaca-neutral-gray-600">
+            {animalsQuery.isLoading && <p>Loading animals...</p>}
+            {animalsQuery.isError && (
+              <p className="text-vaca-brown">
+                {animalsQuery.error instanceof Error
+                  ? animalsQuery.error.message
+                  : "Failed to load animals."}
+              </p>
+            )}
+            {!animalsQuery.isLoading && animalsQuery.data?.length === 0 && (
+              <p>No animals registered yet.</p>
+            )}
+            {animalsQuery.data?.map(animal => (
+              <div
+                key={animal.id}
+                className="flex items-center justify-between rounded-lg border border-vaca-neutral-gray-100 px-4 py-2"
+              >
+                <div>
+                  <p className="font-semibold text-vaca-neutral-gray-900">
+                    {animal.eid}
+                  </p>
+                  <p className="text-xs text-vaca-neutral-gray-500">
+                    Custodian: {animal.custodian}
+                  </p>
+                </div>
+                <StatusPill
+                  label={animal.status}
+                  tone={animal.status === "ALIVE" ? "success" : "warning"}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white p-5 shadow-sm">
+          <h2 className="text-sm font-semibold text-vaca-neutral-gray-700">
+            Register animal
+          </h2>
+          <form onSubmit={handleAddAnimal} className="mt-4 space-y-4">
+            <div className="form-control">
+              <label className="label" htmlFor="animal-eid">
+                <span className="label-text font-medium">EID</span>
+              </label>
+              <input
+                id="animal-eid"
+                className="input input-bordered w-full"
+                value={animalForm.eid}
+                onChange={event => handleAnimalChange("eid", event.target.value)}
+                required
+              />
+            </div>
+            <div className="form-control">
+              <label className="label" htmlFor="animal-custodian">
+                <span className="label-text font-medium">Custodian wallet</span>
+              </label>
+              <input
+                id="animal-custodian"
+                className="input input-bordered w-full"
+                value={animalForm.custodian}
+                onChange={event =>
+                  handleAnimalChange("custodian", event.target.value)
+                }
+                required
+              />
+            </div>
+            <div className="form-control">
+              <label className="label" htmlFor="animal-breed">
+                <span className="label-text font-medium">Breed</span>
+              </label>
+              <input
+                id="animal-breed"
+                className="input input-bordered w-full"
+                value={animalForm.breed}
+                onChange={event =>
+                  handleAnimalChange("breed", event.target.value)
+                }
+                required
+              />
+            </div>
+            <div className="form-control">
+              <label className="label" htmlFor="animal-weight">
+                <span className="label-text font-medium">
+                  Initial weight (kg)
+                </span>
+              </label>
+              <input
+                id="animal-weight"
+                className="input input-bordered w-full"
+                value={animalForm.initialWeight}
+                onChange={event =>
+                  handleAnimalChange("initialWeight", event.target.value)
+                }
+              />
+            </div>
+
+            {animalError && (
+              <p className="text-xs text-vaca-brown">{animalError}</p>
+            )}
+            {animalSuccess && (
+              <p className="text-xs text-vaca-green">{animalSuccess}</p>
+            )}
+
+            <button
+              type="submit"
+              className={cn(
+                "btn btn-primary w-full",
+                "border-vaca-green bg-vaca-green text-vaca-neutral-white hover:bg-vaca-green-dark",
+                createAnimal.isPending && "pointer-events-none opacity-70",
+              )}
+            >
+              {createAnimal.isPending ? "Registering..." : "Register animal"}
+            </button>
+          </form>
+        </div>
       </section>
     </motion.div>
   );

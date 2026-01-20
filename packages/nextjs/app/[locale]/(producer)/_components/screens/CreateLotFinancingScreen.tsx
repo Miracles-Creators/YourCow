@@ -3,9 +3,10 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "~~/lib/utils/cn";
 import { ProducerWizardStepper } from "../ui/ProducerWizardStepper";
+import { useLotDraftStore } from "~~/services/store/lotDraft";
 
 type FinancingFormState = {
   totalCapital: string;
@@ -34,9 +35,21 @@ export function CreateLotFinancingScreen() {
   const prefersReducedMotion = useReducedMotion();
   const [formState, setFormState] =
     useState<FinancingFormState>(INITIAL_STATE);
+  const draft = useLotDraftStore(state => state.draft);
+  const updateDraft = useLotDraftStore(state => state.updateDraft);
   const [errors, setErrors] = useState<
     Partial<Record<keyof FinancingFormState, string>>
   >({});
+
+  useEffect(() => {
+    setFormState(prev => ({
+      ...prev,
+      totalCapital: draft.financing.totalCapital,
+      investorPercent: draft.financing.investorPercent,
+      fundingDeadline: draft.financing.fundingDeadline,
+      operatingCosts: draft.financing.operatingCosts,
+    }));
+  }, [draft]);
 
   const transition = useMemo(
     () =>
@@ -73,6 +86,14 @@ export function CreateLotFinancingScreen() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validate()) return;
+    updateDraft({
+      financing: {
+        totalCapital: formState.totalCapital,
+        investorPercent: formState.investorPercent,
+        fundingDeadline: formState.fundingDeadline,
+        operatingCosts: formState.operatingCosts,
+      },
+    });
     router.push("/producer/lots/new/documents");
   };
 

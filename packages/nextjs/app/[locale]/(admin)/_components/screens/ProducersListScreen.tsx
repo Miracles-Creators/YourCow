@@ -11,6 +11,7 @@ import {
   StatusPill,
   type AdminStatusTone,
 } from "../index";
+import { useProducers } from "~~/hooks/producers/useProducers";
 
 interface ProducerRecord {
   id: string;
@@ -20,41 +21,6 @@ interface ProducerRecord {
   lotsCount: number;
   lastActivity: string;
 }
-
-const producers: ProducerRecord[] = [
-  {
-    id: "23",
-    name: "Martinez Farm",
-    location: "Cordoba, AR",
-    status: "Pending",
-    lotsCount: 4,
-    lastActivity: "Jan 12, 2026",
-  },
-  {
-    id: "41",
-    name: "Horizon Cattle Co.",
-    location: "Santa Fe, AR",
-    status: "Approved",
-    lotsCount: 7,
-    lastActivity: "Jan 18, 2026",
-  },
-  {
-    id: "55",
-    name: "Los Pinos Ranch",
-    location: "Mendoza, AR",
-    status: "Approved",
-    lotsCount: 2,
-    lastActivity: "Jan 09, 2026",
-  },
-  {
-    id: "78",
-    name: "Delta Plains",
-    location: "Entre Rios, AR",
-    status: "Rejected",
-    lotsCount: 0,
-    lastActivity: "Dec 29, 2025",
-  },
-];
 
 const filters = [
   { id: "all", label: "All" },
@@ -69,18 +35,60 @@ const statusTone: Record<ProducerRecord["status"], AdminStatusTone> = {
   Rejected: "rejected",
 };
 
+const formatActivityDate = (value?: string | null) => {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  });
+};
+
+const mapProducerStatus = (status: string): ProducerRecord["status"] => {
+  if (status === "ACTIVE") return "Approved";
+  if (status === "REJECTED" || status === "SUSPENDED") return "Rejected";
+  return "Pending";
+};
+
 /**
  * ProducersListScreen (ADMIN-03)
  * List and filter producers with review actions.
  */
 export function ProducersListScreen() {
   const router = useRouter();
+  const producersQuery = useProducers();
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
+  const dataProducers: ProducerRecord[] = useMemo(
+    () =>
+      (producersQuery.data ?? []).map((producer) => {
+        const lastActivitySource =
+          producer.lots?.reduce<string | null>((latest, lot) => {
+            if (!lot.updatedAt) return latest;
+            if (!latest) return lot.updatedAt;
+            return new Date(lot.updatedAt) > new Date(latest)
+              ? lot.updatedAt
+              : latest;
+          }, null) ?? null;
+
+        return {
+          id: producer.userId.toString(),
+          name: producer.user.name ?? "-",
+          location: producer.location ?? "-",
+          status: mapProducerStatus(producer.status),
+          lotsCount: producer.lots?.length ?? 0,
+          lastActivity: formatActivityDate(lastActivitySource),
+        };
+      }),
+    [producersQuery.data],
+  );
+
   const filtered = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
-    return producers.filter((producer) => {
+    return dataProducers.filter((producer) => {
       const matchesFilter =
         activeFilter === "all" ||
         producer.status.toLowerCase() === activeFilter;
@@ -90,7 +98,7 @@ export function ProducersListScreen() {
         producer.location.toLowerCase().includes(query);
       return matchesFilter && matchesQuery;
     });
-  }, [activeFilter, searchTerm]);
+  }, [activeFilter, dataProducers, searchTerm]);
 
   return (
     <div className="space-y-6">

@@ -3,8 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { AdminPageHeader, ReviewPanel, StatusPill, type AdminStatusTone } from "../index";
 import { cn } from "~~/lib/utils/cn";
+import { useLot } from "~~/hooks/lots/useLot";
+import { useApproveLot } from "~~/hooks/lots/useApproveLot";
+import { notification } from "~~/utils/scaffold-stark/notification";
 
 type LotStatus = "Pending" | "Active" | "Paused" | "Rejected";
 
@@ -68,11 +73,32 @@ const sectionVariants = {
  * Detailed review of a single lot.
  */
 export function LotReviewScreen() {
-  const [status, setStatus] = useState<LotStatus>("Pending");
+  const params = useParams();
+  const lotId = typeof params.id === "string" ? Number(params.id) : 0;
+  const lotQuery = useLot(lotId);
+  const queryClient = useQueryClient();
+  console.log(lotQuery, "lotQuery", lotId, "lotId");
+  const approveLot = useApproveLot();
+  const isApproving = approveLot.isPending;
   const [modalAction, setModalAction] = useState<ModalAction>(null);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
+  const [approveData, setApproveData] = useState({
+    tokenName: "",
+    tokenSymbol: "",
+    initialPricePerShare: "",
+    producerAddress: "",
+  });
   const modalRef = useRef<HTMLDivElement | null>(null);
+
+  const mapStatus = (lotStatus?: string): LotStatus => {
+    if (lotStatus === "ACTIVE" || lotStatus === "FUNDING" || lotStatus === "COMPLETED") {
+      return "Active";
+    }
+    return "Pending";
+  };
+
+  const status = useMemo<LotStatus>(() => mapStatus(lotQuery.data?.status), [lotQuery.data?.status]);
 
   const statusTone = useMemo<AdminStatusTone>(() => {
     if (status === "Active") return "approved";
@@ -95,20 +121,67 @@ export function LotReviewScreen() {
     setError("");
   };
 
-  const handleConfirm = () => {
+  const totalCapital = useMemo(() => {
+    if (!lotQuery.data) return null;
+    const totalShares = Number(lotQuery.data.totalShares);
+    const pricePerShare = Number(lotQuery.data.pricePerShare);
+    if (!Number.isFinite(totalShares) || !Number.isFinite(pricePerShare)) return null;
+    return totalShares * pricePerShare;
+  }, [lotQuery.data]);
+
+  const formattedTotalCapital = useMemo(() => {
+    if (totalCapital === null) return "—";
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
+      totalCapital,
+    );
+  }, [totalCapital]);
+
+  const handleConfirm = async () => {
     if ((modalAction === "reject" || modalAction === "pause") && !reason.trim()) {
       setError("Reason is required.");
       return;
     }
 
     if (modalAction === "approve") {
-      setStatus("Active");
+      if (!lotId) {
+        setError("Lot ID missing.");
+        return;
+      }
+      if (
+        !approveData.tokenName ||
+        !approveData.tokenSymbol ||
+        !approveData.initialPricePerShare
+      ) {
+        setError("All approval fields are required.");
+        return;
+      }
+      let notificationId: string | null = null;
+      try {
+        notificationId = notification.loading("Deploying lot on-chain...");
+        const updatedLot = await approveLot.mutateAsync({
+          lotId,
+          data: {
+            tokenName: approveData.tokenName,
+            tokenSymbol: approveData.tokenSymbol,
+            initialPricePerShare: approveData.initialPricePerShare,
+            producerAddress: approveData.producerAddress || undefined,
+          },
+        });
+        if (notificationId) notification.remove(notificationId);
+        notification.success("Lot approved and published.");
+        queryClient.setQueryData(["lots", lotId], updatedLot);
+      } catch (err) {
+        if (notificationId) notification.remove(notificationId);
+        setError(err instanceof Error ? err.message : "Approval failed.");
+        notification.error("Approval failed. Check the error message for details.");
+        return;
+      }
     }
     if (modalAction === "reject") {
-      setStatus("Rejected");
-    }
+        setError("");
+      }
     if (modalAction === "pause") {
-      setStatus("Paused");
+      setError("");
     }
     closeModal();
   };
@@ -144,14 +217,14 @@ export function LotReviewScreen() {
       className="space-y-6"
     >
       <AdminPageHeader
-        title="Angus Growth Lot"
+        title={lotQuery.data?.name ?? "Lot"}
         actions={
           <div className="flex items-center gap-3">
             <Link
-              href="/admin/producers/23"
+              href="/admin/producers/unknown"
               className="text-sm font-semibold text-vaca-blue hover:text-vaca-blue-dark"
             >
-              Martinez Farm
+              Producer
             </Link>
             <StatusPill label={status} tone={statusTone} />
           </div>
@@ -173,7 +246,8 @@ export function LotReviewScreen() {
                   Location
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  Cordoba, AR
+                  {lotQuery.data?.location ??
+                    "—"}
                 </dd>
               </div>
               <div>
@@ -181,7 +255,7 @@ export function LotReviewScreen() {
                   Production type
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  Feedlot finishing
+                  {lotQuery.data?.productionType ?? "—"}
                 </dd>
               </div>
               <div>
@@ -189,7 +263,7 @@ export function LotReviewScreen() {
                   Cattle count
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  240 head
+                  {lotQuery.data?.cattleCount ?? "—"}
                 </dd>
               </div>
               <div>
@@ -197,7 +271,7 @@ export function LotReviewScreen() {
                   Start date
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  Jan 15, 2026
+                  {lotQuery.data?.startDate ? new Date(lotQuery.data.startDate).toLocaleDateString() : "—"}
                 </dd>
               </div>
               <div>
@@ -205,7 +279,9 @@ export function LotReviewScreen() {
                   Duration
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  14 months
+                  {lotQuery.data?.durationWeeks
+                    ? `${lotQuery.data?.durationWeeks} weeks`
+                    : "—"}
                 </dd>
               </div>
             </dl>
@@ -224,7 +300,7 @@ export function LotReviewScreen() {
                   Total capital required
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  $420,000
+                  {formattedTotalCapital}
                 </dd>
               </div>
               <div>
@@ -232,7 +308,7 @@ export function LotReviewScreen() {
                   % offered
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  68%
+                  {lotQuery.data?.investorPercent ?? "—"}%
                 </dd>
               </div>
               <div>
@@ -240,7 +316,9 @@ export function LotReviewScreen() {
                   Funding deadline
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  Feb 10, 2026
+                  {lotQuery.data?.fundingDeadline
+                    ? new Date(lotQuery.data.fundingDeadline).toLocaleDateString()
+                    : "—"}
                 </dd>
               </div>
               <div>
@@ -248,7 +326,7 @@ export function LotReviewScreen() {
                   Estimated costs
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  $62,000
+                  {lotQuery.data?.operatingCosts ?? "—"}
                 </dd>
               </div>
             </dl>
@@ -318,56 +396,98 @@ export function LotReviewScreen() {
             </div>
             <div className="mt-4 rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-gray-50 p-4">
               <p className="font-playfair text-lg font-semibold text-vaca-neutral-gray-900">
-                Angus Growth Lot
+                {lotQuery.data?.name ?? "—"}
               </p>
               <p className="mt-1 text-sm text-vaca-neutral-gray-500">
-                Cordoba, AR · 240 head · 14 months
+                {lotQuery.data?.location ?? "—"} · {lotQuery.data?.cattleCount ?? "—"} head ·{" "}
+                {lotQuery.data?.durationWeeks ?? "—"} weeks
               </p>
               <div className="mt-3 flex flex-wrap gap-3 text-sm text-vaca-neutral-gray-600">
-                <span>Expected return: 12.4%</span>
-                <span>Funding: 72%</span>
-                <span>Minimum: $2,500</span>
+                <span>Investor %: {lotQuery.data?.investorPercent ?? "—"}%</span>
+                <span>Funding: {lotQuery.data?.fundedPercent ?? "—"}%</span>
+                <span>Price/share: {lotQuery.data?.pricePerShare ?? "—"}</span>
               </div>
             </div>
           </motion.div>
         </div>
 
         <div className="space-y-6">
-          <ReviewPanel description="Approve to publish, or request changes before making this lot visible.">
-            <button
-              type="button"
-              onClick={() => setModalAction("approve")}
-              className="w-full rounded-full bg-vaca-green px-4 py-2 text-sm font-semibold text-vaca-neutral-white shadow-sm transition hover:bg-vaca-green-dark"
-            >
-              Approve lot
-            </button>
-            <button
-              type="button"
-              className="w-full rounded-full border border-vaca-blue/40 px-4 py-2 text-sm font-semibold text-vaca-blue transition hover:border-vaca-blue"
-            >
-              Request changes
-            </button>
-            <button
-              type="button"
-              onClick={() => setModalAction("reject")}
-              className="w-full rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 transition hover:border-red-300"
-            >
-              Reject lot
-            </button>
-            <button
-              type="button"
-              onClick={() => setModalAction("pause")}
-              disabled={status !== "Active"}
-              className={cn(
-                "w-full rounded-full border px-4 py-2 text-sm font-semibold transition",
-                status === "Active"
-                  ? "border-vaca-brown/40 text-vaca-brown hover:border-vaca-brown"
-                  : "border-vaca-neutral-gray-200 text-vaca-neutral-gray-400 cursor-not-allowed",
-              )}
-            >
-              Pause lot
-            </button>
-          </ReviewPanel>
+          {status === "Active" ? (
+            <div className="rounded-2xl border border-vaca-neutral-gray-200 bg-vaca-neutral-white p-5 shadow-sm">
+              {/* TODO: Wire pause flow (API + on-chain) and refresh lot state after success. */}
+              <button
+                type="button"
+                onClick={() => setModalAction("pause")}
+                className="w-full rounded-full border border-vaca-brown/40 px-4 py-2 text-sm font-semibold text-vaca-brown transition hover:border-vaca-brown"
+              >
+                Pause lot
+              </button>
+            </div>
+          ) : (
+            <ReviewPanel description="Approve to publish, or request changes before making this lot visible.">
+              <div className="space-y-3">
+                <input
+                  className="w-full rounded-full border border-vaca-neutral-gray-200 px-3 py-2 text-sm"
+                  placeholder="Token name"
+                  value={approveData.tokenName}
+                  onChange={event =>
+                    setApproveData(prev => ({ ...prev, tokenName: event.target.value }))
+                  }
+                />
+                <input
+                  className="w-full rounded-full border border-vaca-neutral-gray-200 px-3 py-2 text-sm"
+                  placeholder="Token symbol"
+                  value={approveData.tokenSymbol}
+                  onChange={event =>
+                    setApproveData(prev => ({ ...prev, tokenSymbol: event.target.value }))
+                  }
+                />
+                <input
+                  className="w-full rounded-full border border-vaca-neutral-gray-200 px-3 py-2 text-sm"
+                  placeholder="Initial price per share"
+                  value={approveData.initialPricePerShare}
+                  onChange={event =>
+                    setApproveData(prev => ({
+                      ...prev,
+                      initialPricePerShare: event.target.value,
+                    }))
+                  }
+                />
+                <input
+                  className="w-full rounded-full border border-vaca-neutral-gray-200 px-3 py-2 text-sm"
+                  placeholder="Producer address (optional)"
+                  value={approveData.producerAddress}
+                  onChange={event =>
+                    setApproveData(prev => ({
+                      ...prev,
+                      producerAddress: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalAction("approve")}
+                disabled={isApproving}
+                className="w-full rounded-full bg-vaca-green px-4 py-2 text-sm font-semibold text-vaca-neutral-white shadow-sm transition hover:bg-vaca-green-dark"
+              >
+                {isApproving ? "Approving..." : "Approve lot"}
+              </button>
+              <button
+                type="button"
+                className="w-full rounded-full border border-vaca-blue/40 px-4 py-2 text-sm font-semibold text-vaca-blue transition hover:border-vaca-blue"
+              >
+                Request changes
+              </button>
+              <button
+                type="button"
+                onClick={() => setModalAction("reject")}
+                className="w-full rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 transition hover:border-red-300"
+              >
+                Reject lot
+              </button>
+            </ReviewPanel>
+          )}
 
           <div className="rounded-2xl border border-vaca-neutral-gray-200 bg-vaca-neutral-white p-5 shadow-sm">
             <h3 className="text-sm font-semibold text-vaca-neutral-gray-900">
@@ -439,6 +559,7 @@ export function LotReviewScreen() {
               <button
                 type="button"
                 onClick={handleConfirm}
+                disabled={isApproving}
                 className={cn(
                   "rounded-full px-4 py-2 text-xs font-semibold text-vaca-neutral-white",
                   modalAction === "approve"
@@ -448,7 +569,9 @@ export function LotReviewScreen() {
                       : "bg-red-600",
                 )}
               >
-                {modalCopy[modalAction].primary}
+                {modalAction === "approve" && isApproving
+                  ? "Approving..."
+                  : modalCopy[modalAction].primary}
               </button>
             </div>
           </div>

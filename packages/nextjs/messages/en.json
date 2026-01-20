@@ -63,9 +63,10 @@
   "investor": {
     "welcome": {
       "title": "Welcome to YourCow",
-      "cta": "Continue with Email",
       "tagline": "Invest in real cattle assets",
-      "description": "Structured liquidity aligned with real production cycles"
+      "description": "Structured liquidity aligned with real production cycles",
+      "ctaRegister": "Create account",
+      "ctaLogin": "I have an account"
     },
     "login": {
       "title": "Log In",
@@ -250,5 +251,292 @@
   "loading": {
     "default": "Loading...",
     "please_wait": "Please wait..."
+  },
+  "onboarding": {
+    "register": {
+      "title": "Create your account",
+      "subtitle": "Access real cattle investment opportunities.",
+      "fields": {
+        "fullName": {
+          "label": "Full Name",
+          "placeholder": "John Doe"
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "john@example.com",
+          "helperText": "We'll email you a secure sign-in link."
+        }
+      },
+      "buttons": {
+        "continue": "Continue",
+        "submitting": "Creating account..."
+      },
+      "signIn": {
+        "text": "Already have an account?",
+        "link": "Sign in"
+      },
+      "errors": {
+        "fullNameRequired": "Full name is required",
+        "fullNameTooShort": "Name must be at least 2 characters",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email"
+      }
+    },
+    "roleSelection": {
+      "title": "How will you use YourCow?",
+      "subtitle": "Select your role to get the right experience.",
+      "roles": {
+        "investor": {
+          "title": "Investor",
+          "description": "Invest in cattle lots with structured liquidity."
+        },
+        "producer": {
+          "title": "Producer",
+          "description": "Raise capital by listing and managing cattle lots."
+        }
+      },
+      "buttons": {
+        "continue": "Continue"
+      },
+      "notSure": "Not sure which to choose?",
+      "modal": {
+        "title": "Choosing your role",
+        "investorDescription": "As an investor, you can browse available cattle lots, invest in shares, and track your portfolio. Perfect for individuals looking to diversify into agricultural assets.",
+        "producerDescription": "As a producer, you can list your cattle lots to raise capital, manage your herds, and provide updates to investors. Ideal for feedlots and cattle ranchers.",
+        "close": "Got it"
+      }
+    },
+    "investorProfile": {
+      "title": "Investor profile",
+      "subtitle": "We need a few details to get you started.",
+      "steps": {
+        "profile": "Profile",
+        "verification": "Verification"
+      },
+      "fields": {
+        "country": {
+          "label": "Country",
+          "helperText": "We use your country to apply compliance rules."
+        },
+        "phone": {
+          "label": "Phone number"
+        },
+        "address": {
+          "label": "Address",
+          "placeholder": "Street address"
+        },
+        "city": {
+          "label": "City",
+          "placeholder": "City"
+        },
+        "postalCode": {
+          "label": "Postal code",
+          "placeholder": "12345"
+        }
+      },
+      "buttons": {
+        "back": "Back",
+        "continue": "Continue",
+        "submitting": "Saving..."
+      },
+      "errors": {
+        "countryRequired": "Please select your country",
+        "phoneRequired": "Phone number is required",
+        "phoneTooShort": "Phone number is too short",
+        "addressRequired": "Address is required",
+        "cityRequired": "City is required",
+        "postalCodeRequired": "Postal code is required"
+      }
+    },
+    "investorKyc": {
+      "title": "Verification",
+      "subtitle": "Complete identity verification to start investing.",
+      "steps": {
+        "profile": "Profile",
+        "verification": "Verification"
+      },
+      "sections": {
+        "identity": "Identity",
+        "riskProfile": "Risk Profile"
+      },
+      "fields": {
+        "documentType": {
+          "label": "Document type",
+          "placeholder": "Select document type",
+          "options": {
+            "nationalId": "National ID",
+            "passport": "Passport"
+          }
+        },
+        "documentNumber": {
+          "label": "Document number",
+          "placeholder": "Enter document number"
+        },
+        "documentFront": {
+          "label": "Document front",
+          "helperText": "JPG, PNG, or PDF up to 10MB"
+        },
+        "documentBack": {
+          "label": "Document back",
+          "helperText": "JPG, PNG, or PDF up to 10MB"
+        },
+        "riskTolerance": {
+          "label": "Risk tolerance",
+          "options": {
+            "conservative": "Conservative",
+            "balanced": "Balanced",
+            "growth": "Growth"
+          },
+          "descriptions": {
+            "conservative": "Prefer stable returns with lower risk",
+            "balanced": "Balance between growth and stability",
+            "growth": "Accept higher risk for potential higher returns"
+          }
+        },
+        "investmentHorizon": {
+          "label": "Investment horizon",
+          "options": {
+            "short": "6-12 months",
+            "medium": "12-24 months",
+            "long": "24+ months"
+          }
+        },
+        "experience": {
+          "label": "Investment experience",
+          "options": {
+            "beginner": "Beginner",
+            "intermediate": "Intermediate",
+            "advanced": "Advanced"
+          }
+        }
+      },
+      "complianceNote": "Required for compliance. Your data is protected.",
+      "buttons": {
+        "back": "Back",
+        "finish": "Finish setup",
+        "submitting": "Submitting..."
+      },
+      "errors": {
+        "documentTypeRequired": "Please select a document type",
+        "documentNumberRequired": "Document number is required",
+        "documentFrontRequired": "Please upload your document front",
+        "riskToleranceRequired": "Please select your risk tolerance",
+        "investmentHorizonRequired": "Please select your investment horizon",
+        "experienceRequired": "Please select your experience level"
+      }
+    },
+    "producerProfile": {
+      "title": "Producer profile",
+      "subtitle": "Tell us about your operation.",
+      "steps": {
+        "farm": "Farm",
+        "verification": "Verification"
+      },
+      "fields": {
+        "farmName": {
+          "label": "Farm / Feedlot name",
+          "placeholder": "San Juan Feedlot"
+        },
+        "country": {
+          "label": "Country"
+        },
+        "province": {
+          "label": "Province / State",
+          "placeholder": "Province"
+        },
+        "city": {
+          "label": "City / Area",
+          "placeholder": "City"
+        },
+        "yearsOperating": {
+          "label": "Years operating",
+          "placeholder": "5"
+        },
+        "description": {
+          "label": "Short description",
+          "optional": "optional",
+          "placeholder": "Brief description of your operation..."
+        }
+      },
+      "infoCard": "This information helps investors understand who operates the lot.",
+      "buttons": {
+        "back": "Back",
+        "continue": "Continue",
+        "submitting": "Saving..."
+      },
+      "errors": {
+        "farmNameRequired": "Farm name is required",
+        "countryRequired": "Please select your country",
+        "provinceRequired": "Province is required",
+        "cityRequired": "City is required",
+        "yearsOperatingRequired": "Years operating is required",
+        "yearsOperatingInvalid": "Please enter a valid number"
+      }
+    },
+    "producerVerification": {
+      "title": "Verification",
+      "subtitle": "Submit your registration documents for verification.",
+      "steps": {
+        "farm": "Farm",
+        "verification": "Verification"
+      },
+      "sections": {
+        "documents": "Documents"
+      },
+      "fields": {
+        "senasaNumber": {
+          "label": "SENASA registration number",
+          "placeholder": "Enter your SENASA number"
+        },
+        "taxId": {
+          "label": "Business / Tax ID",
+          "placeholder": "CUIT or equivalent"
+        },
+        "registrationProof": {
+          "label": "Registration proof",
+          "helperText": "SENASA certificate or equivalent"
+        },
+        "ownershipProof": {
+          "label": "Ownership / Operation proof",
+          "helperText": "Title deed, lease, or operation agreement"
+        },
+        "insurance": {
+          "label": "Insurance (optional)",
+          "helperText": "Livestock insurance certificate"
+        }
+      },
+      "alert": "Verification is required before your lots can be approved.",
+      "buttons": {
+        "back": "Back",
+        "submit": "Submit for verification",
+        "submitting": "Submitting..."
+      },
+      "errors": {
+        "senasaRequired": "SENASA number is required",
+        "registrationProofRequired": "Please upload your registration proof",
+        "ownershipProofRequired": "Please upload your ownership proof"
+      }
+    },
+    "complete": {
+      "title": "You're all set!",
+      "whatsNext": {
+        "title": "What's next"
+      },
+      "investor": {
+        "subtitle": "You can now browse available lots and start investing.",
+        "cta": "Go to Marketplace",
+        "step1": "Browse available cattle lots",
+        "step2": "Select an investment amount",
+        "step3": "Track your portfolio growth"
+      },
+      "producer": {
+        "subtitle": "Your verification was submitted. You can start drafting a lot.",
+        "cta": "Go to Producer Dashboard",
+        "step1": "We'll review your documents (1-2 business days)",
+        "step2": "Start drafting your first lot",
+        "step3": "Publish when verification is approved"
+      },
+      "supportLink": "Contact support"
+    }
   }
 }

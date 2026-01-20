@@ -3,9 +3,10 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "~~/lib/utils/cn";
 import { ProducerWizardStepper } from "../ui/ProducerWizardStepper";
+import { useLotDraftStore } from "~~/services/store/lotDraft";
 
 type HerdCycleFormState = {
   cattleCount: string;
@@ -39,9 +40,23 @@ export function CreateLotHerdCycleScreen() {
   const [formState, setFormState] =
     useState<HerdCycleFormState>(INITIAL_STATE);
   const [mode, setMode] = useState<TimelineMode>("duration");
+  const draft = useLotDraftStore(state => state.draft);
+  const updateDraft = useLotDraftStore(state => state.updateDraft);
   const [errors, setErrors] = useState<
     Partial<Record<keyof HerdCycleFormState, string>>
   >({});
+
+  useEffect(() => {
+    setFormState(prev => ({
+      ...prev,
+      cattleCount: draft.herdCycle.cattleCount,
+      averageWeight: draft.herdCycle.averageWeight,
+      durationWeeks: draft.herdCycle.durationWeeks,
+      targetEndDate: draft.herdCycle.targetEndDate,
+      notes: draft.herdCycle.notes,
+    }));
+    setMode(draft.herdCycle.timelineMode);
+  }, [draft]);
 
   const transition = useMemo(
     () =>
@@ -79,6 +94,16 @@ export function CreateLotHerdCycleScreen() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validate()) return;
+    updateDraft({
+      herdCycle: {
+        cattleCount: formState.cattleCount,
+        averageWeight: formState.averageWeight,
+        durationWeeks: formState.durationWeeks,
+        targetEndDate: formState.targetEndDate,
+        notes: formState.notes,
+        timelineMode: mode,
+      },
+    });
     router.push("/producer/lots/new/financing");
   };
 

@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { useTranslations } from 'next-intl';
+import { Button } from "~~/components/ui";
 import { Logo } from "../ui/Logo";
-import { PrimaryButton } from "../ui/PrimaryButton";
 import { TrustBadge } from "../ui/TrustBadge";
 
 /**
@@ -60,11 +60,27 @@ export function WelcomeScreen() {
         </p>
       </motion.div>
 
-      {/* Primary CTA */}
-      <motion.div variants={itemVariants} className="mb-12">
-        <PrimaryButton href="/login" size="lg">
-          {t('cta')}
-        </PrimaryButton>
+      {/* CTAs */}
+      <motion.div variants={itemVariants} className="mb-12 flex w-full max-w-xs flex-col gap-3">
+        <Button
+          href="/register"
+          colorScheme="green"
+          variant="primary"
+          size="lg"
+          fullWidth
+          className="hover:-translate-y-0.5 active:translate-y-0"
+        >
+          {t('ctaRegister')}
+        </Button>
+        <Button
+          href="/login"
+          colorScheme="neutral"
+          variant="outline"
+          size="lg"
+          fullWidth
+        >
+          {t('ctaLogin')}
+        </Button>
       </motion.div>
 
       {/* Trust Indicator */}
