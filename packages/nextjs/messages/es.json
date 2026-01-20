@@ -63,9 +63,10 @@
   "investor": {
     "welcome": {
       "title": "Bienvenido a YourCow",
-      "cta": "Continuar con Email",
       "tagline": "Invierte en activos ganaderos reales",
-      "description": "Liquidez estructurada alineada con ciclos de producción reales"
+      "description": "Liquidez estructurada alineada con ciclos de producción reales",
+      "ctaRegister": "Crear cuenta",
+      "ctaLogin": "Ya tengo cuenta"
     },
     "login": {
       "title": "Iniciar Sesión",
@@ -250,5 +251,292 @@
   "loading": {
     "default": "Cargando...",
     "please_wait": "Por favor espera..."
+  },
+  "onboarding": {
+    "register": {
+      "title": "Crea tu cuenta",
+      "subtitle": "Accede a oportunidades reales de inversión en ganado.",
+      "fields": {
+        "fullName": {
+          "label": "Nombre completo",
+          "placeholder": "Juan Pérez"
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "juan@ejemplo.com",
+          "helperText": "Te enviaremos un enlace seguro para iniciar sesión."
+        }
+      },
+      "buttons": {
+        "continue": "Continuar",
+        "submitting": "Creando cuenta..."
+      },
+      "signIn": {
+        "text": "¿Ya tienes una cuenta?",
+        "link": "Iniciar sesión"
+      },
+      "errors": {
+        "fullNameRequired": "El nombre es requerido",
+        "fullNameTooShort": "El nombre debe tener al menos 2 caracteres",
+        "emailRequired": "El email es requerido",
+        "emailInvalid": "Por favor ingresa un email válido"
+      }
+    },
+    "roleSelection": {
+      "title": "¿Cómo usarás YourCow?",
+      "subtitle": "Selecciona tu rol para obtener la experiencia correcta.",
+      "roles": {
+        "investor": {
+          "title": "Inversor",
+          "description": "Invierte en lotes de ganado con liquidez estructurada."
+        },
+        "producer": {
+          "title": "Productor",
+          "description": "Obtén capital listando y gestionando lotes de ganado."
+        }
+      },
+      "buttons": {
+        "continue": "Continuar"
+      },
+      "notSure": "¿No estás seguro cuál elegir?",
+      "modal": {
+        "title": "Eligiendo tu rol",
+        "investorDescription": "Como inversor, puedes explorar lotes de ganado disponibles, invertir en acciones y seguir tu portafolio. Perfecto para individuos que buscan diversificar en activos agrícolas.",
+        "producerDescription": "Como productor, puedes listar tus lotes de ganado para obtener capital, gestionar tus rebaños y proporcionar actualizaciones a los inversores. Ideal para feedlots y ganaderos.",
+        "close": "Entendido"
+      }
+    },
+    "investorProfile": {
+      "title": "Perfil del inversor",
+      "subtitle": "Necesitamos algunos datos para comenzar.",
+      "steps": {
+        "profile": "Perfil",
+        "verification": "Verificación"
+      },
+      "fields": {
+        "country": {
+          "label": "País",
+          "helperText": "Usamos tu país para aplicar reglas de cumplimiento."
+        },
+        "phone": {
+          "label": "Número de teléfono"
+        },
+        "address": {
+          "label": "Dirección",
+          "placeholder": "Dirección"
+        },
+        "city": {
+          "label": "Ciudad",
+          "placeholder": "Ciudad"
+        },
+        "postalCode": {
+          "label": "Código postal",
+          "placeholder": "12345"
+        }
+      },
+      "buttons": {
+        "back": "Volver",
+        "continue": "Continuar",
+        "submitting": "Guardando..."
+      },
+      "errors": {
+        "countryRequired": "Por favor selecciona tu país",
+        "phoneRequired": "El número de teléfono es requerido",
+        "phoneTooShort": "El número de teléfono es muy corto",
+        "addressRequired": "La dirección es requerida",
+        "cityRequired": "La ciudad es requerida",
+        "postalCodeRequired": "El código postal es requerido"
+      }
+    },
+    "investorKyc": {
+      "title": "Verificación",
+      "subtitle": "Completa la verificación de identidad para comenzar a invertir.",
+      "steps": {
+        "profile": "Perfil",
+        "verification": "Verificación"
+      },
+      "sections": {
+        "identity": "Identidad",
+        "riskProfile": "Perfil de Riesgo"
+      },
+      "fields": {
+        "documentType": {
+          "label": "Tipo de documento",
+          "placeholder": "Selecciona tipo de documento",
+          "options": {
+            "nationalId": "DNI / Cédula",
+            "passport": "Pasaporte"
+          }
+        },
+        "documentNumber": {
+          "label": "Número de documento",
+          "placeholder": "Ingresa el número de documento"
+        },
+        "documentFront": {
+          "label": "Frente del documento",
+          "helperText": "JPG, PNG o PDF hasta 10MB"
+        },
+        "documentBack": {
+          "label": "Dorso del documento",
+          "helperText": "JPG, PNG o PDF hasta 10MB"
+        },
+        "riskTolerance": {
+          "label": "Tolerancia al riesgo",
+          "options": {
+            "conservative": "Conservador",
+            "balanced": "Balanceado",
+            "growth": "Crecimiento"
+          },
+          "descriptions": {
+            "conservative": "Prefiero retornos estables con menor riesgo",
+            "balanced": "Balance entre crecimiento y estabilidad",
+            "growth": "Acepto mayor riesgo por potencial mayor retorno"
+          }
+        },
+        "investmentHorizon": {
+          "label": "Horizonte de inversión",
+          "options": {
+            "short": "6-12 meses",
+            "medium": "12-24 meses",
+            "long": "24+ meses"
+          }
+        },
+        "experience": {
+          "label": "Experiencia en inversión",
+          "options": {
+            "beginner": "Principiante",
+            "intermediate": "Intermedio",
+            "advanced": "Avanzado"
+          }
+        }
+      },
+      "complianceNote": "Requerido para cumplimiento. Tus datos están protegidos.",
+      "buttons": {
+        "back": "Volver",
+        "finish": "Finalizar registro",
+        "submitting": "Enviando..."
+      },
+      "errors": {
+        "documentTypeRequired": "Por favor selecciona un tipo de documento",
+        "documentNumberRequired": "El número de documento es requerido",
+        "documentFrontRequired": "Por favor sube el frente de tu documento",
+        "riskToleranceRequired": "Por favor selecciona tu tolerancia al riesgo",
+        "investmentHorizonRequired": "Por favor selecciona tu horizonte de inversión",
+        "experienceRequired": "Por favor selecciona tu nivel de experiencia"
+      }
+    },
+    "producerProfile": {
+      "title": "Perfil del productor",
+      "subtitle": "Cuéntanos sobre tu operación.",
+      "steps": {
+        "farm": "Establecimiento",
+        "verification": "Verificación"
+      },
+      "fields": {
+        "farmName": {
+          "label": "Nombre del establecimiento / Feedlot",
+          "placeholder": "Feedlot San Juan"
+        },
+        "country": {
+          "label": "País"
+        },
+        "province": {
+          "label": "Provincia / Estado",
+          "placeholder": "Provincia"
+        },
+        "city": {
+          "label": "Ciudad / Zona",
+          "placeholder": "Ciudad"
+        },
+        "yearsOperating": {
+          "label": "Años de operación",
+          "placeholder": "5"
+        },
+        "description": {
+          "label": "Descripción breve",
+          "optional": "opcional",
+          "placeholder": "Descripción breve de tu operación..."
+        }
+      },
+      "infoCard": "Esta información ayuda a los inversores a entender quién opera el lote.",
+      "buttons": {
+        "back": "Volver",
+        "continue": "Continuar",
+        "submitting": "Guardando..."
+      },
+      "errors": {
+        "farmNameRequired": "El nombre del establecimiento es requerido",
+        "countryRequired": "Por favor selecciona tu país",
+        "provinceRequired": "La provincia es requerida",
+        "cityRequired": "La ciudad es requerida",
+        "yearsOperatingRequired": "Los años de operación son requeridos",
+        "yearsOperatingInvalid": "Por favor ingresa un número válido"
+      }
+    },
+    "producerVerification": {
+      "title": "Verificación",
+      "subtitle": "Envía tus documentos de registro para verificación.",
+      "steps": {
+        "farm": "Establecimiento",
+        "verification": "Verificación"
+      },
+      "sections": {
+        "documents": "Documentos"
+      },
+      "fields": {
+        "senasaNumber": {
+          "label": "Número de registro SENASA",
+          "placeholder": "Ingresa tu número SENASA"
+        },
+        "taxId": {
+          "label": "CUIT / Identificación fiscal",
+          "placeholder": "CUIT o equivalente"
+        },
+        "registrationProof": {
+          "label": "Comprobante de registro",
+          "helperText": "Certificado SENASA o equivalente"
+        },
+        "ownershipProof": {
+          "label": "Comprobante de propiedad / operación",
+          "helperText": "Título de propiedad, contrato de arrendamiento o acuerdo de operación"
+        },
+        "insurance": {
+          "label": "Seguro (opcional)",
+          "helperText": "Certificado de seguro de ganado"
+        }
+      },
+      "alert": "La verificación es requerida antes de que tus lotes puedan ser aprobados.",
+      "buttons": {
+        "back": "Volver",
+        "submit": "Enviar para verificación",
+        "submitting": "Enviando..."
+      },
+      "errors": {
+        "senasaRequired": "El número SENASA es requerido",
+        "registrationProofRequired": "Por favor sube tu comprobante de registro",
+        "ownershipProofRequired": "Por favor sube tu comprobante de propiedad"
+      }
+    },
+    "complete": {
+      "title": "¡Todo listo!",
+      "whatsNext": {
+        "title": "Próximos pasos"
+      },
+      "investor": {
+        "subtitle": "Ya puedes explorar lotes disponibles y comenzar a invertir.",
+        "cta": "Ir al Mercado",
+        "step1": "Explora los lotes de ganado disponibles",
+        "step2": "Selecciona un monto de inversión",
+        "step3": "Sigue el crecimiento de tu portafolio"
+      },
+      "producer": {
+        "subtitle": "Tu verificación fue enviada. Puedes comenzar a crear un lote.",
+        "cta": "Ir al Panel del Productor",
+        "step1": "Revisaremos tus documentos (1-2 días hábiles)",
+        "step2": "Comienza a crear tu primer lote",
+        "step3": "Publica cuando la verificación sea aprobada"
+      },
+      "supportLink": "Contactar soporte"
+    }
   }
 }

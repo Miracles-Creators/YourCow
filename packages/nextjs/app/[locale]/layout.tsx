@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import { ReactQueryProvider } from "~~/components/ReactQueryProvider";
 import { ScaffoldStarkAppWithProviders } from "~~/components/ScaffoldStarkAppWithProviders";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import { routing } from '~~/lib/i18n/routing';
@@ -38,13 +39,15 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <NextIntlClientProvider messages={messages}>
-          <ThemeProvider enableSystem>
-            <ScaffoldStarkAppWithProviders>
-              {children}
-            </ScaffoldStarkAppWithProviders>
-          </ThemeProvider>
-        </NextIntlClientProvider>
+        <ReactQueryProvider>
+          <NextIntlClientProvider messages={messages}>
+            <ThemeProvider enableSystem>
+              <ScaffoldStarkAppWithProviders>
+                {children}
+              </ScaffoldStarkAppWithProviders>
+            </ThemeProvider>
+          </NextIntlClientProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

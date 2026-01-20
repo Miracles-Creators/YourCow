@@ -2,11 +2,14 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "~~/lib/utils/cn";
 import { ProducerWizardStepper } from "../ui/ProducerWizardStepper";
+import { useLotDraftStore } from "~~/services/store/lotDraft";
+import { useProducerMe } from "~~/hooks/producers/useProducerMe";
 
 type BasicInfoFormState = {
+  producerId: number | null;
   lotName: string;
   farmName: string;
   location: string;
@@ -23,6 +26,7 @@ const STEPS = [
 ];
 
 const INITIAL_STATE: BasicInfoFormState = {
+  producerId: null,
   lotName: "",
   farmName: "",
   location: "",
@@ -34,9 +38,32 @@ export function CreateLotBasicInfoScreen() {
   const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
   const [formState, setFormState] = useState<BasicInfoFormState>(INITIAL_STATE);
+  const draft = useLotDraftStore(state => state.draft);
+  const updateDraft = useLotDraftStore(state => state.updateDraft);
+  const producerMe = useProducerMe();
   const [errors, setErrors] = useState<
     Partial<Record<keyof BasicInfoFormState, string>>
   >({});
+
+  useEffect(() => {
+    setFormState(prev => ({
+      ...prev,
+      producerId: draft.producerId,
+      lotName: draft.basicInfo.lotName,
+      farmName: draft.basicInfo.farmName,
+      location: draft.basicInfo.location,
+      productionType: draft.basicInfo.productionType,
+      startDate: draft.basicInfo.startDate,
+    }));
+  }, [draft]);
+
+  useEffect(() => {
+    if (!producerMe.data?.userId) return;
+    // Always sync producerId with current user to avoid stale cached values
+    if (draft.producerId !== producerMe.data.userId) {
+      updateDraft({ producerId: producerMe.data.userId });
+    }
+  }, [producerMe.data, draft.producerId, updateDraft]);
 
   const transition = useMemo(
     () =>
@@ -54,6 +81,9 @@ export function CreateLotBasicInfoScreen() {
   const validate = () => {
     const nextErrors: Partial<Record<keyof BasicInfoFormState, string>> = {};
 
+    if (formState.producerId === null) {
+      nextErrors.producerId = "Producer ID is required.";
+    }
     if (!formState.lotName.trim()) {
       nextErrors.lotName = "Lot name is required.";
     }
@@ -77,6 +107,16 @@ export function CreateLotBasicInfoScreen() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validate()) return;
+    updateDraft({
+      producerId: formState.producerId,
+      basicInfo: {
+        lotName: formState.lotName,
+        farmName: formState.farmName,
+        location: formState.location,
+        productionType: formState.productionType,
+        startDate: formState.startDate,
+      },
+    });
     router.push("/producer/lots/new/herd");
   };
 
@@ -106,6 +146,37 @@ export function CreateLotBasicInfoScreen() {
         transition={transition}
       >
         <div className="grid gap-6 md:grid-cols-2">
+          <div className="form-control">
+            <label className="label" htmlFor="producer-id">
+              <span className="label-text font-medium">Producer ID</span>
+            </label>
+            <input
+              id="producer-id"
+              name="producerId"
+              type="text"
+              className={cn(
+                "input input-bordered w-full",
+                errors.producerId && "border-vaca-brown",
+              )}
+              value={formState.producerId ?? ""}
+              readOnly
+              aria-invalid={Boolean(errors.producerId)}
+              aria-describedby={errors.producerId ? "producer-id-error" : undefined}
+            />
+            {errors.producerId && (
+              <p
+                id="producer-id-error"
+                className="mt-1 text-xs text-vaca-brown"
+              >
+                {errors.producerId}
+              </p>
+            )}
+            {!errors.producerId && !formState.producerId && (
+              <p className="mt-1 text-xs text-vaca-neutral-gray-500">
+                Complete producer onboarding to set this automatically.
+              </p>
+            )}
+          </div>
           <div className="form-control">
             <label className="label" htmlFor="lot-name">
               <span className="label-text font-medium">Lot name</span>

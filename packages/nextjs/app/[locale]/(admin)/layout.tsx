@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { inter, playfair } from "~~/lib/fonts";
 import { AdminLayout } from "./_components/layouts/AdminLayout";
+import { AdminAuthGate } from "./_components/AdminAuthGate";
 
 export const metadata: Metadata = {
   title: {
@@ -17,7 +18,9 @@ export default function AdminRootLayout({
 }) {
   return (
     <div className={`${inter.variable} ${playfair.variable} font-inter`}>
-      <AdminLayout>{children}</AdminLayout>
+      <AdminAuthGate>
+        <AdminLayout>{children}</AdminLayout>
+      </AdminAuthGate>
     </div>
   );
 }

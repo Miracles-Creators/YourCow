@@ -11,9 +11,10 @@ import {
   StatusPill,
   type AdminStatusTone,
 } from "../index";
+import { useLots } from "~~/hooks/lots/useLots";
 
 interface LotRecord {
-  id: string;
+  id: number;
   name: string;
   producer: string;
   status: "Pending" | "Active" | "Sold" | "Settled" | "Paused";
@@ -22,9 +23,10 @@ interface LotRecord {
   needsAttention?: boolean;
 }
 
+
 const lots: LotRecord[] = [
   {
-    id: "102",
+    id: 102,
     name: "Angus Growth Lot",
     producer: "Martinez Farm",
     status: "Pending",
@@ -33,7 +35,7 @@ const lots: LotRecord[] = [
     needsAttention: true,
   },
   {
-    id: "118",
+    id: 118,
     name: "Grass-fed Breeding",
     producer: "Horizon Cattle Co.",
     status: "Active",
@@ -41,7 +43,7 @@ const lots: LotRecord[] = [
     lastUpdate: "Jan 20, 2026",
   },
   {
-    id: "131",
+    id: 131,
     name: "Dairy Expansion",
     producer: "Los Pinos Ranch",
     status: "Paused",
@@ -50,7 +52,7 @@ const lots: LotRecord[] = [
     needsAttention: true,
   },
   {
-    id: "144",
+    id: 144,
     name: "Winter Feedlot",
     producer: "Delta Plains",
     status: "Settled",
@@ -84,10 +86,36 @@ export function LotsListScreen() {
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-
+  const lotsQuery = useLots();
+  const dataLots: LotRecord[] =
+    lotsQuery.data?.map((lot) => ({
+      id: lot.id,
+      name: lot.name,
+      producer: lot.producer?.user.name ?? "—",
+      status:
+        lot.status === "DRAFT" || lot.status === "PENDING_DEPLOY"
+          ? "Pending"
+          : lot.status === "FUNDING" || lot.status === "ACTIVE"
+            ? "Active"
+            : lot.status === "FUNDED"
+              ? "Sold"
+              : lot.status === "SETTLING" || lot.status === "COMPLETED"
+                ? "Settled"
+                : "Paused",
+      fundedPercent: lot.fundedPercent ?? 0,
+      lastUpdate: lot.updatedAt
+        ? new Date(lot.updatedAt).toLocaleDateString("en-US", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+          })
+        : "—",
+      needsAttention: false,
+    })) ?? [];
   const filtered = useMemo(() => {
+    const sourceLots = dataLots.length > 0 ? dataLots : lots;
     const query = searchTerm.trim().toLowerCase();
-    return lots.filter((lot) => {
+    return sourceLots.filter((lot) => {
       const matchesFilter =
         activeFilter === "all" || lot.status.toLowerCase() === activeFilter;
       const matchesQuery =
@@ -96,7 +124,7 @@ export function LotsListScreen() {
         lot.producer.toLowerCase().includes(query);
       return matchesFilter && matchesQuery;
     });
-  }, [activeFilter, searchTerm]);
+  }, [activeFilter, dataLots, searchTerm]);
 
   return (
     <div className="space-y-6">

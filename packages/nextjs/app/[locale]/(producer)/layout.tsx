@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { inter, playfair } from "~~/lib/fonts";
 import { OperatorLayout } from "./_components/layouts/OperatorLayout";
+import { ProducerAuthGate } from "./_components/ProducerAuthGate";
 
 export const metadata: Metadata = {
   title: {
@@ -17,7 +18,9 @@ export default function OperatorRootLayout({
 }) {
   return (
     <div className={`${inter.variable} ${playfair.variable} font-inter`}>
-      <OperatorLayout>{children}</OperatorLayout>
+      <ProducerAuthGate>
+        <OperatorLayout>{children}</OperatorLayout>
+      </ProducerAuthGate>
     </div>
   );
 }

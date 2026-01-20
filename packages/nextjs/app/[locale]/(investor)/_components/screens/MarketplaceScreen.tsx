@@ -7,6 +7,8 @@ import { Filter } from "lucide-react";
 import { mockLots, type LotCategory } from "../../_constants/mockData";
 import { InvestmentCard } from "../ui/InvestmentCard";
 import { cn } from "~~/lib/utils/cn";
+import { useLots } from "~~/hooks/lots/useLots";
+import { mapLotToInvestorLot } from "~~/lib/api/adapters";
 
 /**
  * MarketplaceScreen (INV-08)
@@ -19,11 +21,14 @@ export function MarketplaceScreen() {
     "all",
   );
 
+  const { data: lotsData } = useLots();
+  const lots = lotsData?.map(mapLotToInvestorLot) ?? mockLots;
+
   // Filter lots based on selected category
   const filteredLots =
     selectedFilter === "all"
-      ? mockLots
-      : mockLots.filter((lot) => lot.category === selectedFilter);
+      ? lots
+      : lots.filter((lot) => lot.category === selectedFilter);
 
   // Staggered animation variants
   const containerVariants = {

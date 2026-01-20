@@ -2,43 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { AdminPageHeader, AuditNote, ReviewPanel, StatusPill } from "../index";
 import { cn } from "~~/lib/utils/cn";
-
-interface DocumentItem {
-  label: string;
-  status: "Complete" | "Missing" | "Pending";
-  href: string;
-}
-
-const documents: DocumentItem[] = [
-  { label: "Producer registration", status: "Complete", href: "#" },
-  { label: "Insurance certificate", status: "Pending", href: "#" },
-  { label: "Animal health report", status: "Missing", href: "#" },
-];
-
-const lots = [
-  {
-    id: "102",
-    name: "Angus Growth Lot",
-    location: "Cordoba, AR",
-    status: "Funding",
-    nav: "$410,000",
-  },
-  {
-    id: "118",
-    name: "Grass-fed Breeding",
-    location: "Santa Fe, AR",
-    status: "In review",
-    nav: "$275,000",
-  },
-];
-
-const documentTone = {
-  Complete: "approved",
-  Pending: "pending",
-  Missing: "flagged",
-} as const;
+import { useProducer } from "~~/hooks/producers/useProducer";
+import { useApproveProducer } from "~~/hooks/producers/useApproveProducer";
 
 const modalCopy = {
   approve: {
@@ -58,12 +26,17 @@ const modalCopy = {
  * Detailed review of a single producer.
  */
 export function ProducerDetailScreen() {
+  const params = useParams();
+  const producerId = typeof params.id === "string" ? Number(params.id) : 0;
+  const producerQuery = useProducer(producerId);
+  const approveProducer = useApproveProducer();
   const [status, setStatus] = useState<"Pending" | "Approved" | "Rejected">(
     "Pending",
   );
   const [modalAction, setModalAction] = useState<
     "approve" | "reject" | null
   >(null);
+  const [adminId, setAdminId] = useState("");
   const [rejectReason, setRejectReason] = useState("");
   const [error, setError] = useState("");
   const modalRef = useRef<HTMLDivElement | null>(null);
@@ -73,6 +46,19 @@ export function ProducerDetailScreen() {
     if (status === "Rejected") return "rejected";
     return "pending";
   }, [status]);
+
+  const lots = useMemo(() => producerQuery.data?.lots ?? [], [producerQuery.data]);
+
+  const formatNumberString = (value: string) => {
+    const digits = value.replace(/[^\d]/g, "");
+    if (!digits) return "—";
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
+  const formatShares = (value: string) => {
+    const formatted = formatNumberString(value);
+    return formatted === "—" ? "—" : `${formatted} shares`;
+  };
 
   useEffect(() => {
     if (!modalAction) return;
@@ -107,14 +93,42 @@ export function ProducerDetailScreen() {
     }
   };
 
-  const confirmAction = () => {
+  useEffect(() => {
+    if (!producerQuery.data) return;
+    if (producerQuery.data.status === "ACTIVE") {
+      setStatus("Approved");
+    } else if (producerQuery.data.status === "REJECTED") {
+      setStatus("Rejected");
+    } else {
+      setStatus("Pending");
+    }
+  }, [producerQuery.data]);
+
+  const confirmAction = async () => {
     if (modalAction === "reject" && rejectReason.trim().length === 0) {
       setError("Rejection reason is required.");
       return;
     }
 
     if (modalAction === "approve") {
-      setStatus("Approved");
+      if (!adminId.trim()) {
+        setError("Admin ID is required.");
+        return;
+      }
+      if (!producerId) {
+        setError("Producer ID missing.");
+        return;
+      }
+      try {
+        await approveProducer.mutateAsync({
+          producerId,
+          approvedById: Number(adminId),
+        });
+        setStatus("Approved");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Approval failed.");
+        return;
+      }
     }
     if (modalAction === "reject") {
       setStatus("Rejected");
@@ -127,7 +141,7 @@ export function ProducerDetailScreen() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Martinez Farm"
+        title={producerQuery.data?.user.name ?? "Producer"}
         subtitle="Producer review and onboarding verification."
         actions={<StatusPill label={status} tone={tone} />}
       />
@@ -144,7 +158,7 @@ export function ProducerDetailScreen() {
                   Location
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  Cordoba, AR
+                  {producerQuery.data?.location ?? "—"}
                 </dd>
               </div>
               <div>
@@ -152,7 +166,9 @@ export function ProducerDetailScreen() {
                   Years operating
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  12 years
+                  {producerQuery.data?.yearsOperating != null
+                    ? `${producerQuery.data.yearsOperating} years`
+                    : "—"}
                 </dd>
               </div>
               <div>
@@ -160,7 +176,7 @@ export function ProducerDetailScreen() {
                   Primary contact
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  Sofia Martinez
+                  {producerQuery.data?.user.name ?? "—"}
                 </dd>
               </div>
               <div>
@@ -168,42 +184,10 @@ export function ProducerDetailScreen() {
                   Phone
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  +54 11 5555 1212
+                  {producerQuery.data?.phone ?? "—"}
                 </dd>
               </div>
             </dl>
-          </div>
-
-          <div className="rounded-2xl border border-vaca-neutral-gray-200 bg-vaca-neutral-white p-5 shadow-sm">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-vaca-neutral-gray-900">
-                Documents
-              </h2>
-              <span className="text-xs font-semibold uppercase tracking-wide text-vaca-neutral-gray-500">
-                3 items
-              </span>
-            </div>
-            <div className="mt-4 space-y-3">
-              {documents.map((doc) => (
-                <div
-                  key={doc.label}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-gray-50 px-4 py-3"
-                >
-                  <div>
-                    <p className="text-sm font-semibold text-vaca-neutral-gray-900">
-                      {doc.label}
-                    </p>
-                    <Link
-                      href={doc.href}
-                      className="text-xs text-vaca-blue hover:text-vaca-blue-dark"
-                    >
-                      View document
-                    </Link>
-                  </div>
-                  <StatusPill label={doc.status} tone={documentTone[doc.status]} />
-                </div>
-              ))}
-            </div>
           </div>
 
           <div className="rounded-2xl border border-vaca-neutral-gray-200 bg-vaca-neutral-white p-5 shadow-sm">
@@ -211,9 +195,22 @@ export function ProducerDetailScreen() {
               Lots by this producer
             </h2>
             <div className="mt-4 space-y-3">
-              {lots.map((lot) => (
-                <LotRowCard key={lot.id} {...lot} />
-              ))}
+              {lots.length === 0 ? (
+                <p className="text-sm text-vaca-neutral-gray-500">
+                  No lots yet.
+                </p>
+              ) : (
+                lots.map((lot) => (
+                  <LotRowCard
+                    key={lot.id}
+                    id={String(lot.id)}
+                    name={lot.name}
+                    location={lot.location}
+                    status={lot.status}
+                    metric={formatShares(lot.totalShares)}
+                  />
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -222,12 +219,22 @@ export function ProducerDetailScreen() {
           <ReviewPanel
             description="Approve to unlock listings, or request changes if verification is incomplete."
           >
+            <label className="text-xs font-semibold uppercase tracking-wide text-vaca-neutral-gray-500">
+              Admin ID
+              <input
+                type="text"
+                className="mt-2 w-full rounded-full border border-vaca-neutral-gray-200 px-3 py-2 text-sm text-vaca-neutral-gray-800"
+                value={adminId}
+                onChange={event => setAdminId(event.target.value)}
+                placeholder="admin-id"
+              />
+            </label>
             <button
               type="button"
               onClick={() => setModalAction("approve")}
               className="w-full rounded-full bg-vaca-green px-4 py-2 text-sm font-semibold text-vaca-neutral-white shadow-sm transition hover:bg-vaca-green-dark"
             >
-              Approve producer
+              {approveProducer.isPending ? "Approving..." : "Approve producer"}
             </button>
             <button
               type="button"
@@ -322,10 +329,10 @@ interface LotRowCardProps {
   name: string;
   location: string;
   status: string;
-  nav: string;
+  metric: string;
 }
 
-function LotRowCard({ id, name, location, status, nav }: LotRowCardProps) {
+function LotRowCard({ id, name, location, status, metric }: LotRowCardProps) {
   return (
     <Link
       href={`/admin/lots/${id}`}
@@ -339,7 +346,7 @@ function LotRowCard({ id, name, location, status, nav }: LotRowCardProps) {
         <p className="text-xs uppercase tracking-wide text-vaca-neutral-gray-500">
           {status}
         </p>
-        <p className="font-semibold text-vaca-neutral-gray-900">{nav}</p>
+        <p className="font-semibold text-vaca-neutral-gray-900">{metric}</p>
       </div>
     </Link>
   );

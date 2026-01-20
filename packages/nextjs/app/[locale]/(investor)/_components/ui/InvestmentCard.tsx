@@ -8,7 +8,7 @@ import type { LotCategory } from "../../_constants/mockData";
 import { cn } from "~~/lib/utils/cn";
 
 interface InvestmentCardProps {
-  lotId: string;
+  lotId: number;
   name: string;
   location: string;
   duration: string;
