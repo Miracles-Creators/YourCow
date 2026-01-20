@@ -36,9 +36,20 @@ export class LotFactoryService {
       .getProvider()
       .waitForTransaction(tx.transaction_hash);
 
+    //TODO:CHECK THIS IMPLEMENTATION
     let lotId: bigint = 0n;
-    if (receipt.value) {
-      lotId = BigInt(receipt.value.toString());
+    if (receipt.value !== undefined && receipt.value !== null) {
+      if (
+        typeof receipt.value === "string" ||
+        typeof receipt.value === "number" ||
+        typeof receipt.value === "bigint"
+      ) {
+        lotId = BigInt(receipt.value);
+      }
+    }
+    if (lotId === 0n) {
+      const nextLotId = await this.getNextLotId();
+      lotId = nextLotId > 0n ? nextLotId - 1n : 0n;
     }
 
     return {
