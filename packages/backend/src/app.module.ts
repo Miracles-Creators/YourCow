@@ -12,6 +12,7 @@ import { LotsModule } from "./modules/core/lots/lots.module";
 import { AnimalsModule } from "./modules/core/animals/animals.module";
 import { PaymentsModule } from "./modules/core/payments/payments.module";
 import { SettlementsModule } from "./modules/core/settlements/settlements.module";
+import { AuthModule } from "./modules/core/auth/auth.module";
 
 // On-chain modules (contract interactions)
 import { LotFactoryModule } from "./modules/onchain/lot-factory/lot-factory.module";
@@ -34,6 +35,7 @@ import { SettlementRegistryModule } from "./modules/onchain/settlement-registry/
     AnimalsModule,
     PaymentsModule,
     SettlementsModule,
+    AuthModule,
 
     // On-chain modules
     LotFactoryModule,

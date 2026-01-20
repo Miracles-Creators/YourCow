@@ -19,16 +19,16 @@ export class LotsController {
 
   @Get(":id")
   async getLotById(@Param("id") id: string) {
-    return this.lotsService.getLotById(id);
+    return this.lotsService.getLotById(Number(id));
   }
 
   @Post(":id/deploy")
   async deployLot(@Param("id") id: string, @Body() body: DeployLotDto) {
-    return this.lotsService.deployLot(id, body);
+    return this.lotsService.deployLot(Number(id), body);
   }
 
   @Post(":id/approve")
   async approveLot(@Param("id") id: string, @Body() body: ApproveLotDto) {
-    return this.lotsService.approveAndDeployLot(id, body);
+    return this.lotsService.approveAndDeployLot(Number(id), body);
   }
 }

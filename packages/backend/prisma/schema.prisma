@@ -22,7 +22,7 @@ datasource db {
 // ============================================
 
 model User {
-  id            String     @id @default(uuid())
+  id            Int        @id @default(autoincrement())
   role          UserRole
   walletAddress String?    @unique
   email         String     @unique
@@ -52,8 +52,8 @@ enum UserStatus {
 }
 
 model KycProfile {
-  id          String    @id @default(uuid())
-  userId      String    @unique
+  id          Int       @id @default(autoincrement())
+  userId      Int       @unique
   user        User      @relation(fields: [userId], references: [id])
   status      KycStatus @default(PENDING)
   level       KycLevel  @default(BASIC)
@@ -76,12 +76,14 @@ enum KycLevel {
 }
 
 model ProducerProfile {
-  id           String         @id @default(uuid())
-  userId       String         @unique
+  userId       Int            @id
   user         User           @relation("ProducerUser", fields: [userId], references: [id])
   senasaId     String         @unique
   status       ProducerStatus @default(PENDING)
-  approvedById String?
+  location     String?
+  phone        String?
+  yearsOperating Int?
+  approvedById Int?
   approvedBy   User?          @relation("ProducerApprovedBy", fields: [approvedById], references: [id])
   approvedAt   DateTime?
   lots         Lot[]
@@ -101,33 +103,50 @@ enum ProducerStatus {
 // ============================================
 
 model Lot {
-  id            String    @id @default(uuid())
+  id            Int       @id @default(autoincrement())
   name          String
   description   String
-  totalShares   String    // u256 as string
-  pricePerShare String    // u256 as string (smallest unit)
-  startDate     DateTime?
-  endDate       DateTime?
   status        LotStatus @default(DRAFT)
 
+  // Location & Operation
+  farmName       String
+  location       String   // Province/State + Country
+  productionType ProductionType
+
+  // Herd data (legally relevant for SENASA/traceability)
+  cattleCount      Int     // Number of animals in the lot
+  averageWeightKg  Float   // Average weight per animal in kg
+  durationWeeks    Int     // Expected fattening duration
+  startDate        DateTime?
+  endDate          DateTime?
+
+  // Financing terms (contractually binding)
+  totalShares      String  // u256 as string (total investor shares)
+  pricePerShare    String  // u256 as string (smallest unit)
+  investorPercent  Float   // Investor profit share percentage
+  fundingDeadline  DateTime? // Deadline to reach funding goal
+  operatingCosts   String?   // u256 as string (estimated costs)
+
   // On-chain data (filled AFTER deploy)
-  onChainLotId String? @unique // lot_id from contract
-  tokenAddress String? // ERC20 shares token address
-  txHash       String? // Creation tx hash
-  metadataHash String? // Poseidon hash of metadata
+  onChainLotId  String? @unique // lot_id from contract
+  tokenAddress  String? // ERC20 shares token address
+  txHash        String? // Creation tx hash
+  metadataHash  String? // Poseidon hash of metadata
   onChainStatus OnChainSyncStatus @default(PENDING)
 
   // Relations
-  producerProfileId String
-  producer          ProducerProfile @relation(fields: [producerProfileId], references: [id])
+  producerId Int
+  producer   ProducerProfile @relation(fields: [producerId], references: [userId])
   animals           Animal[]
   payments          Payment[]
   settlement        Settlement?
   shareBalances     ShareBalance[]
   shareTransfers    ShareTransfer[]
+  documents         LotDocument[]
 
-  // Metadata
-  metadata Json? // location, expectedAnimals, etc
+  // Flexible metadata (UI prefs, notes, non-critical data)
+  notes    String? // Producer notes
+  metadata Json?   // Additional non-queryable data
 
   // Weight stats (grams) mirrored off-chain for queries
   initialTotalWeightGrams Int?
@@ -136,7 +155,35 @@ model Lot {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([producerProfileId])
+  @@index([producerId])
+  @@index([status])
+  @@index([fundingDeadline])
+}
+
+enum ProductionType {
+  FEEDLOT
+  PASTURE
+  MIXED
+}
+
+model LotDocument {
+  id        Int             @id @default(autoincrement())
+  lotId     Int
+  lot       Lot             @relation(fields: [lotId], references: [id])
+  type      LotDocumentType
+  fileUrl   String          // S3/IPFS URL
+  fileHash  String?         // Hash for integrity verification
+  uploadedAt DateTime       @default(now())
+
+  @@index([lotId])
+}
+
+enum LotDocumentType {
+  OWNERSHIP    // Proof of cattle ownership
+  LOT_DOCS     // General lot documentation
+  INSURANCE    // Insurance certificates
+  VIDEO        // Video verification
+  OTHER
 }
 
 enum LotStatus {
@@ -150,7 +197,7 @@ enum LotStatus {
 }
 
 model Animal {
-  id  String @id @default(uuid())
+  id  Int    @id @default(autoincrement())
   eid String @unique // Electronic ID (SENASA ear tag)
 
   // On-chain data (filled after registration)
@@ -159,7 +206,7 @@ model Animal {
   onChainStatus OnChainSyncStatus @default(PENDING)
 
   // Relations
-  lotId String?
+  lotId Int?
   lot   Lot?    @relation(fields: [lotId], references: [id])
 
   // Animal data
@@ -186,10 +233,10 @@ enum AnimalStatus {
 }
 
 model TraceabilityEvent {
-  id String @id @default(uuid())
+  id Int @id @default(autoincrement())
 
   // Relations
-  animalId String
+  animalId Int
   animal   Animal @relation(fields: [animalId], references: [id])
 
   // Event data
@@ -217,8 +264,8 @@ enum TraceEventType {
 }
 
 model TraceAnchor {
-  id         String   @id @default(uuid())
-  animalId   String
+  id         Int      @id @default(autoincrement())
+  animalId   Int
   animal     Animal   @relation(fields: [animalId], references: [id])
   root       String   // felt252 as string
   eventCount Int
@@ -236,13 +283,13 @@ model TraceAnchor {
 // ============================================
 
 model Payment {
-  id              String @id @default(uuid())
+  id              Int    @id @default(autoincrement())
   paymentIntentId String @unique // Stripe/MercadoPago ID
 
   // Relations
-  userId String
+  userId Int
   user   User @relation(fields: [userId], references: [id])
-  lotId  String
+  lotId  Int
   lot    Lot  @relation(fields: [lotId], references: [id])
 
   // Payment details
@@ -278,10 +325,10 @@ enum AppContext {
 }
 
 model ShareBalance {
-  id          String   @id @default(uuid())
-  userId      String
+  id          Int      @id @default(autoincrement())
+  userId      Int
   user        User     @relation(fields: [userId], references: [id])
-  lotId       String
+  lotId       Int
   lot         Lot      @relation(fields: [lotId], references: [id])
   amount      BigInt
   lastSyncedAt DateTime?
@@ -293,12 +340,12 @@ model ShareBalance {
 }
 
 model ShareTransfer {
-  id        String   @id @default(uuid())
-  lotId     String
+  id        Int      @id @default(autoincrement())
+  lotId     Int
   lot       Lot      @relation(fields: [lotId], references: [id])
-  fromUserId String?
+  fromUserId Int?
   fromUser   User?    @relation("ShareTransferFrom", fields: [fromUserId], references: [id])
-  toUserId   String
+  toUserId   Int
   toUser     User     @relation("ShareTransferTo", fields: [toUserId], references: [id])
   amount    BigInt
   kind      ShareTransferKind
@@ -324,8 +371,8 @@ enum ShareTransferKind {
 // DB first: se crea en DB, luego se ancla on-chain
 
 model Settlement {
-  id    String @id @default(uuid())
-  lotId String @unique
+  id    Int    @id @default(autoincrement())
+  lotId Int    @unique
   lot   Lot    @relation(fields: [lotId], references: [id])
 
   // Settlement data

@@ -22,7 +22,7 @@ export class PaymentsService {
     });
   }
 
-  async getPaymentById(id: string): Promise<Payment> {
+  async getPaymentById(id: number): Promise<Payment> {
     const payment = await this.prisma.payment.findUnique({ where: { id } });
     if (!payment) {
       throw new NotFoundException("Payment not found");
@@ -34,32 +34,37 @@ export class PaymentsService {
     return this.prisma.payment.findUnique({ where: { paymentIntentId } });
   }
 
-  async listByLot(lotId: string): Promise<Payment[]> {
+  async listByLot(lotId: number): Promise<Payment[]> {
     return this.prisma.payment.findMany({
       where: { lotId },
       orderBy: { createdAt: "desc" },
     });
   }
 
-  async listByInvestor(investorId: string): Promise<Payment[]> {
+  async listByInvestor(investorId: number): Promise<Payment[]> {
     return this.prisma.payment.findMany({
       where: { userId: investorId },
       orderBy: { createdAt: "desc" },
     });
   }
 
-  async confirmPayment(id: string, txHash: string): Promise<Payment> {
+  async confirmPayment(id: number, txHash?: string): Promise<Payment> {
+    const data: { status: PaymentStatus; confirmedAt: Date; txHash?: string } = {
+      status: PaymentStatus.CONFIRMED,
+      confirmedAt: new Date(),
+    };
+
+    if (txHash) {
+      data.txHash = txHash;
+    }
+
     return this.prisma.payment.update({
       where: { id },
-      data: {
-        status: PaymentStatus.CONFIRMED,
-        txHash,
-        confirmedAt: new Date(),
-      },
+      data,
     });
   }
 
-  async failPayment(id: string): Promise<Payment> {
+  async failPayment(id: number): Promise<Payment> {
     return this.prisma.payment.update({
       where: { id },
       data: { status: PaymentStatus.FAILED },

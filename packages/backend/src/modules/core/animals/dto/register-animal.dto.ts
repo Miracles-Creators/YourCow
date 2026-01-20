@@ -6,5 +6,5 @@ export class RegisterAnimalDto {
   profile!: Prisma.InputJsonValue;
   profileHash?: string;
   onChainId?: string;
-  lotId?: string;
+  lotId?: number;
 }

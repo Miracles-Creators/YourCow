@@ -19,8 +19,10 @@ export class InvestorsService {
     });
   }
 
-  async getInvestorById(id: string): Promise<User> {
+  async getInvestorById(id: number): Promise<User> {
     const user = await this.prisma.user.findUnique({ where: { id } });
+    console.log(user);
+    console.log(id)
     if (!user || user.role !== UserRole.INVESTOR) {
       throw new NotFoundException("Investor not found");
     }

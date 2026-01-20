@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 
+import { ConfirmPaymentDto } from "./dto/confirm-payment.dto";
 import { CreatePaymentDto } from "./dto/create-payment.dto";
 import { PaymentsService } from "./payments.service";
 
@@ -12,18 +13,23 @@ export class PaymentsController {
     return this.paymentsService.createPayment(body);
   }
 
+  @Post(":id/confirm")
+  async confirmPayment(@Param("id") id: string, @Body() body: ConfirmPaymentDto) {
+    return this.paymentsService.confirmPayment(Number(id), body.txHash);
+  }
+
   @Get(":id")
   async getPaymentById(@Param("id") id: string) {
-    return this.paymentsService.getPaymentById(id);
+    return this.paymentsService.getPaymentById(Number(id));
   }
 
   @Get("lot/:lotId")
   async listByLot(@Param("lotId") lotId: string) {
-    return this.paymentsService.listByLot(lotId);
+    return this.paymentsService.listByLot(Number(lotId));
   }
 
   @Get("investor/:investorId")
   async listByInvestor(@Param("investorId") investorId: string) {
-    return this.paymentsService.listByInvestor(investorId);
+    return this.paymentsService.listByInvestor(Number(investorId));
   }
 }

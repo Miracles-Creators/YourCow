@@ -14,7 +14,7 @@ export class AnimalsController {
 
   @Get(":id")
   async getAnimalById(@Param("id") id: string) {
-    return this.animalsService.getAnimalById(id);
+    return this.animalsService.getAnimalById(Number(id));
   }
 
   @Get("eid/:eid")
@@ -24,6 +24,6 @@ export class AnimalsController {
 
   @Get("lot/:lotId")
   async listByLot(@Param("lotId") lotId: string) {
-    return this.animalsService.listByLot(lotId);
+    return this.animalsService.listByLot(Number(lotId));
   }
 }

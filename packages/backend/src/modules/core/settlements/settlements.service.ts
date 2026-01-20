@@ -23,7 +23,7 @@ export class SettlementsService {
     });
   }
 
-  async getSettlementByLotId(lotId: string): Promise<Settlement> {
+  async getSettlementByLotId(lotId: number): Promise<Settlement> {
     const settlement = await this.prisma.settlement.findUnique({
       where: { lotId },
     });
@@ -34,7 +34,7 @@ export class SettlementsService {
   }
 
   async updateOnChainStatus(
-    lotId: string,
+    lotId: number,
     status: OnChainSyncStatus,
     txHash?: string,
   ): Promise<Settlement> {

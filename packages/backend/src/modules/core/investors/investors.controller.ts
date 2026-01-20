@@ -14,7 +14,7 @@ export class InvestorsController {
 
   @Get(":id")
   async getInvestorById(@Param("id") id: string) {
-    return this.investorsService.getInvestorById(id);
+    return this.investorsService.getInvestorById(Number(id));
   }
 
   @Get("wallet/:walletAddress")

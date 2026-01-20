@@ -21,7 +21,7 @@ export class AnimalsService {
     });
   }
 
-  async getAnimalById(id: string): Promise<Animal> {
+  async getAnimalById(id: number): Promise<Animal> {
     const animal = await this.prisma.animal.findUnique({ where: { id } });
     if (!animal) {
       throw new NotFoundException("Animal not found");
@@ -37,28 +37,28 @@ export class AnimalsService {
     return this.prisma.animal.findUnique({ where: { onChainId } });
   }
 
-  async listByLot(lotId: string): Promise<Animal[]> {
+  async listByLot(lotId: number): Promise<Animal[]> {
     return this.prisma.animal.findMany({
       where: { lotId },
       orderBy: { createdAt: "desc" },
     });
   }
 
-  async updateOnChainId(id: string, onChainId: string): Promise<Animal> {
+  async updateOnChainId(id: number, onChainId: string): Promise<Animal> {
     return this.prisma.animal.update({
       where: { id },
       data: { onChainId },
     });
   }
 
-  async updateStatus(id: string, status: AnimalStatus): Promise<Animal> {
+  async updateStatus(id: number, status: AnimalStatus): Promise<Animal> {
     return this.prisma.animal.update({
       where: { id },
       data: { status },
     });
   }
 
-  async assignToLot(id: string, lotId: string): Promise<Animal> {
+  async assignToLot(id: number, lotId: number): Promise<Animal> {
     return this.prisma.animal.update({
       where: { id },
       data: { lotId },
