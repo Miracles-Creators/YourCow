@@ -14,6 +14,6 @@ export class SettlementsController {
 
   @Get("lot/:lotId")
   async getSettlementByLotId(@Param("lotId") lotId: string) {
-    return this.settlementsService.getSettlementByLotId(lotId);
+    return this.settlementsService.getSettlementByLotId(Number(lotId));
   }
 }

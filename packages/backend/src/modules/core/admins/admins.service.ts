@@ -26,7 +26,7 @@ export class AdminsService {
     });
   }
 
-  async getAdminById(id: string): Promise<User> {
+  async getAdminById(id: number): Promise<User> {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user || user.role !== UserRole.ADMIN) {
       throw new NotFoundException("Admin not found");

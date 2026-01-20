@@ -1,7 +1,7 @@
 export class CreatePaymentDto {
   paymentIntentId!: string;
-  investorId!: string;
-  lotId!: string;
+  investorId!: number;
+  lotId!: number;
   amountFiat!: number;
   currency!: string;
   sharesAmount!: string;

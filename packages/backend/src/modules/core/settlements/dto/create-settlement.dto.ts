@@ -1,5 +1,5 @@
 export class CreateSettlementDto {
-  lotId!: string;
+  lotId!: number;
   totalProceeds!: string; // Decimal as string
   currency?: string;
   finalReportHash!: string;
