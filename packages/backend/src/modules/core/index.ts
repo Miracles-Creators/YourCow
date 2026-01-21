@@ -21,3 +21,9 @@ export * from "./payments/payments.service";
 
 export * from "./settlements/settlements.module";
 export * from "./settlements/settlements.service";
+
+export * from "./share-balances/share-balances.module";
+export * from "./share-balances/share-balances.service";
+
+export * from "./share-transfers/share-transfers.module";
+export * from "./share-transfers/share-transfers.service";
