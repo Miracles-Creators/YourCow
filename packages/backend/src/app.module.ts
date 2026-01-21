@@ -13,6 +13,8 @@ import { AnimalsModule } from "./modules/core/animals/animals.module";
 import { PaymentsModule } from "./modules/core/payments/payments.module";
 import { SettlementsModule } from "./modules/core/settlements/settlements.module";
 import { AuthModule } from "./modules/core/auth/auth.module";
+import { ShareBalancesModule } from "./modules/core/share-balances/share-balances.module";
+import { ShareTransfersModule } from "./modules/core/share-transfers/share-transfers.module";
 
 // On-chain modules (contract interactions)
 import { LotFactoryModule } from "./modules/onchain/lot-factory/lot-factory.module";
@@ -35,6 +37,8 @@ import { SettlementRegistryModule } from "./modules/onchain/settlement-registry/
     AnimalsModule,
     PaymentsModule,
     SettlementsModule,
+    ShareBalancesModule,
+    ShareTransfersModule,
     AuthModule,
 
     // On-chain modules
