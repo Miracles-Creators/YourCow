@@ -9,6 +9,24 @@ export const UserSchema = z.object({
   walletAddress: z.string().nullable().optional(),
 });
 
+export const PaymentStatusSchema = z.enum([
+  "PENDING",
+  "CONFIRMED",
+  "FAILED",
+  "REFUNDED",
+]);
+
+export const AppContextSchema = z.enum(["WEB", "MOBILE", "ADMIN", "API"]);
+
+export const OnChainSyncStatusSchema = z.enum([
+  "PENDING",
+  "SYNCING",
+  "SYNCED",
+  "FAILED",
+]);
+
+export const ShareTransferKindSchema = z.enum(["MINT", "TRANSFER", "BURN"]);
+
 export const ProductionTypeSchema = z.enum(["FEEDLOT", "PASTURE", "MIXED"]);
 
 export const LotStatusSchema = z.enum([
@@ -35,6 +53,7 @@ export const LotSchema = z.object({
   // Herd data
   cattleCount: z.number(),
   averageWeightKg: z.number(),
+  initialWeightKg: z.number().nullable().optional(),
   durationWeeks: z.number(),
   startDate: z.string().nullable(),
   endDate: z.string().nullable(),
@@ -59,6 +78,8 @@ export const LotSchema = z.object({
   fundedPercent: z.number().optional(),
   producer: z
     .object({
+      userId: z.number(),
+      status: z.enum(["PENDING", "ACTIVE", "SUSPENDED", "REJECTED"]),
       user: z.object({
         name: z.string().nullable(),
       }),
@@ -102,6 +123,44 @@ export const ApproveLotInputSchema = z.object({
   producerAddress: z.string().optional(),
 });
 
+export const PaymentSchema = z.object({
+  id: z.number(),
+  paymentIntentId: z.string(),
+  userId: z.number(),
+  lotId: z.number(),
+  amountFiat: z.number(),
+  currency: z.string(),
+  sharesAmount: z.string(),
+  status: PaymentStatusSchema,
+  sourceApp: AppContextSchema,
+  txHash: z.string().nullable().optional(),
+  onChainStatus: OnChainSyncStatusSchema,
+  createdAt: z.string(),
+  confirmedAt: z.string().nullable().optional(),
+});
+
+export const ShareBalanceSchema = z.object({
+  id: z.number(),
+  userId: z.number(),
+  lotId: z.number(),
+  amount: z.string(),
+  lastSyncedAt: z.string().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const ShareTransferSchema = z.object({
+  id: z.number(),
+  lotId: z.number(),
+  fromUserId: z.number().nullable(),
+  toUserId: z.number(),
+  amount: z.string(),
+  kind: ShareTransferKindSchema,
+  txHash: z.string(),
+  onChainStatus: OnChainSyncStatusSchema,
+  createdAt: z.string(),
+});
+
 export type UserDto = z.infer<typeof UserSchema>;
 export type LotDto = z.infer<typeof LotSchema>;
 export type ProductionType = z.infer<typeof ProductionTypeSchema>;
@@ -109,3 +168,6 @@ export type LotStatus = z.infer<typeof LotStatusSchema>;
 export type ProducerDto = z.infer<typeof ProducerSchema>;
 export type AnimalDto = z.infer<typeof AnimalSchema>;
 export type ApproveLotInput = z.infer<typeof ApproveLotInputSchema>;
+export type PaymentDto = z.infer<typeof PaymentSchema>;
+export type ShareBalanceDto = z.infer<typeof ShareBalanceSchema>;
+export type ShareTransferDto = z.infer<typeof ShareTransferSchema>;
