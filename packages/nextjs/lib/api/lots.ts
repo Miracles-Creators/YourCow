@@ -20,6 +20,7 @@ export type CreateLotInput = {
   // Herd data
   cattleCount: number;
   averageWeightKg: number;
+  initialWeightKg: number;
   durationWeeks: number;
   startDate?: string;
   endDate?: string;

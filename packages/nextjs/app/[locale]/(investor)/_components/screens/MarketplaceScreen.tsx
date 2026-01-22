@@ -4,11 +4,11 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Filter } from "lucide-react";
-import { mockLots, type LotCategory } from "../../_constants/mockData";
+import { type LotCategory } from "../../_constants/mockData";
 import { InvestmentCard } from "../ui/InvestmentCard";
 import { cn } from "~~/lib/utils/cn";
 import { useLots } from "~~/hooks/lots/useLots";
-import { mapLotToInvestorLot } from "~~/lib/api/adapters";
+import type { LotDto } from "~~/lib/api/schemas";
 
 /**
  * MarketplaceScreen (INV-08)
@@ -16,19 +16,15 @@ import { mapLotToInvestorLot } from "~~/lib/api/adapters";
  */
 export function MarketplaceScreen() {
   const t = useTranslations("investor.marketplace");
+  const tCommon = useTranslations("common");
+  const fallbackText = "sin back-end";
 
   const [selectedFilter, setSelectedFilter] = useState<LotCategory | "all">(
     "all",
   );
 
-  const { data: lotsData } = useLots();
-  const lots = lotsData?.map(mapLotToInvestorLot) ?? mockLots;
-
-  // Filter lots based on selected category
-  const filteredLots =
-    selectedFilter === "all"
-      ? lots
-      : lots.filter((lot) => lot.category === selectedFilter);
+  const { data: lotsData, isPending } = useLots();
+  const lots = lotsData ?? [];
 
   // Staggered animation variants
   const containerVariants = {
@@ -52,6 +48,73 @@ export function MarketplaceScreen() {
       },
     },
   };
+
+  const mapCategory = (productionType: string): LotCategory => {
+    switch (productionType) {
+      case "FEEDLOT":
+      case "MIXED":
+        return "Fattening";
+      case "PASTURE":
+        return "Breeding";
+      default:
+        return "Fattening";
+    }
+  };
+
+  const toCardProps = (lot: LotDto) => {
+    const metadata =
+      lot.metadata && typeof lot.metadata === "object"
+        ? (lot.metadata as Record<string, unknown>)
+        : {};
+    const expectedReturn =
+      typeof metadata.expectedReturn === "string"
+        ? metadata.expectedReturn
+        : `${lot.investorPercent}%`;
+    const pricePerShare = Number(lot.pricePerShare);
+    const sharesAvailable =
+      typeof metadata.sharesAvailable === "number"
+        ? metadata.sharesAvailable
+        : fallbackText;
+
+    return {
+      lotId: lot.id,
+      name: lot.name || fallbackText,
+      location: lot.location || fallbackText,
+      duration: lot.durationWeeks
+        ? `${lot.durationWeeks} weeks`
+        : fallbackText,
+      expectedReturn: expectedReturn || fallbackText,
+      fundingProgress:
+        typeof lot.fundedPercent === "number"
+          ? lot.fundedPercent
+          : fallbackText,
+      herdSize: lot.cattleCount ?? fallbackText,
+      category: mapCategory(lot.productionType),
+      pricePerShare: Number.isFinite(pricePerShare)
+        ? pricePerShare
+        : fallbackText,
+      sharesAvailable,
+    };
+  };
+
+  // Filter lots based on selected category
+  const filteredLots =
+    selectedFilter === "all"
+      ? lots
+      : lots.filter((lot) => {
+          const category = mapCategory(lot.productionType);
+          return category === selectedFilter;
+        });
+
+  if (isPending) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center font-inter text-sm text-vaca-neutral-gray-500">
+          {tCommon("loading.default")}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -115,18 +178,7 @@ export function MarketplaceScreen() {
         >
           {filteredLots.map((lot) => (
             <motion.div key={lot.id} variants={cardVariants}>
-              <InvestmentCard
-                lotId={lot.id}
-                name={lot.name}
-                location={lot.location}
-                duration={lot.duration}
-                expectedReturn={lot.expectedReturn}
-                fundingProgress={lot.fundingProgress}
-                herdSize={lot.herdSize}
-                category={lot.category}
-                pricePerShare={lot.pricePerShare}
-                sharesAvailable={lot.sharesAvailable}
-              />
+              <InvestmentCard {...toCardProps(lot)} />
             </motion.div>
           ))}
         </motion.div>

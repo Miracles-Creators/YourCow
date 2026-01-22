@@ -12,9 +12,7 @@ import {
   Package,
 } from "lucide-react";
 import Link from "next/link";
-import { getLotById } from "../../_constants/mockData";
 import { useLot } from "~~/hooks/lots/useLot";
-import { mapLotToInvestorLot } from "~~/lib/api/adapters";
 import { cn } from "~~/lib/utils/cn";
 
 interface LotDetailScreenProps {
@@ -29,8 +27,26 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
   const t = useTranslations("investor.lotDetail");
   const tCommon = useTranslations("common");
 
-  const { data: lotData } = useLot(lotId);
-  const lot = lotData ? mapLotToInvestorLot(lotData) : getLotById(String(lotId));
+  const { data: lotData, isPending } = useLot(lotId);
+  const lot = lotData ?? null;
+  const metadata =
+    lot?.metadata && typeof lot.metadata === "object"
+      ? (lot.metadata as Record<string, unknown>)
+      : {};
+  const fallbackText = "sin back-end";
+
+  if (isPending) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-vaca-green/20 border-t-vaca-green" />
+          <p className="font-inter text-sm text-vaca-neutral-gray-500">
+            {tCommon("loading.default")}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!lot) {
     return (
@@ -76,6 +92,54 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
     }
   };
 
+  const mapCategory = (productionType: string): string => {
+    switch (productionType) {
+      case "FEEDLOT":
+      case "MIXED":
+        return "Fattening";
+      case "PASTURE":
+        return "Breeding";
+      default:
+        return "Fattening";
+    }
+  };
+
+  const getMetaString = (key: string, fallback = "") => {
+    const value = metadata[key];
+    return typeof value === "string" ? value : fallback;
+  };
+  const getMetaNumber = (key: string): number | null => {
+    const value = metadata[key];
+    return typeof value === "number" ? value : null;
+  };
+
+  //TODO:REFACTOR THIS YES OR YES
+  const category = mapCategory(lot.productionType);
+  const imageUrl = getMetaString("imageUrl");
+  const expectedReturn = getMetaString("expectedReturn", `${lot.investorPercent}%`);
+  const pricePerShare = Number(lot.pricePerShare);
+  const totalShares = Number(lot.totalShares);
+  const capitalRequired =
+    Number.isFinite(pricePerShare * totalShares) ? pricePerShare * totalShares : null;
+  const sharesAvailable = getMetaNumber("sharesAvailable");
+  const fundingProgress =
+    typeof lot.fundedPercent === "number" ? lot.fundedPercent : getMetaNumber("fundingProgress");
+  const currentNAV = getMetaNumber("currentNAV");
+  const breed = getMetaString("breed", fallbackText);
+  const producerName = lot.producer?.user?.name ?? getMetaString("producerName", fallbackText);
+  const producerExperience = getMetaString("producerExperience", fallbackText);
+  const traceabilityEvents = Array.isArray(metadata.traceabilityEvents)
+    ? metadata.traceabilityEvents
+        .filter(
+          (event): event is Record<string, unknown> =>
+            Boolean(event) && typeof event === "object",
+        )
+        .map((event) => ({
+          date: typeof event.date === "string" ? event.date : "",
+          description: typeof event.description === "string" ? event.description : "",
+        }))
+    : [];
+
   return (
     <div className="relative pb-32">
       {/* Header with Back Button */}
@@ -99,10 +163,10 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
           className="mb-8"
         >
           <div className="relative mb-6 h-72 overflow-hidden rounded-3xl">
-            {lot.imageUrl ? (
+            {imageUrl ? (
               <img
-                src={lot.imageUrl}
-                alt={lot.name}
+                src={imageUrl}
+                alt={lot.name || fallbackText}
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -112,21 +176,21 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
               <span
                 className={cn(
                   "rounded-xl px-4 py-2 font-inter text-sm backdrop-blur-sm",
-                  getCategoryColor(lot.category),
+                  getCategoryColor(category),
                 )}
               >
-                {lot.category}
+                {category}
               </span>
             </div>
           </div>
 
           <div className="mb-4">
             <h1 className="mb-2 font-playfair text-4xl font-bold text-vaca-green">
-              {lot.name}
+              {lot.name || fallbackText}
             </h1>
             <div className="flex items-center gap-2 font-inter text-vaca-neutral-gray-600">
               <MapPin className="h-4 w-4" />
-              <span>{lot.location}</span>
+              <span>{lot.location || fallbackText}</span>
             </div>
           </div>
         </motion.div>
@@ -147,7 +211,9 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                 Lot Value
               </p>
               <p className="font-playfair text-3xl font-semibold text-vaca-green">
-                ${lot.capitalRequired.toLocaleString()}
+                {capitalRequired !== null
+                  ? `$${capitalRequired.toLocaleString()}`
+                  : fallbackText}
               </p>
             </div>
             <div>
@@ -156,7 +222,7 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
               </p>
               <p className="flex items-center gap-2 font-playfair text-3xl font-semibold text-vaca-green">
                 <TrendingUp className="h-6 w-6 text-amber-600" />
-                {lot.expectedReturn}
+                {expectedReturn || fallbackText}
               </p>
             </div>
             <div>
@@ -164,7 +230,9 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                 {t("pricePerShare")}
               </p>
               <p className="font-playfair text-2xl font-semibold text-vaca-green">
-                ${lot.pricePerShare}
+                {Number.isFinite(pricePerShare)
+                  ? `$${pricePerShare}`
+                  : fallbackText}
               </p>
             </div>
             <div>
@@ -172,7 +240,9 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                 {t("duration")}
               </p>
               <p className="font-playfair text-2xl font-semibold text-vaca-green">
-                {lot.duration}
+                {lot.durationWeeks
+                  ? `${lot.durationWeeks} weeks`
+                  : fallbackText}
               </p>
             </div>
             <div>
@@ -180,7 +250,9 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                 NAV Actual
               </p>
               <p className="font-playfair text-xl font-semibold text-vaca-green">
-                ${lot.currentNAV.toLocaleString()}
+                {currentNAV !== null
+                  ? `$${currentNAV.toLocaleString()}`
+                  : fallbackText}
               </p>
             </div>
             <div>
@@ -188,7 +260,10 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                 {t("sharesAvailable")}
               </p>
               <p className="font-playfair text-xl font-semibold text-vaca-green">
-                {lot.sharesAvailable} de {lot.totalShares}
+                {sharesAvailable !== null
+                  ? sharesAvailable
+                  : fallbackText}{" "}
+                de {Number.isFinite(totalShares) ? totalShares : fallbackText}
               </p>
             </div>
           </div>
@@ -200,17 +275,21 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                 {t("fundingProgress")}
               </span>
               <span className="font-inter font-medium text-vaca-green">
-                {lot.fundingProgress.toFixed(0)}%
+                {fundingProgress !== null
+                  ? `${fundingProgress.toFixed(0)}%`
+                  : fallbackText}
               </span>
             </div>
-            <div className="h-3 overflow-hidden rounded-full bg-vaca-neutral-gray-100">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${lot.fundingProgress}%` }}
-                transition={{ duration: 1, delay: 0.5 }}
-                className="h-full rounded-full bg-gradient-to-r from-vaca-green to-green-600"
-              />
-            </div>
+            {fundingProgress !== null && (
+              <div className="h-3 overflow-hidden rounded-full bg-vaca-neutral-gray-100">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${fundingProgress}%` }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                  className="h-full rounded-full bg-gradient-to-r from-vaca-green to-green-600"
+                />
+              </div>
+            )}
           </div>
         </motion.div>
 
@@ -234,7 +313,7 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                   Raza
                 </p>
                 <p className="font-inter text-lg font-medium text-vaca-green">
-                  {lot.breed}
+                  {breed}
                 </p>
               </div>
             </div>
@@ -247,7 +326,7 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                   Tamaño del Hato
                 </p>
                 <p className="font-inter text-lg font-medium text-vaca-green">
-                  {lot.herdSize} cabezas
+                  {lot.cattleCount ?? fallbackText} cabezas
                 </p>
               </div>
             </div>
@@ -260,7 +339,7 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                   Categoría
                 </p>
                 <p className="font-inter text-lg font-medium text-vaca-green">
-                  {getTranslatedCategory(lot.category)}
+                  {getTranslatedCategory(category)}
                 </p>
               </div>
             </div>
@@ -273,7 +352,7 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                   Ubicación
                 </p>
                 <p className="font-inter text-lg font-medium text-vaca-green">
-                  {lot.location}
+                  {lot.location || fallbackText}
                 </p>
               </div>
             </div>
@@ -291,7 +370,10 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
             Trazabilidad
           </h2>
           <div className="space-y-6">
-            {lot.traceabilityEvents.map((event, index) => (
+            {(traceabilityEvents.length > 0
+              ? traceabilityEvents
+              : [{ date: fallbackText, description: fallbackText }]
+            ).map((event, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: -20 }}
@@ -328,10 +410,10 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
             </div>
             <div>
               <h2 className="mb-1 font-playfair text-2xl font-semibold text-vaca-green">
-                {lot.producer.name}
+                {producerName}
               </h2>
               <p className="font-inter text-vaca-neutral-gray-600">
-                {lot.producer.experience}
+                {producerExperience}
               </p>
             </div>
           </div>
@@ -359,7 +441,9 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                 {t("pricePerShare").toLowerCase()}
               </p>
               <p className="font-playfair text-3xl font-semibold text-vaca-green">
-                ${lot.pricePerShare}
+                {Number.isFinite(pricePerShare)
+                  ? `$${pricePerShare}`
+                  : fallbackText}
               </p>
             </div>
             <Link href={`/invest/${lotId}`}>

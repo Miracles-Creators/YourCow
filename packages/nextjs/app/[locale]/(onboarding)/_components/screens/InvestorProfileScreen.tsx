@@ -13,6 +13,7 @@ import {
   shellItemVariants,
 } from "~~/app/[locale]/(onboarding)/_components";
 import { Button } from "~~/components/ui";
+import { useCreateProducer } from "~~/hooks/producers/useCreateProducer";
 
 interface FormData {
   country: string;
@@ -20,6 +21,9 @@ interface FormData {
   address: string;
   city: string;
   postalCode: string;
+  name: string;
+  email: string;
+  senasaId: string;
 }
 
 interface FormErrors {
@@ -28,6 +32,9 @@ interface FormErrors {
   address?: string;
   city?: string;
   postalCode?: string;
+  name?: string;
+  email?: string;
+  senasaId?: string;
 }
 
 /**
@@ -38,13 +45,17 @@ interface FormErrors {
 export function InvestorProfileScreen() {
   const t = useTranslations("onboarding.investorProfile");
   const router = useRouter();
-
+  const createProducer = useCreateProducer();
+  
   const [formData, setFormData] = useState<FormData>({
     country: "",
     phone: "",
     address: "",
     city: "",
     postalCode: "",
+    name: "",
+    email: "",
+    senasaId: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,6 +103,8 @@ export function InvestorProfileScreen() {
 
     // Mock API call - replace with actual profile save
     await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log("Profile saved:", formData);
+    await createProducer.mutateAsync(formData);
 
     // Navigate to KYC screen
     router.push("/onboarding/investor/kyc");

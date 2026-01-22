@@ -116,6 +116,7 @@ model Lot {
   // Herd data (legally relevant for SENASA/traceability)
   cattleCount      Int     // Number of animals in the lot
   averageWeightKg  Float   // Average weight per animal in kg
+  initialWeightKg  Float?  // Initial average weight per animal in kg
   durationWeeks    Int     // Expected fattening duration
   startDate        DateTime?
   endDate          DateTime?

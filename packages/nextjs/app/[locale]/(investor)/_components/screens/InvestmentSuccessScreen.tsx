@@ -3,12 +3,12 @@
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import type { Lot } from "../../_constants/mockData";
+import { useLot } from "~~/hooks/lots/useLot";
 import { cn } from "~~/lib/utils/cn";
 import { PrimaryButton } from "../ui/PrimaryButton";
 
 interface InvestmentSuccessScreenProps {
-  lot: Lot;
+  lotId: number;
   investmentAmount: number;
   shares: number;
 }
@@ -26,20 +26,24 @@ interface InvestmentSuccessScreenProps {
  * Style: Green success tone, subtle animation
  */
 export function InvestmentSuccessScreen({
-  lot,
+  lotId,
   investmentAmount,
   shares,
 }: InvestmentSuccessScreenProps) {
   const t = useTranslations("investor.investmentSuccess");
+  const tCommon = useTranslations("common");
 
   const router = useRouter();
+  const { data: lotData, isPending } = useLot(lotId);
+  const lot = lotData ?? null;
+  const fallbackText = "sin back-end";
 
   const handleViewPortfolio = () => {
     router.push("/portfolio");
   };
 
   const handleViewLot = () => {
-    router.push(`/lot/${lot.id}`);
+    router.push(`/lot/${lotId}`);
   };
 
   // Staggered animation variants
@@ -102,6 +106,28 @@ export function InvestmentSuccessScreen({
     },
   };
 
+  if (isPending && !lot) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center font-inter text-sm text-vaca-neutral-gray-500">
+          {tCommon("loading.default")}
+        </div>
+      </div>
+    );
+  }
+
+  if (!lot && !isPending) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <h2 className="mb-2 font-playfair text-2xl font-semibold text-vaca-neutral-gray-900">
+            {tCommon("errors.notFound")}
+          </h2>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       variants={containerVariants}
@@ -157,7 +183,7 @@ export function InvestmentSuccessScreen({
           {t("title")}
         </h1>
         <p className="font-inter text-base text-vaca-neutral-gray-600">
-          {t("message", { lotName: lot.name })}
+          {t("message", { lotName: lot?.name || fallbackText })}
         </p>
       </motion.div>
 
@@ -176,10 +202,13 @@ export function InvestmentSuccessScreen({
               {t("details.lot")}
             </div>
             <h2 className="font-playfair text-xl font-semibold text-vaca-neutral-gray-900">
-              {lot.name}
+              {lot?.name || fallbackText}
             </h2>
             <div className="mt-1 font-inter text-sm text-vaca-neutral-gray-600">
-              {lot.location} · {lot.duration}
+              {lot?.location || fallbackText} ·{" "}
+              {lot?.durationWeeks
+                ? `${lot.durationWeeks} weeks`
+                : fallbackText}
             </div>
           </div>
 

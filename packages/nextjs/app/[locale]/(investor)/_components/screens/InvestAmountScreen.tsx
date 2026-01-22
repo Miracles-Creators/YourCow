@@ -10,17 +10,13 @@ import {
   calculateEstimatedReturn,
   calculateParticipation,
   calculateShares,
-  getLotById,
-} from "../../_constants/mockData";
+} from "~~/utils/investment";
 import { useLot } from "~~/hooks/lots/useLot";
-import { mapLotToInvestorLot } from "~~/lib/api/adapters";
 import { PrimaryButton } from "../ui/PrimaryButton";
 
 interface InvestAmountScreenProps {
   lotId: number;
 }
-
-const MIN_INVESTMENT = 10000;
 
 /**
  * InvestAmountScreen (INV-10)
@@ -31,46 +27,65 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
   const tCommon = useTranslations("common");
 
   const router = useRouter();
-  const { data: lotData } = useLot(lotId);
-  const lot = lotData ? mapLotToInvestorLot(lotData) : getLotById(String(lotId));
-  const [amount, setAmount] = useState("");
+  const { data: lotData, isPending } = useLot(lotId);
+  const lot = lotData ?? null;
+  const metadata =
+    lot?.metadata && typeof lot.metadata === "object"
+      ? (lot.metadata as Record<string, unknown>)
+      : {};
+  const fallbackText = "sin back-end";
+  const [amount, setAmount] = useState(0);
   const [shares, setShares] = useState(0);
   const [participation, setParticipation] = useState(0);
   const [estimatedReturn, setEstimatedReturn] = useState("$0-$0");
+  const pricePerShare = lot ? Number(lot.pricePerShare) : 0;
+  const totalShares = lot ? Number(lot.totalShares) : 0;
+  const hasPricing = Boolean(lot) && pricePerShare > 0 && totalShares > 0;
 
   // Real-time calculation on amount change
   useEffect(() => {
-    const numAmount = parseFloat(amount.replace(/,/g, ""));
-    if (!isNaN(numAmount) && numAmount >= MIN_INVESTMENT && lot) {
-      setShares(calculateShares(numAmount));
-      setParticipation(calculateParticipation(numAmount, lot.capitalRequired));
-      setEstimatedReturn(
-        calculateEstimatedReturn(numAmount, lot.expectedReturn),
-      );
-    } else {
+    if (!hasPricing || amount <= 0) {
       setShares(0);
       setParticipation(0);
       setEstimatedReturn("$0-$0");
+      return;
     }
-  }, [amount, lot]);
+
+    const nextShares = calculateShares(amount, pricePerShare);
+    setShares(nextShares);
+    setParticipation(calculateParticipation(nextShares, totalShares));
+    setEstimatedReturn("<= Definir esto");
+  }, [amount, hasPricing, pricePerShare, totalShares]);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
     if (value === "") {
-      setAmount("");
+      setAmount(0);
       return;
     }
     const numValue = parseInt(value);
-    setAmount(numValue.toLocaleString());
+    setAmount(numValue);
   };
 
-  const numAmount = parseFloat(amount.replace(/,/g, "")) || 0;
-  const isValid =
-    numAmount >= MIN_INVESTMENT && lot && numAmount <= lot.capitalRequired;
-  const showError = amount !== "" && numAmount < MIN_INVESTMENT;
-  const showMaxError = lot && numAmount > lot.capitalRequired;
+  const sharesAvailable =
+    typeof metadata.sharesAvailable === "number"
+      ? metadata.sharesAvailable
+      : totalShares;
+  const maxAmount = hasPricing ? sharesAvailable * pricePerShare : 0;
+  const exceedsAvailable = hasPricing && amount > maxAmount;
+  const isValid = amount > 0 && Boolean(lot) && hasPricing && !exceedsAvailable;
 
-  if (!lot) {
+  if (isPending && !lot) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center font-inter text-sm text-vaca-neutral-gray-500">
+          {tCommon("loading.default")}
+        </div>
+      </div>
+    );
+  }
+
+  if (!lot && !isPending) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
@@ -119,7 +134,7 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
         className="mb-8"
       >
         <h1 className="font-playfair text-2xl font-semibold text-vaca-neutral-gray-900 sm:text-3xl">
-          {t("title")} {lot.name}
+          {t("title")} {lot?.name || fallbackText}
         </h1>
       </motion.div>
 
@@ -157,59 +172,16 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
               "font-playfair text-5xl font-semibold text-vaca-neutral-gray-900",
               "transition-all duration-200",
               "focus:outline-none focus:ring-4",
-              showError || showMaxError
-                ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
-                : "border-vaca-neutral-gray-200 focus:border-vaca-green focus:ring-vaca-green/10",
+              "border-vaca-neutral-gray-200 focus:border-vaca-green focus:ring-vaca-green/10",
             )}
             aria-label="Investment amount in dollars"
-            aria-invalid={showError || showMaxError}
-            aria-describedby={
-              showError || showMaxError ? "amount-error" : undefined
-            }
           />
         </div>
-
-        {/* Validation Messages */}
-        <AnimatePresence mode="wait">
-          {showError && (
-            <motion.p
-              id="amount-error"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mt-3 flex items-center gap-2 font-inter text-sm text-red-600"
-            >
-              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              {t("errors.minimumAmount", {
-                amount: MIN_INVESTMENT.toLocaleString(),
-              })}
-            </motion.p>
-          )}
-          {showMaxError && (
-            <motion.p
-              id="amount-error"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mt-3 flex items-center gap-2 font-inter text-sm text-red-600"
-            >
-              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Maximum available: ${lot.capitalRequired.toLocaleString()}
-            </motion.p>
-          )}
-        </AnimatePresence>
+        {exceedsAvailable && (
+          <p className="mt-3 font-inter text-sm text-red-600">
+            {`Monto maximo disponible: $${maxAmount.toLocaleString()}`}
+          </p>
+        )}
       </motion.div>
 
       {/* Investment Breakdown */}
@@ -237,7 +209,9 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
                   animate={{ opacity: 1, y: 0 }}
                   className="font-playfair text-2xl font-semibold text-vaca-green"
                 >
-                  {shares} units
+                  {hasPricing
+                    ? `${shares} units`
+                    : fallbackText}
                 </motion.span>
               </div>
 
@@ -251,7 +225,9 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
                   animate={{ opacity: 1, y: 0 }}
                   className="font-playfair text-2xl font-semibold text-vaca-blue"
                 >
-                  {participation}%
+                  {hasPricing
+                    ? `${participation}%`
+                    : fallbackText}
                 </motion.span>
               </div>
 
@@ -261,7 +237,7 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
                     Total Investment
                   </span>
                   <span className="font-playfair text-xl font-semibold text-vaca-neutral-gray-900">
-                    ${numAmount.toLocaleString()}
+                    ${amount.toLocaleString()}
                   </span>
                 </div>
                 <div className="mt-2 flex items-baseline justify-between">
@@ -274,7 +250,7 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
                     animate={{ opacity: 1, y: 0 }}
                     className="font-inter text-sm font-semibold text-vaca-green"
                   >
-                    {estimatedReturn}
+                    {estimatedReturn === "$0-$0" ? fallbackText : estimatedReturn}
                   </motion.span>
                 </div>
               </div>
@@ -297,7 +273,7 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
           onClick={() => {
             // Navigate to confirmation screen with investment details
             router.push(
-              `/confirm-investment/${lotId}?amount=${numAmount}&shares=${shares}`,
+              `/confirm-investment/${lotId}?amount=${amount}&shares=${shares}`,
             );
           }}
         >

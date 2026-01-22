@@ -10,7 +10,8 @@ import { useLotDraftStore } from "~~/services/store/lotDraft";
 
 type HerdCycleFormState = {
   cattleCount: string;
-  averageWeight: string;
+  averageWeightKg: string;
+  initialWeightKg: string;
   durationWeeks: string;
   targetEndDate: string;
   notes: string;
@@ -28,7 +29,8 @@ const STEPS = [
 
 const INITIAL_STATE: HerdCycleFormState = {
   cattleCount: "",
-  averageWeight: "",
+  averageWeightKg: "",
+  initialWeightKg: "",
   durationWeeks: "",
   targetEndDate: "",
   notes: "",
@@ -50,7 +52,8 @@ export function CreateLotHerdCycleScreen() {
     setFormState(prev => ({
       ...prev,
       cattleCount: draft.herdCycle.cattleCount,
-      averageWeight: draft.herdCycle.averageWeight,
+      averageWeightKg: draft.herdCycle.averageWeightKg,
+      initialWeightKg: draft.herdCycle.initialWeightKg,
       durationWeeks: draft.herdCycle.durationWeeks,
       targetEndDate: draft.herdCycle.targetEndDate,
       notes: draft.herdCycle.notes,
@@ -77,8 +80,11 @@ export function CreateLotHerdCycleScreen() {
     if (!formState.cattleCount.trim()) {
       nextErrors.cattleCount = "Number of cattle is required.";
     }
-    if (!formState.averageWeight.trim()) {
-      nextErrors.averageWeight = "Average weight is required.";
+    if (!formState.averageWeightKg.trim()) {
+      nextErrors.averageWeightKg = "Average weight is required.";
+    }
+    if (!formState.initialWeightKg.trim()) {
+      nextErrors.initialWeightKg = "Initial weight is required.";
     }
     if (mode === "duration" && !formState.durationWeeks.trim()) {
       nextErrors.durationWeeks = "Expected duration is required.";
@@ -94,13 +100,14 @@ export function CreateLotHerdCycleScreen() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validate()) return;
-    updateDraft({
-      herdCycle: {
-        cattleCount: formState.cattleCount,
-        averageWeight: formState.averageWeight,
-        durationWeeks: formState.durationWeeks,
-        targetEndDate: formState.targetEndDate,
-        notes: formState.notes,
+        updateDraft({
+          herdCycle: {
+            cattleCount: formState.cattleCount,
+            averageWeightKg: formState.averageWeightKg,
+            initialWeightKg: formState.initialWeightKg,
+            durationWeeks: formState.durationWeeks,
+            targetEndDate: formState.targetEndDate,
+            notes: formState.notes,
         timelineMode: mode,
       },
     });
@@ -167,32 +174,69 @@ export function CreateLotHerdCycleScreen() {
           <div className="form-control">
             <label className="label" htmlFor="average-weight">
               <span className="label-text font-medium">
-                Average starting weight (kg)
+                Average weight (kg)
               </span>
             </label>
             <input
               id="average-weight"
-              name="averageWeight"
+              name="averageWeightKg"
               type="number"
               min={0}
               className={cn(
                 "input input-bordered w-full",
-                errors.averageWeight && "border-vaca-brown",
+                errors.averageWeightKg && "border-vaca-brown",
               )}
-              value={formState.averageWeight}
-              onChange={event => handleChange("averageWeight", event.target.value)}
-              aria-invalid={Boolean(errors.averageWeight)}
+              value={formState.averageWeightKg}
+              onChange={event =>
+                handleChange("averageWeightKg", event.target.value)
+              }
+              aria-invalid={Boolean(errors.averageWeightKg)}
               aria-describedby={
-                errors.averageWeight ? "average-weight-error" : undefined
+                errors.averageWeightKg ? "average-weight-error" : undefined
               }
               required
             />
-            {errors.averageWeight && (
+            {errors.averageWeightKg && (
               <p
                 id="average-weight-error"
                 className="mt-1 text-xs text-vaca-brown"
               >
-                {errors.averageWeight}
+                {errors.averageWeightKg}
+              </p>
+            )}
+          </div>
+
+          <div className="form-control">
+            <label className="label" htmlFor="initial-weight">
+              <span className="label-text font-medium">
+                Initial weight (kg)
+              </span>
+            </label>
+            <input
+              id="initial-weight"
+              name="initialWeightKg"
+              type="number"
+              min={0}
+              className={cn(
+                "input input-bordered w-full",
+                errors.initialWeightKg && "border-vaca-brown",
+              )}
+              value={formState.initialWeightKg}
+              onChange={event =>
+                handleChange("initialWeightKg", event.target.value)
+              }
+              aria-invalid={Boolean(errors.initialWeightKg)}
+              aria-describedby={
+                errors.initialWeightKg ? "initial-weight-error" : undefined
+              }
+              required
+            />
+            {errors.initialWeightKg && (
+              <p
+                id="initial-weight-error"
+                className="mt-1 text-xs text-vaca-brown"
+              >
+                {errors.initialWeightKg}
               </p>
             )}
           </div>
