@@ -18,6 +18,11 @@ export class PaymentsController {
     return this.paymentsService.confirmPayment(Number(id), body.txHash);
   }
 
+  @Post(":id/mint")
+  async mintPayment(@Param("id") id: string) {
+    return this.paymentsService.mintPayment(Number(id));
+  }
+
   @Get(":id")
   async getPaymentById(@Param("id") id: string) {
     return this.paymentsService.getPaymentById(Number(id));
