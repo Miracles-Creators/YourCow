@@ -76,7 +76,7 @@ export function ConfirmInvestmentScreen({
         lotId: lot.id,
         amountFiat: Math.round(investmentAmount * 100),
         currency: "USD",
-        sharesAmount: shares.toString(),
+        sharesAmount: shares,
       });
 
       await confirmPayment.mutateAsync({ id: payment.id });
@@ -205,10 +205,8 @@ export function ConfirmInvestmentScreen({
             label={t("shares")}
             value={shares.toLocaleString("en-US")}
             sublabel={
-              Number(lot.totalShares)
-                ? `${((shares / Number(lot.totalShares)) * 100).toFixed(
-                    2,
-                  )}% of lot`
+              lot.totalShares
+                ? `${((shares / lot.totalShares) * 100).toFixed(2)}% of lot`
                 : fallbackText
             }
           />
@@ -216,11 +214,7 @@ export function ConfirmInvestmentScreen({
           {/* Share Price */}
           <SummaryRow
             label={t("pricePerShare")}
-            value={
-              Number(lot.pricePerShare)
-                ? `$${Number(lot.pricePerShare)}`
-                : fallbackText
-            }
+            value={lot.pricePerShare ? `$${lot.pricePerShare}` : fallbackText}
           />
         </div>
       </motion.div>

@@ -52,16 +52,7 @@ export function ProducerDetailScreen() {
   const isApproving = approveProducer.isPending;
   const isApproved = status === "Approved";
 
-  const formatNumberString = (value: string) => {
-    const digits = value.replace(/[^\d]/g, "");
-    if (!digits) return "—";
-    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  };
-
-  const formatShares = (value: string) => {
-    const formatted = formatNumberString(value);
-    return formatted === "—" ? "—" : `${formatted} shares`;
-  };
+  const formatShares = (value: number) => `${value.toLocaleString("en-US")} shares`;
 
   useEffect(() => {
     if (!modalAction) return;

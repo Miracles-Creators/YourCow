@@ -117,10 +117,9 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
   const category = mapCategory(lot.productionType);
   const imageUrl = getMetaString("imageUrl");
   const expectedReturn = getMetaString("expectedReturn", `${lot.investorPercent}%`);
-  const pricePerShare = Number(lot.pricePerShare);
-  const totalShares = Number(lot.totalShares);
-  const capitalRequired =
-    Number.isFinite(pricePerShare * totalShares) ? pricePerShare * totalShares : null;
+  const pricePerShare = lot.pricePerShare;
+  const totalShares = lot.totalShares;
+  const capitalRequired = pricePerShare * totalShares;
   const sharesAvailable = getMetaNumber("sharesAvailable");
   const fundingProgress =
     typeof lot.fundedPercent === "number" ? lot.fundedPercent : getMetaNumber("fundingProgress");
@@ -230,9 +229,7 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                 {t("pricePerShare")}
               </p>
               <p className="font-playfair text-2xl font-semibold text-vaca-green">
-                {Number.isFinite(pricePerShare)
-                  ? `$${pricePerShare}`
-                  : fallbackText}
+                {`$${pricePerShare}`}
               </p>
             </div>
             <div>
@@ -263,7 +260,7 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                 {sharesAvailable !== null
                   ? sharesAvailable
                   : fallbackText}{" "}
-                de {Number.isFinite(totalShares) ? totalShares : fallbackText}
+                de {totalShares}
               </p>
             </div>
           </div>
@@ -441,9 +438,7 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                 {t("pricePerShare").toLowerCase()}
               </p>
               <p className="font-playfair text-3xl font-semibold text-vaca-green">
-                {Number.isFinite(pricePerShare)
-                  ? `$${pricePerShare}`
-                  : fallbackText}
+                {`$${pricePerShare}`}
               </p>
             </div>
             <Link href={`/invest/${lotId}`}>

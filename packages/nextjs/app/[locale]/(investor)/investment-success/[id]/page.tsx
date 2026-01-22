@@ -27,7 +27,7 @@ export default async function InvestmentSuccessPage({
   // Parse investment details from query params (should come from previous step)
   // In production, these would come from the backend/database
   const investmentAmount = amount ? parseFloat(amount) : 0;
-  const sharesAmount = shares ? parseInt(shares, 10) : 0;
+  const sharesAmount = Number(shares ?? 0);
 
   return (
     <InvestmentSuccessScreen

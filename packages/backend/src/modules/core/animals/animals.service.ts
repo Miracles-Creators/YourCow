@@ -33,7 +33,7 @@ export class AnimalsService {
     return this.prisma.animal.findUnique({ where: { eid } });
   }
 
-  async getAnimalByOnChainId(onChainId: string): Promise<Animal | null> {
+  async getAnimalByOnChainId(onChainId: number): Promise<Animal | null> {
     return this.prisma.animal.findUnique({ where: { onChainId } });
   }
 
@@ -44,7 +44,7 @@ export class AnimalsService {
     });
   }
 
-  async updateOnChainId(id: number, onChainId: string): Promise<Animal> {
+  async updateOnChainId(id: number, onChainId: number): Promise<Animal> {
     return this.prisma.animal.update({
       where: { id },
       data: { onChainId },

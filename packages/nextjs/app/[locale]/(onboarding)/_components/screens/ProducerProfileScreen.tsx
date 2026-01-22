@@ -103,7 +103,7 @@ export function ProducerProfileScreen() {
     const yearsOperating = Number(formData.yearsOperating);
     if (!formData.yearsOperating.trim()) {
       newErrors.yearsOperating = t("errors.yearsOperatingRequired");
-    } else if (Number.isNaN(yearsOperating) || yearsOperating <= 0) {
+    } else if (yearsOperating <= 0) {
       newErrors.yearsOperating = t("errors.yearsOperatingInvalid");
     }
 

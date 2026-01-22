@@ -9,10 +9,10 @@ import { ProducerWizardStepper } from "../ui/ProducerWizardStepper";
 import { useLotDraftStore } from "~~/services/store/lotDraft";
 
 type FinancingFormState = {
-  totalCapital: string;
+  totalCapital: number;
   investorPercent: number;
   fundingDeadline: string;
-  operatingCosts: string;
+  operatingCosts: number;
 };
 
 const STEPS = [
@@ -24,10 +24,10 @@ const STEPS = [
 ];
 
 const INITIAL_STATE: FinancingFormState = {
-  totalCapital: "",
+  totalCapital: 0,
   investorPercent: 35,
   fundingDeadline: "",
-  operatingCosts: "",
+  operatingCosts: 0,
 };
 
 export function CreateLotFinancingScreen() {
@@ -59,8 +59,17 @@ export function CreateLotFinancingScreen() {
     [prefersReducedMotion],
   );
 
-  const handleChange = (field: keyof FinancingFormState, value: string) => {
+  const handleTextChange = (field: "fundingDeadline", value: string) => {
     setFormState(prev => ({ ...prev, [field]: value }));
+    setErrors(prev => ({ ...prev, [field]: "" }));
+  };
+
+  const handleNumberChange = (
+    field: "totalCapital" | "operatingCosts",
+    value: string,
+  ) => {
+    const parsed = value === "" ? 0 : Number(value);
+    setFormState(prev => ({ ...prev, [field]: parsed }));
     setErrors(prev => ({ ...prev, [field]: "" }));
   };
 
@@ -72,7 +81,7 @@ export function CreateLotFinancingScreen() {
   const validate = () => {
     const nextErrors: Partial<Record<keyof FinancingFormState, string>> = {};
 
-    if (!formState.totalCapital.trim()) {
+    if (formState.totalCapital <= 0) {
       nextErrors.totalCapital = "Total capital is required.";
     }
     if (!formState.fundingDeadline.trim()) {
@@ -138,8 +147,10 @@ export function CreateLotFinancingScreen() {
                 "input input-bordered w-full",
                 errors.totalCapital && "border-vaca-brown",
               )}
-              value={formState.totalCapital}
-              onChange={event => handleChange("totalCapital", event.target.value)}
+              value={formState.totalCapital || ""}
+              onChange={event =>
+                handleNumberChange("totalCapital", event.target.value)
+              }
               aria-invalid={Boolean(errors.totalCapital)}
               aria-describedby={
                 errors.totalCapital ? "total-capital-error" : undefined
@@ -172,7 +183,7 @@ export function CreateLotFinancingScreen() {
               )}
               value={formState.fundingDeadline}
               onChange={event =>
-                handleChange("fundingDeadline", event.target.value)
+                handleTextChange("fundingDeadline", event.target.value)
               }
               aria-invalid={Boolean(errors.fundingDeadline)}
               aria-describedby={
@@ -245,9 +256,9 @@ export function CreateLotFinancingScreen() {
             type="number"
             min={0}
             className="input input-bordered w-full"
-            value={formState.operatingCosts}
+            value={formState.operatingCosts || ""}
             onChange={event =>
-              handleChange("operatingCosts", event.target.value)
+              handleNumberChange("operatingCosts", event.target.value)
             }
           />
         </div>

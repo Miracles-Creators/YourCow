@@ -9,7 +9,7 @@ import { useLotDraftStore } from "~~/services/store/lotDraft";
 import { useProducerMe } from "~~/hooks/producers/useProducerMe";
 
 type BasicInfoFormState = {
-  producerId: number | null;
+  producerId: number;
   lotName: string;
   farmName: string;
   location: string;
@@ -26,7 +26,7 @@ const STEPS = [
 ];
 
 const INITIAL_STATE: BasicInfoFormState = {
-  producerId: null,
+  producerId: 0,
   lotName: "",
   farmName: "",
   location: "",
@@ -81,9 +81,6 @@ export function CreateLotBasicInfoScreen() {
   const validate = () => {
     const nextErrors: Partial<Record<keyof BasicInfoFormState, string>> = {};
 
-    if (formState.producerId === null) {
-      nextErrors.producerId = "Producer ID is required.";
-    }
     if (!formState.lotName.trim()) {
       nextErrors.lotName = "Lot name is required.";
     }
@@ -158,24 +155,9 @@ export function CreateLotBasicInfoScreen() {
                 "input input-bordered w-full",
                 errors.producerId && "border-vaca-brown",
               )}
-              value={formState.producerId ?? ""}
+              value={formState.producerId}
               readOnly
-              aria-invalid={Boolean(errors.producerId)}
-              aria-describedby={errors.producerId ? "producer-id-error" : undefined}
             />
-            {errors.producerId && (
-              <p
-                id="producer-id-error"
-                className="mt-1 text-xs text-vaca-brown"
-              >
-                {errors.producerId}
-              </p>
-            )}
-            {!errors.producerId && !formState.producerId && (
-              <p className="mt-1 text-xs text-vaca-neutral-gray-500">
-                Complete producer onboarding to set this automatically.
-              </p>
-            )}
           </div>
           <div className="form-control">
             <label className="label" htmlFor="lot-name">

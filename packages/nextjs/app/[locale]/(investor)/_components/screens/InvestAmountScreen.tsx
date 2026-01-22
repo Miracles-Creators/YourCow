@@ -38,8 +38,8 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
   const [shares, setShares] = useState(0);
   const [participation, setParticipation] = useState(0);
   const [estimatedReturn, setEstimatedReturn] = useState("$0-$0");
-  const pricePerShare = lot ? Number(lot.pricePerShare) : 0;
-  const totalShares = lot ? Number(lot.totalShares) : 0;
+  const pricePerShare = lot ? lot.pricePerShare : 0;
+  const totalShares = lot ? lot.totalShares : 0;
   const hasPricing = Boolean(lot) && pricePerShare > 0 && totalShares > 0;
 
   // Real-time calculation on amount change
@@ -63,8 +63,7 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
       setAmount(0);
       return;
     }
-    const numValue = parseInt(value);
-    setAmount(numValue);
+    setAmount(Number(value));
   };
 
   const sharesAvailable =

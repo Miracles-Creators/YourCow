@@ -37,7 +37,7 @@ const AnimalFormSchema = z.object({
 export function ProducerLotDashboardScreen() {
   const prefersReducedMotion = useReducedMotion();
   const params = useParams();
-  const lotId = typeof params.lotId === "string" ? params.lotId : "lot-001";
+  const lotId = typeof params.lotId === "string" ? Number(params.lotId) : 0;
   const queryClient = useQueryClient();
   const animalsQuery = useAnimalsByLot(lotId);
   const createAnimal = useCreateAnimal();

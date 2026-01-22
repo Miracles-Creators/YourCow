@@ -59,14 +59,14 @@ export const LotSchema = z.object({
   endDate: z.string().nullable(),
 
   // Financing terms
-  totalShares: z.string(),
-  pricePerShare: z.string(),
+  totalShares: z.number(),
+  pricePerShare: z.number(),
   investorPercent: z.number(),
   fundingDeadline: z.string().nullable(),
-  operatingCosts: z.string().nullable(),
+  operatingCosts: z.number().nullable(),
 
   // On-chain data
-  onChainLotId: z.string().nullable().optional(),
+  onChainLotId: z.number().nullable().optional(),
   tokenAddress: z.string().nullable().optional(),
   txHash: z.string().nullable().optional(),
   metadataHash: z.string().nullable().optional(),
@@ -110,7 +110,7 @@ export const AnimalSchema = z.object({
   custodian: z.string(),
   status: z.enum(["ALIVE", "SOLD", "DECEASED", "REMOVED"]),
   lotId: z.number().nullable().optional(),
-  onChainId: z.string().nullable().optional(),
+  onChainId: z.number().nullable().optional(),
   profile: z.unknown(),
   profileHash: z.string().nullable().optional(),
   createdAt: z.string().nullable().optional(),
@@ -119,7 +119,8 @@ export const AnimalSchema = z.object({
 export const ApproveLotInputSchema = z.object({
   tokenName: z.string(),
   tokenSymbol: z.string(),
-  initialPricePerShare: z.string(),
+  totalShares: z.number(),
+  pricePerShare: z.number(),
   producerAddress: z.string().optional(),
 });
 
@@ -130,7 +131,7 @@ export const PaymentSchema = z.object({
   lotId: z.number(),
   amountFiat: z.number(),
   currency: z.string(),
-  sharesAmount: z.string(),
+  sharesAmount: z.number(),
   status: PaymentStatusSchema,
   sourceApp: AppContextSchema,
   txHash: z.string().nullable().optional(),
@@ -143,7 +144,7 @@ export const ShareBalanceSchema = z.object({
   id: z.number(),
   userId: z.number(),
   lotId: z.number(),
-  amount: z.string(),
+  amount: z.number(),
   lastSyncedAt: z.string().nullable().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -154,7 +155,7 @@ export const ShareTransferSchema = z.object({
   lotId: z.number(),
   fromUserId: z.number().nullable(),
   toUserId: z.number(),
-  amount: z.string(),
+  amount: z.number(),
   kind: ShareTransferKindSchema,
   txHash: z.string(),
   onChainStatus: OnChainSyncStatusSchema,

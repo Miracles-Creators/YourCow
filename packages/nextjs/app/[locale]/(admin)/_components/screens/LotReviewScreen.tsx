@@ -99,7 +99,8 @@ export function LotReviewScreen() {
   const [approveData, setApproveData] = useState({
     tokenName: "",
     tokenSymbol: "",
-    initialPricePerShare: "",
+    totalShares: 0,
+    pricePerShare: 0,
     producerAddress: "",
   });
   const modalRef = useRef<HTMLDivElement | null>(null);
@@ -142,10 +143,7 @@ export function LotReviewScreen() {
 
   const totalCapital = useMemo(() => {
     if (!lotQuery.data) return null;
-    const totalShares = Number(lotQuery.data.totalShares);
-    const pricePerShare = Number(lotQuery.data.pricePerShare);
-    if (!Number.isFinite(totalShares) || !Number.isFinite(pricePerShare)) return null;
-    return totalShares * pricePerShare;
+    return lotQuery.data.totalShares * lotQuery.data.pricePerShare;
   }, [lotQuery.data]);
 
   const formattedTotalCapital = useMemo(() => {
@@ -169,7 +167,8 @@ export function LotReviewScreen() {
       if (
         !approveData.tokenName ||
         !approveData.tokenSymbol ||
-        !approveData.initialPricePerShare
+        !approveData.totalShares ||
+        !approveData.pricePerShare
       ) {
         setError("All approval fields are required.");
         return;
@@ -182,7 +181,8 @@ export function LotReviewScreen() {
           data: {
             tokenName: approveData.tokenName,
             tokenSymbol: approveData.tokenSymbol,
-            initialPricePerShare: approveData.initialPricePerShare,
+            totalShares: approveData.totalShares,
+            pricePerShare: approveData.pricePerShare,
             producerAddress: approveData.producerAddress || undefined,
           },
         });
@@ -463,12 +463,29 @@ export function LotReviewScreen() {
                 />
                 <input
                   className="w-full rounded-full border border-vaca-neutral-gray-200 px-3 py-2 text-sm"
-                  placeholder="Initial price per share"
-                  value={approveData.initialPricePerShare}
+                  placeholder="Total shares"
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={approveData.totalShares || ""}
                   onChange={event =>
                     setApproveData(prev => ({
                       ...prev,
-                      initialPricePerShare: event.target.value,
+                      totalShares: Number(event.target.value),
+                    }))
+                  }
+                />
+                <input
+                  className="w-full rounded-full border border-vaca-neutral-gray-200 px-3 py-2 text-sm"
+                  placeholder="Price per share"
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={approveData.pricePerShare || ""}
+                  onChange={event =>
+                    setApproveData(prev => ({
+                      ...prev,
+                      pricePerShare: Number(event.target.value),
                     }))
                   }
                 />

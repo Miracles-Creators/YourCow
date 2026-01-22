@@ -69,7 +69,7 @@ export function CreateLotReviewSubmitScreen() {
       pasture: "PASTURE",
       mixed: "MIXED",
     };
-
+    //TODO REFACTOR THIS
     const payload = {
       producerId: parsed.data.producerId,
       name: parsed.data.basicInfo.lotName,
@@ -81,16 +81,14 @@ export function CreateLotReviewSubmitScreen() {
       productionType: productionTypeMap[parsed.data.basicInfo.productionType] ?? "FEEDLOT",
 
       // Herd data
-      cattleCount: parseInt(parsed.data.herdCycle.cattleCount, 10) || 0,
-      averageWeightKg: parseFloat(parsed.data.herdCycle.averageWeightKg) || 0,
-      initialWeightKg: parseFloat(parsed.data.herdCycle.initialWeightKg) || 0,
-      durationWeeks: parseInt(parsed.data.herdCycle.durationWeeks, 10) || 0,
+      cattleCount: parsed.data.herdCycle.cattleCount,
+      averageWeightKg: parsed.data.herdCycle.averageWeightKg,
+      initialWeightKg: parsed.data.herdCycle.initialWeightKg,
+      durationWeeks: parsed.data.herdCycle.durationWeeks,
       startDate: parsed.data.basicInfo.startDate || undefined,
       endDate: parsed.data.herdCycle.targetEndDate || undefined,
 
-      // Financing terms
-      totalShares: parsed.data.financing.totalCapital,
-      pricePerShare: "1",
+      // Financing terms (set by admin)
       investorPercent: parsed.data.financing.investorPercent,
       fundingDeadline: parsed.data.financing.fundingDeadline || undefined,
       operatingCosts: parsed.data.financing.operatingCosts || undefined,

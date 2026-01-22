@@ -1,7 +1,7 @@
 export class CreateLotOnChainDto {
   producer!: string; // renamed from issuer
-  totalShares!: string;
-  initialPricePerShare!: string;
+  totalShares!: number;
+  initialPricePerShare!: number;
   metadataHash!: string;
   tokenName!: string;
   tokenSymbol!: string;
