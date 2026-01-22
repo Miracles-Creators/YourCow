@@ -200,8 +200,8 @@ export function calculateEstimatedReturn(
   const match = returnRangeStr.match(/(\d+)-(\d+)%/);
   if (!match) return "$0-$0";
 
-  const lowPercent = parseInt(match[1]) / 100;
-  const highPercent = parseInt(match[2]) / 100;
+  const lowPercent = Number(match[1]) / 100;
+  const highPercent = Number(match[2]) / 100;
 
   const lowReturn = Math.round(amount * lowPercent);
   const highReturn = Math.round(amount * highPercent);

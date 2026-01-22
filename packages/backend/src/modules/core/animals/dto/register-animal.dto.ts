@@ -5,6 +5,6 @@ export class RegisterAnimalDto {
   custodian!: string;
   profile!: Prisma.InputJsonValue;
   profileHash?: string;
-  onChainId?: string;
+  onChainId?: number;
   lotId?: number;
 }

@@ -27,7 +27,7 @@ admin_id=$(printf '%s' "$admin_json" | json_get "id")
 
 
 echo "Creating investor..."
-investor_json=$(post "investors" '{"walletAddress":"0xINVESTOR1","email":"investor+demo@yourcow.io","name":"Demo Investor"}')
+investor_json=$(post "investors" '{"walletAddress":"0x122","email":"investor+demo@yourcow.io","name":"Demo Investor"}')
 investor_id=$(printf '%s' "$investor_json" | json_get "id")
 
 
@@ -37,9 +37,6 @@ producer_id=$(printf '%s' "$producer_json" | json_get "id")
 producer_user_id=$(printf '%s' "$producer_json" | json_get "user.id")
 
 
-echo "Creating lot..."
-lot_json=$(post "lots" "{\"producerId\":\"$producer_id\",\"name\":\"Demo Lot\",\"description\":\"Initial test lot\",\"totalShares\":\"100000\",\"pricePerShare\":\"100\",\"metadata\":{\"location\":\"Buenos Aires\",\"expectedAnimals\":10}}")
-lot_id=$(printf '%s' "$lot_json" | json_get "id")
 
 
 echo "Registering animal..."

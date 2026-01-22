@@ -115,21 +115,21 @@ model Lot {
 
   // Herd data (legally relevant for SENASA/traceability)
   cattleCount      Int     // Number of animals in the lot
-  averageWeightKg  Float   // Average weight per animal in kg
-  initialWeightKg  Float?  // Initial average weight per animal in kg
+  averageWeightKg  Int   // Average weight per animal in kg
+  initialWeightKg  Int?  // Initial average weight per animal in kg
   durationWeeks    Int     // Expected fattening duration
   startDate        DateTime?
   endDate          DateTime?
 
   // Financing terms (contractually binding)
-  totalShares      String  // u256 as string (total investor shares)
-  pricePerShare    String  // u256 as string (smallest unit)
+  totalShares      Int  // Total investor shares
+  pricePerShare    Int  // Smallest unit
   investorPercent  Float   // Investor profit share percentage
   fundingDeadline  DateTime? // Deadline to reach funding goal
-  operatingCosts   String?   // u256 as string (estimated costs)
+  operatingCosts   Int?   // Estimated costs
 
   // On-chain data (filled AFTER deploy)
-  onChainLotId  String? @unique // lot_id from contract
+  onChainLotId  Int? @unique // lot_id from contract
   tokenAddress  String? // ERC20 shares token address
   txHash        String? // Creation tx hash
   metadataHash  String? // Poseidon hash of metadata
@@ -202,7 +202,7 @@ model Animal {
   eid String @unique // Electronic ID (SENASA ear tag)
 
   // On-chain data (filled after registration)
-  onChainId String? @unique // animal_id on contract (u256 as string)
+  onChainId Int? @unique // animal_id on contract
   registrationTxHash String?
   onChainStatus OnChainSyncStatus @default(PENDING)
 
@@ -296,7 +296,7 @@ model Payment {
   // Payment details
   amountFiat   Int // In cents
   currency     String // USD, ARS
-  sharesAmount String // u256 as string
+  sharesAmount Int
   status       PaymentStatus @default(PENDING)
   sourceApp    AppContext     @default(WEB)
 
@@ -331,7 +331,7 @@ model ShareBalance {
   user        User     @relation(fields: [userId], references: [id])
   lotId       Int
   lot         Lot      @relation(fields: [lotId], references: [id])
-  amount      BigInt
+  amount      Int
   lastSyncedAt DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -348,7 +348,7 @@ model ShareTransfer {
   fromUser   User?    @relation("ShareTransferFrom", fields: [fromUserId], references: [id])
   toUserId   Int
   toUser     User     @relation("ShareTransferTo", fields: [toUserId], references: [id])
-  amount    BigInt
+  amount    Int
   kind      ShareTransferKind
   txHash    String   @unique
   onChainStatus OnChainSyncStatus @default(PENDING)
@@ -377,7 +377,7 @@ model Settlement {
   lot   Lot    @relation(fields: [lotId], references: [id])
 
   // Settlement data
-  totalProceeds           String  // u256 as string (fiat in smallest unit)
+  totalProceeds           Int  // Fiat in smallest unit
   currency                String  @default("USD")
   finalReportHash         String  // Poseidon hash of final report
   finalReportUrl          String? // Link to IPFS/S3

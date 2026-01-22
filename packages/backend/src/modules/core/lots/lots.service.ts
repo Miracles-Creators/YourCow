@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { Lot, LotStatus, ProducerStatus, Prisma } from "@prisma/client";
+import { Lot, LotStatus, OnChainSyncStatus, ProducerStatus, Prisma } from "@prisma/client";
 import { hash } from "starknet";
 
 import { PrismaService } from "../../../database/prisma.service";
+import { toBigInt } from "../../../utils/bigint";
 import { LotFactoryService } from "../../onchain/lot-factory/lot-factory.service";
 import { ApproveLotDto, CreateLotDto, DeployLotDto } from "./dto/lots.dto";
 
@@ -33,9 +34,9 @@ export class LotsService {
         startDate: data.startDate ? new Date(data.startDate) : null,
         endDate: data.endDate ? new Date(data.endDate) : null,
 
-        // Financing terms
-        totalShares: data.totalShares,
-        pricePerShare: data.pricePerShare,
+        // Financing terms (set by admin later)
+        totalShares: 0,
+        pricePerShare: 0,
         investorPercent: data.investorPercent,
         fundingDeadline: data.fundingDeadline ? new Date(data.fundingDeadline) : null,
         operatingCosts: data.operatingCosts ?? null,
@@ -66,15 +67,15 @@ export class LotsService {
     });
 
     return lots.map((lot) => {
-      const totalShares = BigInt(lot.totalShares);
+      const totalShares = lot.totalShares;
       const fundedShares = lot.payments.reduce(
-        (acc, payment) => acc + BigInt(payment.sharesAmount),
-        0n
+        (acc, payment) => acc + payment.sharesAmount,
+        0
       );
       const fundedPercent =
-        totalShares === 0n
+        totalShares === 0
           ? 0
-          : Number((fundedShares * 10000n) / totalShares) / 100;
+          : Math.round((fundedShares / totalShares) * 10000) / 100;
 
       return {
         ...lot,
@@ -93,7 +94,7 @@ export class LotsService {
     return lot;
   }
 
-  async getLotByOnChainId(onChainLotId: string): Promise<Lot | null> {
+  async getLotByOnChainId(onChainLotId: number): Promise<Lot | null> {
     return this.prisma.lot.findUnique({ where: { onChainLotId } });
   }
 
@@ -105,6 +106,7 @@ export class LotsService {
         onChainLotId: data.onChainLotId ?? undefined,
         tokenAddress: data.tokenAddress ?? undefined,
         txHash: data.txHash ?? undefined,
+        onChainStatus: data.onChainLotId ? OnChainSyncStatus.SYNCED : undefined,
       },
     });
   }
@@ -125,26 +127,34 @@ export class LotsService {
     if (lot.producer.status !== ProducerStatus.ACTIVE) {
       throw new BadRequestException("Producer is not approved");
     }
+    if (!data.totalShares || !data.pricePerShare) {
+      throw new BadRequestException("Total shares and price per share are required");
+    }
 
     const producerAddress = data.producerAddress ?? lot.producer.user.walletAddress;
     if (!producerAddress) {
       throw new BadRequestException("Producer wallet address is required");
     }
 
-    await this.prisma.lot.update({
+    const updatedLot = await this.prisma.lot.update({
       where: { id },
-      data: { status: LotStatus.PENDING_DEPLOY },
+      data: {
+        status: LotStatus.PENDING_DEPLOY,
+        totalShares: data.totalShares,
+        pricePerShare: data.pricePerShare,
+      },
+      include: { producer: { include: { user: true } } },
     });
 
-    const metadata = this.buildLotMetadata(lot);
+    const metadata = this.buildLotMetadata(updatedLot);
     const metadataHash = this.computeMetadataHash(metadata);
 
     let result;
     try {
       result = await this.lotFactoryService.createLot({
         producer: producerAddress,
-        totalShares: BigInt(lot.totalShares),
-        initialPricePerShare: BigInt(data.initialPricePerShare),
+        totalShares: toBigInt(updatedLot.totalShares),
+        initialPricePerShare: toBigInt(data.pricePerShare),
         metadataHash,
         tokenName: data.tokenName,
         tokenSymbol: data.tokenSymbol,
@@ -166,10 +176,11 @@ export class LotsService {
       where: { id },
       data: {
         status: LotStatus.FUNDING,
-        onChainLotId: result.lotId.toString(),
+        onChainLotId: Number(result.lotId),
         tokenAddress,
         txHash: result.transactionHash,
         metadataHash,
+        onChainStatus: OnChainSyncStatus.SYNCED,
       },
       include: { producer: { include: { user: true } } },
     });

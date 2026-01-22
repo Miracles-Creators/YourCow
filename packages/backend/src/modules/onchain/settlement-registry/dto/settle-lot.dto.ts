@@ -1,5 +1,5 @@
 export class SettleLotDto {
-  lotId!: string;
+  lotId!: number;
   finalReportHash!: string;
-  totalProceeds!: string;
+  totalProceeds!: number;
 }

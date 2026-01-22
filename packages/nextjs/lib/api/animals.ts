@@ -6,7 +6,7 @@ export type CreateAnimalInput = {
   custodian: string;
   profile: unknown;
   profileHash?: string;
-  onChainId?: string;
+  onChainId?: number;
   lotId?: number;
 };
 

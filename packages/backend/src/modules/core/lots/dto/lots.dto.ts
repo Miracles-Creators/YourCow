@@ -19,11 +19,9 @@ export class CreateLotDto {
   endDate?: string;
 
   // Financing terms
-  totalShares!: string;
-  pricePerShare!: string;
   investorPercent!: number;
   fundingDeadline?: string;
-  operatingCosts?: string;
+  operatingCosts?: number;
 
   // Optional
   notes?: string;
@@ -32,12 +30,13 @@ export class CreateLotDto {
 export class ApproveLotDto {
   tokenName!: string;
   tokenSymbol!: string;
-  initialPricePerShare!: string;
+  totalShares!: number;
+  pricePerShare!: number;
   producerAddress?: string;
 }
 
 export class DeployLotDto {
-  onChainLotId?: string;
+  onChainLotId?: number;
   tokenAddress?: string;
   txHash?: string;
 }

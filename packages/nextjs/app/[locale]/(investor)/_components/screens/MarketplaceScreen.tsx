@@ -70,7 +70,7 @@ export function MarketplaceScreen() {
       typeof metadata.expectedReturn === "string"
         ? metadata.expectedReturn
         : `${lot.investorPercent}%`;
-    const pricePerShare = Number(lot.pricePerShare);
+    const pricePerShare = lot.pricePerShare;
     const sharesAvailable =
       typeof metadata.sharesAvailable === "number"
         ? metadata.sharesAvailable
@@ -90,9 +90,7 @@ export function MarketplaceScreen() {
           : fallbackText,
       herdSize: lot.cattleCount ?? fallbackText,
       category: mapCategory(lot.productionType),
-      pricePerShare: Number.isFinite(pricePerShare)
-        ? pricePerShare
-        : fallbackText,
+      pricePerShare,
       sharesAvailable,
     };
   };

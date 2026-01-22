@@ -1,26 +1,26 @@
 export class RegisterAnimalOnChainDto {
-  animalId!: string;
+  animalId!: number;
   custodian!: string;
   profileHash!: string;
 }
 
 export class RegisterAnimalBatchDto {
-  animalIds!: string[];
+  animalIds!: number[];
   custodians!: string[];
   profileHashes!: string[];
 }
 
 export class AssignToLotDto {
-  lotId!: string;
+  lotId!: number;
 }
 
 export class AssignToLotBatchDto {
-  animalIds!: string[];
-  lotId!: string;
+  animalIds!: number[];
+  lotId!: number;
 }
 
 export class RemoveFromLotBatchDto {
-  animalIds!: string[];
+  animalIds!: number[];
 }
 
 export class SetAnimalStatusDto {
@@ -28,7 +28,7 @@ export class SetAnimalStatusDto {
 }
 
 export class SetAnimalStatusBatchDto {
-  animalIds!: string[];
+  animalIds!: number[];
   newStatus!: number;
 }
 

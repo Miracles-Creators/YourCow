@@ -7,6 +7,7 @@ import {
 } from "@prisma/client";
 
 import { PrismaService } from "../../../database/prisma.service";
+import { toBigInt } from "../../../utils/bigint";
 import { LotSharesTokenService } from "../../onchain/lot-shares-token/lot-shares-token.service";
 import { CreatePaymentDto } from "./dto/create-payment.dto";
 
@@ -121,7 +122,7 @@ export class PaymentsService {
       throw new BadRequestException("Investor wallet address is missing");
     }
 
-    if (!payment.lot.onChainLotId) {
+    if (payment.lot.onChainLotId == null) {
       throw new BadRequestException("Lot onChainLotId is missing");
     }
 
@@ -162,10 +163,10 @@ export class PaymentsService {
 
       if (!txHash) {
         txHash = await this.lotSharesTokenService.mint(
-          BigInt(payment.lot.onChainLotId),
-          payment.user.walletAddress,
-          BigInt(payment.sharesAmount),
-        );
+        toBigInt(payment.lot.onChainLotId),
+        payment.user.walletAddress,
+        toBigInt(payment.sharesAmount),
+      );
 
         await this.prisma.payment.update({
           where: { id },
@@ -195,28 +196,28 @@ export class PaymentsService {
               },
             },
             update: {
-              amount: {
-                increment: BigInt(payment.sharesAmount),
-              },
-              lastSyncedAt: new Date(),
+            amount: {
+              increment: payment.sharesAmount,
             },
-            create: {
-              userId: payment.userId,
-              lotId: payment.lotId,
-              amount: BigInt(payment.sharesAmount),
-              lastSyncedAt: new Date(),
-            },
-          });
+            lastSyncedAt: new Date(),
+          },
+          create: {
+            userId: payment.userId,
+            lotId: payment.lotId,
+            amount: payment.sharesAmount,
+            lastSyncedAt: new Date(),
+          },
+        });
 
           await tx.shareTransfer.create({
             data: {
               lotId: payment.lotId,
-              fromUserId: null,
-              toUserId: payment.userId,
-              amount: BigInt(payment.sharesAmount),
-              kind: ShareTransferKind.MINT,
-              txHash,
-              onChainStatus: OnChainSyncStatus.SYNCED,
+            fromUserId: null,
+            toUserId: payment.userId,
+            amount: payment.sharesAmount,
+            kind: ShareTransferKind.MINT,
+            txHash,
+            onChainStatus: OnChainSyncStatus.SYNCED,
             },
           });
         }

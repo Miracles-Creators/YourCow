@@ -19,7 +19,7 @@ export function ReactQueryProvider({
         <ReactQueryDevtools
           initialIsOpen
           buttonPosition="bottom-right"
-          position="bottom-right"
+          position="bottom"
         />
       ) : null}
     </QueryClientProvider>

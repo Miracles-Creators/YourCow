@@ -1,17 +1,17 @@
 export class AnchorTraceDto {
-  animalId!: string;
+  animalId!: number;
   root!: string;
   eventCount!: number;
 }
 
 export class AnchorTraceBatchDto {
-  animalIds!: string[];
+  animalIds!: number[];
   roots!: string[];
   eventCounts!: number[];
 }
 
 export class CorrectTraceDto {
-  animalId!: string;
+  animalId!: number;
   newRoot!: string;
   newEventCount!: number;
   correctionReason!: string;

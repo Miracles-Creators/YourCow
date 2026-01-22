@@ -26,7 +26,7 @@ export default async function ConfirmInvestmentPage({
 
   // Parse investment details from query params
   const investmentAmount = amount ? parseFloat(amount) : 0;
-  const sharesAmount = shares ? parseInt(shares, 10) : 0;
+  const sharesAmount = Number(shares ?? 0);
 
   if (!investmentAmount || !sharesAmount) {
     notFound();

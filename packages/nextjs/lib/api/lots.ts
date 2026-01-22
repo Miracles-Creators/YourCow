@@ -26,11 +26,9 @@ export type CreateLotInput = {
   endDate?: string;
 
   // Financing terms
-  totalShares: string;
-  pricePerShare: string;
   investorPercent: number;
   fundingDeadline?: string;
-  operatingCosts?: string;
+  operatingCosts?: number;
 
   // Optional
   notes?: string;
