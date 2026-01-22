@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { AdminPageHeader, AuditNote, ReviewPanel, StatusPill } from "../index";
 import { cn } from "~~/lib/utils/cn";
-import { useProducer } from "~~/hooks/producers/useProducer";
 import { useApproveProducer } from "~~/hooks/producers/useApproveProducer";
+import { useProducer } from "~~/hooks/producers/useProducer";
+import { useMe } from "~~/hooks/auth/useMe";
 
 const modalCopy = {
   approve: {
@@ -30,13 +31,13 @@ export function ProducerDetailScreen() {
   const producerId = typeof params.id === "string" ? Number(params.id) : 0;
   const producerQuery = useProducer(producerId);
   const approveProducer = useApproveProducer();
+  const meQuery = useMe();
   const [status, setStatus] = useState<"Pending" | "Approved" | "Rejected">(
     "Pending",
   );
   const [modalAction, setModalAction] = useState<
     "approve" | "reject" | null
   >(null);
-  const [adminId, setAdminId] = useState("");
   const [rejectReason, setRejectReason] = useState("");
   const [error, setError] = useState("");
   const modalRef = useRef<HTMLDivElement | null>(null);
@@ -48,6 +49,8 @@ export function ProducerDetailScreen() {
   }, [status]);
 
   const lots = useMemo(() => producerQuery.data?.lots ?? [], [producerQuery.data]);
+  const isApproving = approveProducer.isPending;
+  const isApproved = status === "Approved";
 
   const formatNumberString = (value: string) => {
     const digits = value.replace(/[^\d]/g, "");
@@ -111,8 +114,9 @@ export function ProducerDetailScreen() {
     }
 
     if (modalAction === "approve") {
-      if (!adminId.trim()) {
-        setError("Admin ID is required.");
+      const adminId = meQuery.data?.id;
+      if (!adminId) {
+        setError("Admin session required.");
         return;
       }
       if (!producerId) {
@@ -122,7 +126,7 @@ export function ProducerDetailScreen() {
       try {
         await approveProducer.mutateAsync({
           producerId,
-          approvedById: Number(adminId),
+          approvedById: adminId,
         });
         setStatus("Approved");
       } catch (err) {
@@ -217,38 +221,47 @@ export function ProducerDetailScreen() {
 
         <div className="space-y-6">
           <ReviewPanel
-            description="Approve to unlock listings, or request changes if verification is incomplete."
+            description={
+              isApproved
+                ? "Producer is active. Suspend access if verification changes."
+                : "Approve to unlock listings, or request changes if verification is incomplete."
+            }
           >
-            <label className="text-xs font-semibold uppercase tracking-wide text-vaca-neutral-gray-500">
-              Admin ID
-              <input
-                type="text"
-                className="mt-2 w-full rounded-full border border-vaca-neutral-gray-200 px-3 py-2 text-sm text-vaca-neutral-gray-800"
-                value={adminId}
-                onChange={event => setAdminId(event.target.value)}
-                placeholder="admin-id"
-              />
-            </label>
-            <button
-              type="button"
-              onClick={() => setModalAction("approve")}
-              className="w-full rounded-full bg-vaca-green px-4 py-2 text-sm font-semibold text-vaca-neutral-white shadow-sm transition hover:bg-vaca-green-dark"
-            >
-              {approveProducer.isPending ? "Approving..." : "Approve producer"}
-            </button>
-            <button
-              type="button"
-              className="w-full rounded-full border border-vaca-blue/40 px-4 py-2 text-sm font-semibold text-vaca-blue transition hover:border-vaca-blue"
-            >
-              Request changes
-            </button>
-            <button
-              type="button"
-              onClick={() => setModalAction("reject")}
-              className="w-full rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 transition hover:border-red-300"
-            >
-              Reject
-            </button>
+            {isApproved ? (
+              <>
+                {/* TODO: Wire suspend flow and refresh producer status after success. */}
+                <button
+                  type="button"
+                  className="w-full rounded-full border border-vaca-brown/40 px-4 py-2 text-sm font-semibold text-vaca-brown transition hover:border-vaca-brown"
+                >
+                  Suspend producer
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setModalAction("approve")}
+                  disabled={isApproving}
+                  className="w-full rounded-full bg-vaca-green px-4 py-2 text-sm font-semibold text-vaca-neutral-white shadow-sm transition hover:bg-vaca-green-dark disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isApproving ? "Approving..." : "Approve producer"}
+                </button>
+                <button
+                  type="button"
+                  className="w-full rounded-full border border-vaca-blue/40 px-4 py-2 text-sm font-semibold text-vaca-blue transition hover:border-vaca-blue"
+                >
+                  Request changes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setModalAction("reject")}
+                  className="w-full rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 transition hover:border-red-300"
+                >
+                  Reject
+                </button>
+              </>
+            )}
           </ReviewPanel>
 
           <AuditNote />
@@ -307,14 +320,17 @@ export function ProducerDetailScreen() {
               <button
                 type="button"
                 onClick={confirmAction}
+                disabled={modalAction === "approve" && isApproving}
                 className={cn(
-                  "rounded-full px-4 py-2 text-xs font-semibold text-vaca-neutral-white",
+                  "rounded-full px-4 py-2 text-xs font-semibold text-vaca-neutral-white disabled:cursor-not-allowed disabled:opacity-70",
                   modalAction === "approve"
                     ? "bg-vaca-green"
                     : "bg-red-600",
                 )}
               >
-                {modalCopy[modalAction].primary}
+                {modalAction === "approve" && isApproving
+                  ? "Approving..."
+                  : modalCopy[modalAction].primary}
               </button>
             </div>
           </div>

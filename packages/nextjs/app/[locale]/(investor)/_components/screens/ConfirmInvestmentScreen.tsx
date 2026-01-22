@@ -4,12 +4,16 @@ import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { Lot } from "../../_constants/mockData";
+import { useLot } from "~~/hooks/lots/useLot";
+import { useConfirmPayment } from "~~/hooks/payments/useConfirmPayment";
+import { useCreatePayment } from "~~/hooks/payments/useCreatePayment";
+import { useMintPayment } from "~~/hooks/payments/useMintPayment";
+import { useMe } from "~~/hooks/auth/useMe";
 import { cn } from "~~/lib/utils/cn";
 import { PrimaryButton } from "../ui/PrimaryButton";
 
 interface ConfirmInvestmentScreenProps {
-  lot: Lot;
+  lotId: number;
   investmentAmount: number;
   shares: number;
 }
@@ -27,14 +31,28 @@ interface ConfirmInvestmentScreenProps {
  * Style: Neutral, institutional, very clear
  */
 export function ConfirmInvestmentScreen({
-  lot,
+  lotId,
   investmentAmount,
   shares,
 }: ConfirmInvestmentScreenProps) {
   const t = useTranslations("investor.confirmInvestment");
+  const tCommon = useTranslations("common");
 
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { data: lotData, isPending } = useLot(lotId);
+  const lot = lotData ?? null;
+  const metadata =
+    lot?.metadata && typeof lot.metadata === "object"
+      ? (lot.metadata as Record<string, unknown>)
+      : {};
+  const fallbackText = "sin back-end";
+  const { data: me } = useMe();
+  const createPayment = useCreatePayment();
+  const confirmPayment = useConfirmPayment();
+  const mintPayment = useMintPayment();
 
   // Fee calculations
   const platformFee = investmentAmount * 0.015; // 1.5% platform fee
@@ -43,23 +61,35 @@ export function ConfirmInvestmentScreen({
   const totalAmount = investmentAmount + totalFees;
 
   const handleConfirm = async () => {
+    if (!lot || !me?.id) {
+      setErrorMessage("Missing lot or investor data.");
+      return;
+    }
+
     setIsSubmitting(true);
+    setErrorMessage(null);
 
-    // TODO: Integrate with real payment processing
-    console.log("Processing investment:", {
-      lotId: lot.id,
-      investmentAmount,
-      shares,
-      totalAmount,
-    });
+    try {
+      const payment = await createPayment.mutateAsync({
+        paymentIntentId: `mock_${Date.now()}`,
+        investorId: me.id,
+        lotId: lot.id,
+        amountFiat: Math.round(investmentAmount * 100),
+        currency: "USD",
+        sharesAmount: shares.toString(),
+      });
 
-    // Simulate processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+      await confirmPayment.mutateAsync({ id: payment.id });
+      await mintPayment.mutateAsync({ id: payment.id });
 
-    // Redirect to success screen with investment details
-    router.push(
-      `/investment-success/${lot.id}?amount=${investmentAmount}&shares=${shares}`,
-    );
+      router.push(
+        `/investment-success/${lot.id}?amount=${investmentAmount}&shares=${shares}`,
+      );
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Something went wrong. Please try again.");
+      setIsSubmitting(false);
+    }
   };
 
   const handleBack = () => {
@@ -89,6 +119,31 @@ export function ConfirmInvestmentScreen({
       },
     },
   };
+
+  if (isPending) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-vaca-green/20 border-t-vaca-green" />
+          <p className="font-inter text-sm text-vaca-neutral-gray-500">
+            {tCommon("loading.default")}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!lot) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <h2 className="mb-2 font-playfair text-2xl font-semibold text-vaca-neutral-gray-900">
+            {tCommon("errors.notFound")}
+          </h2>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -126,10 +181,13 @@ export function ConfirmInvestmentScreen({
               {t("lot")}
             </div>
             <div className="mt-1 font-playfair text-lg font-medium text-vaca-neutral-gray-900">
-              {lot.name}
+              {lot.name || fallbackText}
             </div>
             <div className="mt-0.5 text-sm text-vaca-neutral-gray-500">
-              {lot.location} · {lot.duration}
+              {lot.location || fallbackText} ·{" "}
+              {lot.durationWeeks
+                ? `${lot.durationWeeks} weeks`
+                : fallbackText}
             </div>
           </div>
 
@@ -146,13 +204,23 @@ export function ConfirmInvestmentScreen({
           <SummaryRow
             label={t("shares")}
             value={shares.toLocaleString("en-US")}
-            sublabel={`${((shares / lot.currentNAV) * 100).toFixed(2)}% of lot`}
+            sublabel={
+              Number(lot.totalShares)
+                ? `${((shares / Number(lot.totalShares)) * 100).toFixed(
+                    2,
+                  )}% of lot`
+                : fallbackText
+            }
           />
 
           {/* Share Price */}
           <SummaryRow
             label={t("pricePerShare")}
-            value={`$${(lot.currentNAV / 100).toFixed(2)}`}
+            value={
+              Number(lot.pricePerShare)
+                ? `$${Number(lot.pricePerShare)}`
+                : fallbackText
+            }
           />
         </div>
       </motion.div>
@@ -270,6 +338,11 @@ export function ConfirmInvestmentScreen({
 
       {/* Action Buttons */}
       <motion.div variants={itemVariants} className="flex flex-col gap-3 pt-2">
+        {errorMessage && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {errorMessage}
+          </div>
+        )}
         <PrimaryButton
           onClick={handleConfirm}
           disabled={isSubmitting}

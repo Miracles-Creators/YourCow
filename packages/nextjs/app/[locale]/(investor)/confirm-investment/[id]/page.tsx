@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { ConfirmInvestmentScreen } from "../../_components/screens/ConfirmInvestmentScreen";
-import { mockLots } from "../../_constants/mockData";
+import { notFound } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Confirm Investment",
@@ -25,13 +24,6 @@ export default async function ConfirmInvestmentPage({
   const { id } = await params;
   const { amount, shares } = await searchParams;
 
-  // Find the lot
-  const lot = mockLots.find((l) => l.id === id);
-
-  if (!lot) {
-    notFound();
-  }
-
   // Parse investment details from query params
   const investmentAmount = amount ? parseFloat(amount) : 0;
   const sharesAmount = shares ? parseInt(shares, 10) : 0;
@@ -42,7 +34,7 @@ export default async function ConfirmInvestmentPage({
 
   return (
     <ConfirmInvestmentScreen
-      lot={lot}
+      lotId={Number(id)}
       investmentAmount={investmentAmount}
       shares={sharesAmount}
     />

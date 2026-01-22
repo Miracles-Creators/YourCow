@@ -11,6 +11,8 @@ export class ProducersService {
 
   async createProducer(data: CreateProducerDto): Promise<ProducerProfile> {
     const normalizedEmail = data.email.trim().toLowerCase();
+    const normalizedLocation = data.location?.trim() || null;
+    const normalizedPhone = data.phone?.trim() || null;
     const existingUser = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
       include: { producer: true },
@@ -21,18 +23,36 @@ export class ProducersService {
     }
 
     if (existingUser?.producer) {
-      return this.prisma.producerProfile.findUniqueOrThrow({
+      const updatedProducer = await this.prisma.producerProfile.update({
         where: { userId: existingUser.id },
-        include: { user: true },
+        data: {
+          senasaId: data.senasaId,
+          location: normalizedLocation ?? undefined,
+          phone: normalizedPhone ?? undefined,
+          yearsOperating:
+            typeof data.yearsOperating === "number"
+              ? data.yearsOperating
+              : undefined,
+        },
+        include: { user: true, lots: true },
       });
+
+      if (data.name?.trim()) {
+        await this.prisma.user.update({
+          where: { id: existingUser.id },
+          data: { name: data.name.trim() },
+        });
+      }
+
+      return updatedProducer;
     }
 
     return this.prisma.producerProfile.create({
       data: {
         senasaId: data.senasaId,
         status: ProducerStatus.PENDING,
-        location: data.location ?? null,
-        phone: data.phone ?? null,
+        location: normalizedLocation,
+        phone: normalizedPhone,
         yearsOperating: data.yearsOperating ?? null,
         user: existingUser
           ? { connect: { id: existingUser.id } }

@@ -17,6 +17,7 @@ import { useLogin } from "~~/hooks/auth/useLogin";
 import { useCreateProducer } from "~~/hooks/producers/useCreateProducer";
 import { useLotDraftStore } from "~~/services/store/lotDraft";
 
+
 interface FormData {
   name: string;
   email: string;
@@ -99,9 +100,10 @@ export function ProducerProfileScreen() {
       newErrors.city = t("errors.cityRequired");
     }
 
+    const yearsOperating = Number(formData.yearsOperating);
     if (!formData.yearsOperating.trim()) {
       newErrors.yearsOperating = t("errors.yearsOperatingRequired");
-    } else if (isNaN(Number(formData.yearsOperating)) || Number(formData.yearsOperating) < 0) {
+    } else if (Number.isNaN(yearsOperating) || yearsOperating <= 0) {
       newErrors.yearsOperating = t("errors.yearsOperatingInvalid");
     }
 
@@ -122,10 +124,17 @@ export function ProducerProfileScreen() {
         name: formData.name,
         role: "PRODUCER",
       });
+      const locationParts = [
+        formData.city.trim(),
+        formData.province.trim(),
+        formData.country.trim(),
+      ].filter(Boolean);
       const producer = await createProducer.mutateAsync({
         name: formData.name,
         email: formData.email,
         senasaId: formData.senasaId,
+        location: locationParts.length > 0 ? locationParts.join(", ") : undefined,
+        yearsOperating: Number(formData.yearsOperating),
       });
       updateDraft({ producerId: producer.userId });
     } catch (error) {

@@ -25,12 +25,14 @@ const PUBLIC_ROUTES = ["/welcome", "/login"];
 export function InvestorLayout({ children, className }: InvestorLayoutProps) {
   const pathname = usePathname();
   const showBottomNav = !PUBLIC_ROUTES.includes(pathname);
+  const isMarketplace = pathname.endsWith("/marketplace");
 
   return (
     <div
       className={cn(
         "relative min-h-screen overflow-hidden bg-vaca-neutral-bg",
-        "flex items-center justify-center",
+        "flex justify-center",
+        isMarketplace ? "items-start" : "items-center",
         "px-4 py-8 sm:px-6 lg:px-8",
         showBottomNav && "pb-24", // Extra padding for bottom nav
         className,
@@ -67,7 +69,16 @@ export function InvestorLayout({ children, className }: InvestorLayoutProps) {
       />
 
       {/* Content */}
-      <main className="relative z-10 w-full max-w-md">{children}</main>
+      <main
+        className={cn(
+          "relative z-10 w-full",
+          isMarketplace
+            ? "max-w-6xl sm:max-w-6xl lg:max-w-7xl"
+            : "max-w-md",
+        )}
+      >
+        {children}
+      </main>
 
       {/* Bottom Navigation - Only on authenticated screens */}
       {showBottomNav && <BottomNav />}

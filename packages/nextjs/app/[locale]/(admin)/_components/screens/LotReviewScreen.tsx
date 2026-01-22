@@ -33,6 +33,20 @@ const documentTone: Record<DocumentItem["status"], AdminStatusTone> = {
   Pending: "pending",
 };
 
+const producerStatusLabelMap: Record<string, string> = {
+  ACTIVE: "Approved",
+  SUSPENDED: "Suspended",
+  REJECTED: "Rejected",
+  PENDING: "Pending",
+};
+
+const producerStatusToneMap: Record<string, AdminStatusTone> = {
+  ACTIVE: "approved",
+  SUSPENDED: "neutral",
+  REJECTED: "rejected",
+  PENDING: "pending",
+};
+
 const modalCopy = {
   approve: {
     title: "Confirm approval",
@@ -77,7 +91,6 @@ export function LotReviewScreen() {
   const lotId = typeof params.id === "string" ? Number(params.id) : 0;
   const lotQuery = useLot(lotId);
   const queryClient = useQueryClient();
-  console.log(lotQuery, "lotQuery", lotId, "lotId");
   const approveLot = useApproveLot();
   const isApproving = approveLot.isPending;
   const [modalAction, setModalAction] = useState<ModalAction>(null);
@@ -100,12 +113,18 @@ export function LotReviewScreen() {
 
   const status = useMemo<LotStatus>(() => mapStatus(lotQuery.data?.status), [lotQuery.data?.status]);
 
-  const statusTone = useMemo<AdminStatusTone>(() => {
-    if (status === "Active") return "approved";
-    if (status === "Paused") return "neutral";
-    if (status === "Rejected") return "rejected";
-    return "pending";
-  }, [status]);
+  const producerName = lotQuery.data?.producer?.user?.name ?? "Producer";
+  const producerId = lotQuery.data?.producer?.userId;
+  const producerHref = producerId ? `/admin/producers/${producerId}` : "#";
+  const producerStatus = lotQuery.data?.producer?.status ?? "";
+  const producerStatusLabel = useMemo(
+    () => producerStatusLabelMap[producerStatus] ?? "Unknown",
+    [producerStatus],
+  );
+  const producerStatusTone = useMemo<AdminStatusTone>(
+    () => producerStatusToneMap[producerStatus] ?? "neutral",
+    [producerStatus],
+  );
 
   useEffect(() => {
     if (!modalAction) return;
@@ -221,12 +240,12 @@ export function LotReviewScreen() {
         actions={
           <div className="flex items-center gap-3">
             <Link
-              href="/admin/producers/unknown"
+              href={producerHref}
               className="text-sm font-semibold text-vaca-blue hover:text-vaca-blue-dark"
             >
-              Producer
+              {producerName}
             </Link>
-            <StatusPill label={status} tone={statusTone} />
+            <StatusPill label={producerStatusLabel} tone={producerStatusTone} />
           </div>
         }
       />

@@ -13,11 +13,11 @@ interface InvestmentCardProps {
   location: string;
   duration: string;
   expectedReturn: string;
-  fundingProgress: number;
-  herdSize: number;
+  fundingProgress: number | string;
+  herdSize: number | string;
   category: LotCategory;
-  pricePerShare: number;
-  sharesAvailable: number;
+  pricePerShare: number | string;
+  sharesAvailable: number | string;
   className?: string;
 }
 
@@ -65,6 +65,9 @@ export function InvestmentCard({
     }
   };
 
+  const formatValue = (value: number | string, suffix?: string) =>
+    typeof value === "number" ? `${value}${suffix ?? ""}` : value;
+
   return (
     <Link href={`/lot/${lotId}`}>
       <motion.div
@@ -100,7 +103,7 @@ export function InvestmentCard({
               {t("herdSize")}
             </span>
             <span className="font-inter text-sm font-medium text-vaca-green">
-              {herdSize} cattle
+              {formatValue(herdSize, " cattle")}
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -130,17 +133,21 @@ export function InvestmentCard({
               {t("fundingProgress")}
             </span>
             <span className="font-medium text-vaca-green">
-              {fundingProgress.toFixed(0)}%
+              {typeof fundingProgress === "number"
+                ? `${fundingProgress.toFixed(0)}%`
+                : fundingProgress}
             </span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-vaca-neutral-gray-100">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${fundingProgress}%` }}
-              transition={{ duration: 1, delay: 0.3 }}
-              className="h-full rounded-full bg-gradient-to-r from-vaca-green to-green-600"
-            />
-          </div>
+          {typeof fundingProgress === "number" && (
+            <div className="h-2 overflow-hidden rounded-full bg-vaca-neutral-gray-100">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${fundingProgress}%` }}
+                transition={{ duration: 1, delay: 0.3 }}
+                className="h-full rounded-full bg-gradient-to-r from-vaca-green to-green-600"
+              />
+            </div>
+          )}
         </div>
 
         {/* Price & CTA */}
@@ -151,13 +158,18 @@ export function InvestmentCard({
                 {t("pricePerShare")}
               </p>
               <p className="font-playfair text-2xl font-semibold text-vaca-green">
-                ${pricePerShare}
+                {typeof pricePerShare === "number"
+                  ? `$${pricePerShare}`
+                  : pricePerShare}
               </p>
             </div>
             <div className="text-right">
               <p className="font-inter text-xs text-vaca-neutral-gray-500">
                 <Users className="mr-1 inline h-3 w-3" />
-                {sharesAvailable} {t("sharesAvailable").toLowerCase()}
+                {formatValue(
+                  sharesAvailable,
+                  ` ${t("sharesAvailable").toLowerCase()}`,
+                )}
               </p>
             </div>
           </div>

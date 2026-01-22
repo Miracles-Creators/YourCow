@@ -82,7 +82,8 @@ export function CreateLotReviewSubmitScreen() {
 
       // Herd data
       cattleCount: parseInt(parsed.data.herdCycle.cattleCount, 10) || 0,
-      averageWeightKg: parseFloat(parsed.data.herdCycle.averageWeight) || 0,
+      averageWeightKg: parseFloat(parsed.data.herdCycle.averageWeightKg) || 0,
+      initialWeightKg: parseFloat(parsed.data.herdCycle.initialWeightKg) || 0,
       durationWeeks: parseInt(parsed.data.herdCycle.durationWeeks, 10) || 0,
       startDate: parsed.data.basicInfo.startDate || undefined,
       endDate: parsed.data.herdCycle.targetEndDate || undefined,
@@ -151,7 +152,10 @@ export function CreateLotReviewSubmitScreen() {
               Number of cattle: {summary.herdCycle.cattleCount || "—"}
             </li>
             <li>
-              Average weight: {summary.herdCycle.averageWeight || "—"} kg
+              Average weight: {summary.herdCycle.averageWeightKg || "—"} kg
+            </li>
+            <li>
+              Initial weight: {summary.herdCycle.initialWeightKg || "—"} kg
             </li>
             <li>
               Timeline:{" "}
