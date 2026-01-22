@@ -28,6 +28,7 @@ export class LotsService {
         // Herd data
         cattleCount: data.cattleCount,
         averageWeightKg: data.averageWeightKg,
+        initialWeightKg:data.initialWeightKg ,
         durationWeeks: data.durationWeeks,
         startDate: data.startDate ? new Date(data.startDate) : null,
         endDate: data.endDate ? new Date(data.endDate) : null,
@@ -83,7 +84,7 @@ export class LotsService {
   }
 
   async getLotById(id: number): Promise<Lot> {
-    const lot = await this.prisma.lot.findUnique({ where: { id } });
+    const lot = await this.prisma.lot.findUnique({ where: { id },include:{producer:{include:{user:true}}} });
     console.log(lot, "lot");
     if (!lot) {
       throw new NotFoundException("Lot not found");
@@ -170,6 +171,7 @@ export class LotsService {
         txHash: result.transactionHash,
         metadataHash,
       },
+      include: { producer: { include: { user: true } } },
     });
     
   }
@@ -193,6 +195,7 @@ export class LotsService {
       productionType: lot.productionType,
       cattleCount: lot.cattleCount,
       averageWeightKg: lot.averageWeightKg,
+      initialWeightKg: lot.initialWeightKg ?? null,
       durationWeeks: lot.durationWeeks,
       startDate: lot.startDate?.toISOString() ?? null,
       endDate: lot.endDate?.toISOString() ?? null,

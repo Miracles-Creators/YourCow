@@ -13,6 +13,7 @@ export class CreateLotDto {
   // Herd data
   cattleCount!: number;
   averageWeightKg!: number;
+  initialWeightKg?: number;
   durationWeeks!: number;
   startDate?: string;
   endDate?: string;
