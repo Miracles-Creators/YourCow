@@ -1,5 +1,5 @@
 // ============================================================================
-// BEEFCHAIN PROTOCOL - FUNDAMENTAL CONSTANTS
+// YourCow PROTOCOL - FUNDAMENTAL CONSTANTS
 // ============================================================================
 // These constants LOCK the architecture. Define once, never change.
 // All contracts depend on these formats.

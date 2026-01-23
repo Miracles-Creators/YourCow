@@ -1,5 +1,5 @@
 // ============================================================================
-// BEEFCHAIN PROTOCOL - END-TO-END INTEGRATION TEST
+// YourCow PROTOCOL - END-TO-END INTEGRATION TEST
 // ============================================================================
 // This test covers the complete MVP flow from PROJECT_SPEC.MD section 6:
 //
