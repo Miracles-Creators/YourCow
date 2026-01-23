@@ -1,11 +1,16 @@
 import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 
+import { AnimalsApprovalService } from "./animals-approval.service";
 import { RegisterAnimalDto } from "./dto/register-animal.dto";
+import { ApproveAnimalsBatchDto } from "./dto/approve-animals-batch.dto";
 import { AnimalsService } from "./animals.service";
 
 @Controller("animals")
 export class AnimalsController {
-  constructor(private readonly animalsService: AnimalsService) {}
+  constructor(
+    private readonly animalsService: AnimalsService,
+    private readonly animalsApprovalService: AnimalsApprovalService
+  ) {}
 
   @Post()
   async registerAnimal(@Body() body: RegisterAnimalDto) {
@@ -25,5 +30,13 @@ export class AnimalsController {
   @Get("lot/:lotId")
   async listByLot(@Param("lotId") lotId: string) {
     return this.animalsService.listByLot(Number(lotId));
+  }
+
+  @Post("approve-batch")
+  async approveBatch(@Body() body: ApproveAnimalsBatchDto) {
+    return this.animalsApprovalService.approveBatch({
+      animalIds: body.animalIds,
+      lotId: body.lotId,
+    });
   }
 }

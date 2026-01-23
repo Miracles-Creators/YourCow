@@ -35,6 +35,7 @@ model User {
   shareTransfersFrom ShareTransfer[] @relation("ShareTransferFrom")
   shareTransfersTo   ShareTransfer[] @relation("ShareTransferTo")
   producerApprovals  ProducerProfile[] @relation("ProducerApprovedBy")
+  animalApprovals    Animal[] @relation("AnimalApprovedBy")
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 }
@@ -213,7 +214,12 @@ model Animal {
   // Animal data
   custodian   String // Feedlot wallet address
   status      AnimalStatus @default(ALIVE)
-  profile     Json // breed, birthDate, initialWeight, sex, etc
+  approvalStatus AnimalApprovalStatus @default(PENDING_APPROVAL)
+  approvedById Int?
+  approvedBy   User? @relation("AnimalApprovedBy", fields: [approvedById], references: [id])
+  initialWeightGrams Int?
+  currentWeightGrams Int?
+  profile     Json // breed, birthDate, sex, etc
   profileHash String? // Poseidon hash of profile
 
   // Traceability
@@ -224,6 +230,7 @@ model Animal {
   updatedAt DateTime @updatedAt
 
   @@index([lotId])
+  @@index([approvedById])
 }
 
 enum AnimalStatus {
@@ -231,6 +238,12 @@ enum AnimalStatus {
   SOLD
   DECEASED
   REMOVED
+}
+
+enum AnimalApprovalStatus {
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
 }
 
 model TraceabilityEvent {

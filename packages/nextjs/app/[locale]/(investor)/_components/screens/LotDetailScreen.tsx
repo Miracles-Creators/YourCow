@@ -115,7 +115,8 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
 
   //TODO:REFACTOR THIS YES OR YES
   const category = mapCategory(lot.productionType);
-  const imageUrl = getMetaString("imageUrl");
+  const fallbackImageUrl = "/vaca-image-btc.png";
+  const imageUrl = getMetaString("imageUrl", fallbackImageUrl);
   const expectedReturn = getMetaString("expectedReturn", `${lot.investorPercent}%`);
   const pricePerShare = lot.pricePerShare;
   const totalShares = lot.totalShares;

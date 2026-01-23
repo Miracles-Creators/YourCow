@@ -2,10 +2,12 @@ export class RegisterAnimalOnChainDto {
   animalId!: number;
   custodian!: string;
   profileHash!: string;
+  initialWeightGrams!: number;
 }
 
 export class RegisterAnimalBatchDto {
   animalIds!: number[];
+  initialWeightsGrams!: number[];
   custodians!: string[];
   profileHashes!: string[];
 }

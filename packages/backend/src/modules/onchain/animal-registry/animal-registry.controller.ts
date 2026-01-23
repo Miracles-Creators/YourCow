@@ -24,13 +24,17 @@ export class AnimalRegistryController {
       animalId: toBigInt(body.animalId),
       custodian: body.custodian,
       profileHash: body.profileHash,
+      initialWeightGrams: body.initialWeightGrams,
     });
   }
 
   @Post("animals/batch")
   async registerAnimalBatch(@Body() body: RegisterAnimalBatchDto) {
     return this.animalRegistryService.registerAnimalBatch({
-      animalIds: body.animalIds.map(toBigInt),
+      animalsWithWeights: body.animalIds.map((id, index) => ({
+        animalId: toBigInt(id),
+        initialWeightGrams: body.initialWeightsGrams[index],
+      })),
       custodians: body.custodians,
       profileHashes: body.profileHashes,
     });
