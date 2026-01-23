@@ -1,4 +1,4 @@
-// BeefChain Protocol Contracts
+// YourCow Protocol Contracts
 pub mod animal_registry;
 pub mod constants;
 pub mod lot_factory;
