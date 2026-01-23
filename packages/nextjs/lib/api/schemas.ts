@@ -104,13 +104,23 @@ export const ProducerSchema = z.object({
   user: UserSchema,
 });
 
+export const AnimalApprovalStatusSchema = z.enum([
+  "PENDING_APPROVAL",
+  "APPROVED",
+  "REJECTED",
+]);
+
 export const AnimalSchema = z.object({
   id: z.number(),
   eid: z.string(),
   custodian: z.string(),
   status: z.enum(["ALIVE", "SOLD", "DECEASED", "REMOVED"]),
+  approvalStatus: AnimalApprovalStatusSchema.optional().default("PENDING_APPROVAL"),
+  initialWeightGrams: z.number(),
+  currentWeightGrams: z.number().nullable().optional(),
   lotId: z.number().nullable().optional(),
   onChainId: z.number().nullable().optional(),
+  onChainStatus: OnChainSyncStatusSchema.optional(),
   profile: z.unknown(),
   profileHash: z.string().nullable().optional(),
   createdAt: z.string().nullable().optional(),
@@ -122,6 +132,11 @@ export const ApproveLotInputSchema = z.object({
   totalShares: z.number(),
   pricePerShare: z.number(),
   producerAddress: z.string().optional(),
+});
+
+export const ApproveAnimalsInputSchema = z.object({
+  animalIds: z.array(z.number()).min(1),
+  lotId: z.number(),
 });
 
 export const PaymentSchema = z.object({
@@ -168,7 +183,9 @@ export type ProductionType = z.infer<typeof ProductionTypeSchema>;
 export type LotStatus = z.infer<typeof LotStatusSchema>;
 export type ProducerDto = z.infer<typeof ProducerSchema>;
 export type AnimalDto = z.infer<typeof AnimalSchema>;
+export type AnimalApprovalStatus = z.infer<typeof AnimalApprovalStatusSchema>;
 export type ApproveLotInput = z.infer<typeof ApproveLotInputSchema>;
+export type ApproveAnimalsInput = z.infer<typeof ApproveAnimalsInputSchema>;
 export type PaymentDto = z.infer<typeof PaymentSchema>;
 export type ShareBalanceDto = z.infer<typeof ShareBalanceSchema>;
 export type ShareTransferDto = z.infer<typeof ShareTransferSchema>;

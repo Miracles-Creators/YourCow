@@ -8,30 +8,70 @@ import { z } from "zod";
 import { cn } from "~~/lib/utils/cn";
 import { useAnimalsByLot } from "~~/hooks/animals/useAnimalsByLot";
 import { useCreateAnimal } from "~~/hooks/animals/useCreateAnimal";
+import { useLot } from "~~/hooks/lots/useLot";
 import { useQueryClient } from "@tanstack/react-query";
 import { FundingProgress } from "../ui/FundingProgress";
-import { StatusPill } from "../ui/StatusPill";
+import { StatusPill, type StatusTone } from "../ui/StatusPill";
+import type { AnimalApprovalStatus } from "~~/lib/api/schemas";
 
-const mockLot = {
-  name: "San Juan Feedlot - Q1",
-  status: { label: "Active", tone: "success" as const },
-  fundedPercent: 82,
-  amountRaised: "$2,340,000",
-  nextUpdate: "Mar 22, 2026",
-  lastUpdate: "Weight update added 3 days ago",
-  canRegisterSale: true,
-  trustPreview: {
-    lastWeight: "285 kg",
-    lastHealthCheck: "Feb 12, 2026",
-    hasVideo: true,
-  },
-};
+/**
+ * Maps approval status to UI display properties
+ */
+function getApprovalStatusDisplay(status?: AnimalApprovalStatus): {
+  label: string;
+  tone: StatusTone;
+  description: string;
+} {
+  switch (status) {
+    case "APPROVED":
+      return {
+        label: "Approved",
+        tone: "success",
+        description: "Registered on-chain",
+      };
+    case "REJECTED":
+      return {
+        label: "Rejected",
+        tone: "warning",
+        description: "Contact admin for details",
+      };
+    case "PENDING_APPROVAL":
+    default:
+      return {
+        label: "Pending approval",
+        tone: "info",
+        description: "Awaiting admin review",
+      };
+  }
+}
+
+function getLotStatusDisplay(
+  status?: string,
+): { label: string; tone: StatusTone } {
+  switch (status) {
+    case "ACTIVE":
+    case "FUNDING":
+    case "FUNDED":
+      return { label: "Active", tone: "success" };
+    case "COMPLETED":
+      return { label: "Completed", tone: "neutral" };
+    case "SETTLING":
+      return { label: "Settling", tone: "warning" };
+    case "PENDING_DEPLOY":
+    case "DRAFT":
+    default:
+      return { label: "Pending", tone: "info" };
+  }
+}
 
 const AnimalFormSchema = z.object({
   eid: z.string().min(1, "EID is required."),
   custodian: z.string().min(1, "Custodian wallet is required."),
   breed: z.string().min(1, "Breed is required."),
-  initialWeight: z.string().optional(),
+  initialWeight: z
+    .string()
+    .min(1, "Initial weight is required.")
+    .refine(value => Number.parseFloat(value) > 0, "Initial weight must be > 0."),
 });
 
 export function ProducerLotDashboardScreen() {
@@ -39,6 +79,7 @@ export function ProducerLotDashboardScreen() {
   const params = useParams();
   const lotId = typeof params.lotId === "string" ? Number(params.lotId) : 0;
   const queryClient = useQueryClient();
+  const lotQuery = useLot(lotId);
   const animalsQuery = useAnimalsByLot(lotId);
   const createAnimal = useCreateAnimal();
   const [animalForm, setAnimalForm] = useState({
@@ -56,6 +97,28 @@ export function ProducerLotDashboardScreen() {
         : { duration: 0.4, ease: [0.4, 0, 0.2, 1] as const },
     [prefersReducedMotion],
   );
+  const lotStatus = useMemo(
+    () => getLotStatusDisplay(lotQuery.data?.status),
+    [lotQuery.data?.status],
+  );
+  const totalCapital = useMemo(() => {
+    if (!lotQuery.data) return null;
+    return lotQuery.data.totalShares * lotQuery.data.pricePerShare;
+  }, [lotQuery.data]);
+  const fundedPercent = lotQuery.data?.fundedPercent ?? 0;
+  const amountRaised = useMemo(() => {
+    if (!totalCapital || lotQuery.data?.fundedPercent == null) return "—";
+    const raised = (totalCapital * lotQuery.data.fundedPercent) / 100;
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(raised);
+  }, [totalCapital, lotQuery.data?.fundedPercent]);
+  const lastUpdateLabel = useMemo(() => {
+    if (!lotQuery.data?.updatedAt) return "—";
+    return new Date(lotQuery.data.updatedAt).toLocaleDateString();
+  }, [lotQuery.data?.updatedAt]);
+  const canRegisterSale = lotQuery.data?.status === "ACTIVE";
 
   const handleAnimalChange = (field: keyof typeof animalForm, value: string) => {
     setAnimalForm(prev => ({ ...prev, [field]: value }));
@@ -75,16 +138,18 @@ export function ProducerLotDashboardScreen() {
     }
 
     try {
+      const initialWeightKg = Number.parseFloat(parsed.data.initialWeight);
+      const initialWeightGrams = Math.round(initialWeightKg * 1000);
       await createAnimal.mutateAsync({
         eid: parsed.data.eid,
         custodian: parsed.data.custodian,
+        initialWeightGrams,
         lotId,
         profile: {
           breed: parsed.data.breed,
-          initialWeight: parsed.data.initialWeight || undefined,
         },
       });
-      setAnimalSuccess("Animal registered.");
+      setAnimalSuccess("Animal registered. Pending admin approval.");
       setAnimalForm({ eid: "", custodian: "", breed: "", initialWeight: "" });
       queryClient.invalidateQueries({ queryKey: ["animals", "lot", lotId] });
     } catch (error) {
@@ -104,9 +169,9 @@ export function ProducerLotDashboardScreen() {
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-2">
           <h1 className="font-playfair text-4xl font-semibold text-vaca-neutral-gray-900">
-            {mockLot.name}
+            {lotQuery.data?.name ?? (lotQuery.isPending ? "Loading..." : "Lot")}
           </h1>
-          <StatusPill label={mockLot.status.label} tone={mockLot.status.tone} />
+          <StatusPill label={lotStatus.label} tone={lotStatus.tone} />
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
@@ -128,7 +193,7 @@ export function ProducerLotDashboardScreen() {
           >
             View Timeline
           </Link>
-          {mockLot.canRegisterSale && (
+          {canRegisterSale && (
             <Link
               href={`/producer/lots/${lotId}/sale`}
               className={cn(
@@ -148,16 +213,16 @@ export function ProducerLotDashboardScreen() {
             Funding progress
           </h2>
           <p className="mt-2 text-2xl font-semibold text-vaca-green">
-            {mockLot.amountRaised}
+            {amountRaised}
           </p>
-          <FundingProgress value={mockLot.fundedPercent} className="mt-4" />
+          <FundingProgress value={fundedPercent} className="mt-4" />
         </div>
         <div className="rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-vaca-neutral-gray-700">
             Next required update
           </h2>
           <p className="mt-3 font-playfair text-2xl text-vaca-blue">
-            {mockLot.nextUpdate}
+            —
           </p>
           <p className="mt-1 text-xs text-vaca-neutral-gray-500">
             Please submit by end of day.
@@ -168,7 +233,7 @@ export function ProducerLotDashboardScreen() {
             Last update
           </h2>
           <p className="mt-3 text-sm text-vaca-neutral-gray-600">
-            {mockLot.lastUpdate}
+            {lastUpdateLabel}
           </p>
         </div>
       </section>
@@ -178,11 +243,11 @@ export function ProducerLotDashboardScreen() {
           This is what investors see
         </h2>
         <ul className="mt-3 space-y-2 text-sm text-vaca-neutral-gray-600">
-          <li>Last weight update: {mockLot.trustPreview.lastWeight}</li>
-          <li>Last health check: {mockLot.trustPreview.lastHealthCheck}</li>
+          <li>Last weight update: —</li>
+          <li>Last health check: —</li>
           <li>
             Producer video:{" "}
-            {mockLot.trustPreview.hasVideo ? "Available" : "Not added"}
+            Not added
           </li>
         </ul>
       </section>
@@ -204,25 +269,37 @@ export function ProducerLotDashboardScreen() {
             {!animalsQuery.isLoading && animalsQuery.data?.length === 0 && (
               <p>No animals registered yet.</p>
             )}
-            {animalsQuery.data?.map(animal => (
-              <div
-                key={animal.id}
-                className="flex items-center justify-between rounded-lg border border-vaca-neutral-gray-100 px-4 py-2"
-              >
-                <div>
-                  <p className="font-semibold text-vaca-neutral-gray-900">
-                    {animal.eid}
-                  </p>
-                  <p className="text-xs text-vaca-neutral-gray-500">
-                    Custodian: {animal.custodian}
-                  </p>
+            {animalsQuery.data?.map(animal => {
+              const approvalDisplay = getApprovalStatusDisplay(animal.approvalStatus);
+              return (
+                <div
+                  key={animal.id}
+                  className="flex items-center justify-between rounded-lg border border-vaca-neutral-gray-100 px-4 py-3"
+                >
+                  <div className="space-y-1">
+                    <p className="font-semibold text-vaca-neutral-gray-900">
+                      {animal.eid}
+                    </p>
+                    <p className="text-xs text-vaca-neutral-gray-500">
+                      Custodian: {animal.custodian}
+                    </p>
+                    <p className="text-xs text-vaca-neutral-gray-400">
+                      {approvalDisplay.description}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <StatusPill
+                      label={animal.status}
+                      tone={animal.status === "ALIVE" ? "success" : "warning"}
+                    />
+                    <StatusPill
+                      label={approvalDisplay.label}
+                      tone={approvalDisplay.tone}
+                    />
+                  </div>
                 </div>
-                <StatusPill
-                  label={animal.status}
-                  tone={animal.status === "ALIVE" ? "success" : "warning"}
-                />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -230,6 +307,12 @@ export function ProducerLotDashboardScreen() {
           <h2 className="text-sm font-semibold text-vaca-neutral-gray-700">
             Register animal
           </h2>
+          <div className="mt-3 rounded-lg border border-vaca-blue/20 bg-vaca-blue/5 p-3">
+            <p className="text-xs text-vaca-blue">
+              Animals you register will be reviewed by an administrator before
+              being added on-chain. You will be notified when they are approved.
+            </p>
+          </div>
           <form onSubmit={handleAddAnimal} className="mt-4 space-y-4">
             <div className="form-control">
               <label className="label" htmlFor="animal-eid">

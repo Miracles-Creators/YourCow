@@ -27,18 +27,22 @@ export class AnimalRegistryService {
       contract.register_animal(
         cairo.uint256(params.animalId),
         params.custodian,
-        params.profileHash
+        params.profileHash,
+        params.initialWeightGrams
       )
     );
   }
 
   async registerAnimalBatch(params: RegisterAnimalBatchParams): Promise<string> {
     const contract = this.getContract();
-    const animalIds = params.animalIds.map((id) => cairo.uint256(id));
+    const animalsWithWeights = params.animalsWithWeights.map((entry) => ({
+      animal_id: cairo.uint256(entry.animalId),
+      initial_weight_grams: entry.initialWeightGrams,
+    }));
 
     return this.starknetService.executeTransaction(
       contract.register_animal_batch(
-        animalIds,
+        animalsWithWeights,
         params.custodians,
         params.profileHashes
       )

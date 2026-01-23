@@ -44,10 +44,11 @@ export interface RegisterAnimalParams {
   animalId: bigint;
   custodian: string;
   profileHash: string;
+  initialWeightGrams: number;
 }
 
 export interface RegisterAnimalBatchParams {
-  animalIds: bigint[];
+  animalsWithWeights: { animalId: bigint; initialWeightGrams: number }[];
   custodians: string[];
   profileHashes: string[];
 }

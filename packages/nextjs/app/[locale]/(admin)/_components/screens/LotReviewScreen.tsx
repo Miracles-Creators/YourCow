@@ -9,6 +9,8 @@ import { AdminPageHeader, ReviewPanel, StatusPill, type AdminStatusTone } from "
 import { cn } from "~~/lib/utils/cn";
 import { useLot } from "~~/hooks/lots/useLot";
 import { useApproveLot } from "~~/hooks/lots/useApproveLot";
+import { useAnimalsByLot } from "~~/hooks/animals/useAnimalsByLot";
+import { useApproveAnimals } from "~~/hooks/animals/useApproveAnimals";
 import { notification } from "~~/utils/scaffold-stark/notification";
 
 type LotStatus = "Pending" | "Active" | "Paused" | "Rejected";
@@ -93,6 +95,9 @@ export function LotReviewScreen() {
   const queryClient = useQueryClient();
   const approveLot = useApproveLot();
   const isApproving = approveLot.isPending;
+  const animalsQuery = useAnimalsByLot(lotId);
+  const approveAnimals = useApproveAnimals();
+  const [selectedAnimalIds, setSelectedAnimalIds] = useState<number[]>([]);
   const [modalAction, setModalAction] = useState<ModalAction>(null);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
@@ -139,6 +144,57 @@ export function LotReviewScreen() {
     setModalAction(null);
     setReason("");
     setError("");
+  };
+
+  // Filter animals by approval status
+  const pendingAnimals = useMemo(
+    () => animalsQuery.data?.filter(a => a.approvalStatus === "PENDING_APPROVAL") ?? [],
+    [animalsQuery.data],
+  );
+
+  const approvedAnimals = useMemo(
+    () => animalsQuery.data?.filter(a => a.approvalStatus === "APPROVED") ?? [],
+    [animalsQuery.data],
+  );
+  const canApproveAnimals = Boolean(
+    lotQuery.data?.onChainLotId &&
+      (lotQuery.data?.status === "FUNDING" || lotQuery.data?.status === "ACTIVE"),
+  );
+
+  const toggleAnimalSelection = (animalId: number) => {
+    setSelectedAnimalIds(prev =>
+      prev.includes(animalId)
+        ? prev.filter(id => id !== animalId)
+        : [...prev, animalId],
+    );
+  };
+
+  const selectAllPendingAnimals = () => {
+    if (selectedAnimalIds.length === pendingAnimals.length) {
+      setSelectedAnimalIds([]);
+    } else {
+      setSelectedAnimalIds(pendingAnimals.map(a => a.id));
+    }
+  };
+
+  const handleApproveAnimals = async () => {
+    if (selectedAnimalIds.length === 0 || !canApproveAnimals) return;
+
+    let notificationId: string | null = null;
+    try {
+      notificationId = notification.loading("Approving animals and registering on-chain...");
+      await approveAnimals.mutateAsync({
+        animalIds: selectedAnimalIds,
+        lotId,
+      });
+      if (notificationId) notification.remove(notificationId);
+      notification.success(`${selectedAnimalIds.length} animal(s) approved and registered on-chain.`);
+      setSelectedAnimalIds([]);
+      queryClient.invalidateQueries({ queryKey: ["animals", "lot", lotId] });
+    } catch (err) {
+      if (notificationId) notification.remove(notificationId);
+      notification.error(err instanceof Error ? err.message : "Failed to approve animals.");
+    }
   };
 
   const totalCapital = useMemo(() => {
@@ -387,6 +443,144 @@ export function LotReviewScreen() {
                 </div>
               ))}
             </div>
+          </motion.div>
+
+          <motion.div
+            variants={sectionVariants}
+            className="rounded-2xl border border-vaca-neutral-gray-200 bg-vaca-neutral-white p-5 shadow-sm"
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-vaca-neutral-gray-900">
+                Animals pending approval
+              </h2>
+              <span className="text-xs font-semibold uppercase tracking-wide text-vaca-neutral-gray-500">
+                {pendingAnimals.length} pending
+              </span>
+            </div>
+
+            {animalsQuery.isLoading && (
+              <p className="mt-4 text-sm text-vaca-neutral-gray-500">Loading animals...</p>
+            )}
+
+            {animalsQuery.isError && (
+              <p className="mt-4 text-sm text-red-600">Failed to load animals.</p>
+            )}
+
+            {!animalsQuery.isLoading && pendingAnimals.length === 0 && (
+              <p className="mt-4 text-sm text-vaca-neutral-gray-500">
+                No animals pending approval.
+              </p>
+            )}
+
+            {pendingAnimals.length > 0 && (
+              <>
+                {!canApproveAnimals && (
+                  <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    <p className="font-semibold">Animals cannot be approved yet.</p>
+                    <p className="mt-1 text-xs text-amber-800">
+                      The lot must be approved and deployed on-chain first (status
+                      <span className="font-semibold"> FUNDING</span> or
+                      <span className="font-semibold"> ACTIVE</span> with an on-chain lot id).
+                    </p>
+                  </div>
+                )}
+                <div className="mt-4 flex items-center justify-between">
+                  <label className="flex items-center gap-2 text-sm text-vaca-neutral-gray-600">
+                    <input
+                      type="checkbox"
+                      checked={selectedAnimalIds.length === pendingAnimals.length}
+                      onChange={selectAllPendingAnimals}
+                      disabled={!canApproveAnimals}
+                      className="h-4 w-4 rounded border-vaca-neutral-gray-300 text-vaca-green focus:ring-vaca-green"
+                    />
+                    Select all ({pendingAnimals.length})
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleApproveAnimals}
+                    disabled={
+                      selectedAnimalIds.length === 0 || approveAnimals.isPending || !canApproveAnimals
+                    }
+                    className={cn(
+                      "rounded-full px-4 py-1.5 text-xs font-semibold transition",
+                      selectedAnimalIds.length > 0 && canApproveAnimals
+                        ? "bg-vaca-green text-vaca-neutral-white hover:bg-vaca-green-dark"
+                        : "cursor-not-allowed bg-vaca-neutral-gray-200 text-vaca-neutral-gray-400",
+                    )}
+                  >
+                    {approveAnimals.isPending
+                      ? "Approving..."
+                      : `Approve selected (${selectedAnimalIds.length})`}
+                  </button>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {pendingAnimals.map(animal => {
+                    const profile = animal.profile as { breed?: string } | null;
+                    const initialWeightKg =
+                      typeof animal.initialWeightGrams === "number"
+                        ? (animal.initialWeightGrams / 1000).toFixed(1)
+                        : null;
+                    return (
+                      <div
+                        key={animal.id}
+                        className={cn(
+                          "flex items-center gap-3 rounded-xl border px-4 py-3 transition",
+                          selectedAnimalIds.includes(animal.id)
+                            ? "border-vaca-green/40 bg-vaca-green/5"
+                            : "border-vaca-neutral-gray-100 bg-vaca-neutral-gray-50",
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedAnimalIds.includes(animal.id)}
+                          onChange={() => toggleAnimalSelection(animal.id)}
+                          disabled={!canApproveAnimals}
+                          className="h-4 w-4 rounded border-vaca-neutral-gray-300 text-vaca-green focus:ring-vaca-green"
+                        />
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-vaca-neutral-gray-900">
+                            EID: {animal.eid}
+                          </p>
+                          <p className="text-xs text-vaca-neutral-gray-500">
+                            {profile?.breed ?? "Unknown breed"}
+                            {initialWeightKg ? ` · ${initialWeightKg} kg` : ""}
+                            {" · Custodian: "}
+                            {animal.custodian.slice(0, 10)}...
+                          </p>
+                        </div>
+                        <StatusPill
+                          label="Pending"
+                          tone="pending"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {approvedAnimals.length > 0 && (
+              <div className="mt-6 border-t border-vaca-neutral-gray-100 pt-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-vaca-neutral-gray-500">
+                  Already approved ({approvedAnimals.length})
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {approvedAnimals.slice(0, 5).map(animal => (
+                    <span
+                      key={animal.id}
+                      className="rounded-full bg-vaca-green/10 px-3 py-1 text-xs font-medium text-vaca-green"
+                    >
+                      {animal.eid}
+                    </span>
+                  ))}
+                  {approvedAnimals.length > 5 && (
+                    <span className="rounded-full bg-vaca-neutral-gray-100 px-3 py-1 text-xs font-medium text-vaca-neutral-gray-500">
+                      +{approvedAnimals.length - 5} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
           </motion.div>
 
           <motion.div
