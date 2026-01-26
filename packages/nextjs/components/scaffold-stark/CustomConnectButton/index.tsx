@@ -10,6 +10,8 @@ import { AddressQRCodeModal } from "./AddressQRCodeModal";
 import { useAutoConnect, useNetworkColor } from "~~/hooks/scaffold-stark";
 import { useTargetNetwork } from "~~/hooks/scaffold-stark/useTargetNetwork";
 import { useAccount } from "~~/hooks/useAccount";
+import { useMe } from "~~/hooks/auth/useMe";
+import { useAutoLinkWallet } from "~~/hooks/auth/useLinkWallet";
 import { getBlockExplorerAddressLink } from "~~/utils/scaffold-stark";
 import { useReadLocalStorage } from "usehooks-ts";
 
@@ -20,10 +22,13 @@ export const CustomConnectButton = () => {
   const { targetNetwork } = useTargetNetwork();
   const { chain } = useNetwork();
   const { account, status, address: accountAddress } = useAccount();
+  const { data: me } = useMe();
+  const { tryLinkWallet } = useAutoLinkWallet();
   const wasDisconnectedManually = useReadLocalStorage<boolean>(
     "wasDisconnectedManually",
   );
   const [accountChainId, setAccountChainId] = useState<bigint>(0n);
+  const [linkTrigger, setLinkTrigger] = useState(0);
 
   const blockExplorerAddressLink = useMemo(() => {
     return accountAddress
@@ -50,18 +55,28 @@ export const CustomConnectButton = () => {
   }, [account, status, chain?.id]);
 
   useEffect(() => {
-    const handleChainChange = (event: { chainId?: bigint }) => {
-      const { chainId } = event;
-      if (chainId && chainId !== accountChainId) {
-        setAccountChainId(chainId);
+    tryLinkWallet({ status, account, accountAddress, me });
+  }, [account, accountAddress, tryLinkWallet, me, status, linkTrigger]);
+
+  useEffect(() => {
+    const handleConnectorChange = (event: { chainId?: bigint }) => {
+      if (event.chainId && event.chainId !== accountChainId) {
+        setAccountChainId(event.chainId);
       }
+      setLinkTrigger((v) => v + 1);
     };
-    connector?.on("change", handleChainChange);
+    connector?.on("change", handleConnectorChange);
     return () => {
-      connector?.off("change", handleChainChange);
+      connector?.off("change", handleConnectorChange);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connector]);
+
+  useEffect(() => {
+    if (status === "connected" && accountAddress) {
+      setLinkTrigger((value) => value + 1);
+    }
+  }, [status, accountAddress]);
 
   if (status === "disconnected" || wasDisconnectedManually) {
     return <ConnectModal />;

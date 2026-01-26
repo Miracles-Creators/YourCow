@@ -9,6 +9,30 @@ export const UserSchema = z.object({
   walletAddress: z.string().nullable().optional(),
 });
 
+export const WalletLinkTypedDataSchema = z.object({
+  types: z.record(z.array(z.object({ name: z.string(), type: z.string() }))),
+  primaryType: z.string(),
+  domain: z.object({
+    name: z.string(),
+    version: z.string(),
+    chainId: z.string(),
+  }),
+  message: z.record(z.unknown()),
+});
+
+export const WalletChallengeSchema = z.object({
+  userId: z.number(),
+  address: z.string(),
+  nonce: z.number(),
+  issuedAt: z.string(),
+  expiresAt: z.string(),
+  chainId: z.string(),
+  typedData: WalletLinkTypedDataSchema,
+});
+
+export type WalletChallengeDto = z.infer<typeof WalletChallengeSchema>;
+export type WalletLinkTypedData = z.infer<typeof WalletLinkTypedDataSchema>;
+
 export const PaymentStatusSchema = z.enum([
   "PENDING",
   "CONFIRMED",

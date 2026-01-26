@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, Res, UseGuards, UnauthorizedException } from "@nestjs/common";
 import type { Response } from "express";
 
 import { SESSION_COOKIE_NAME, SESSION_TTL_DAYS } from "./auth.constants";
 import { AuthGuard } from "./auth.guard";
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
+import { WalletChallengeDto } from "./dto/wallet-challenge.dto";
+import { LinkWalletDto } from "./dto/link-wallet.dto";
 import type { AuthenticatedRequest } from "./types";
 import { UserRole } from "@prisma/client";
 
@@ -45,5 +47,29 @@ export class AuthController {
   @Get("me")
   async me(@Req() req: AuthenticatedRequest) {
     return req.user;
+  }
+
+  @UseGuards(AuthGuard)
+  @Post("wallet/challenge")
+  async walletChallenge(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: WalletChallengeDto,
+  ) {
+    if (!req.user) {
+      throw new UnauthorizedException("Unauthorized");
+    }
+    return this.authService.createWalletLinkChallenge(req.user.id, body.address);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post("wallet/link")
+  async linkWallet(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: LinkWalletDto,
+  ) {
+    if (!req.user) {
+      throw new UnauthorizedException("Unauthorized");
+    }
+    return this.authService.linkWallet(req.user.id, body.address, body.signature);
   }
 }

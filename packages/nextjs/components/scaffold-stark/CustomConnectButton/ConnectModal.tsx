@@ -7,7 +7,6 @@ import { BlockieAvatar } from "../BlockieAvatar";
 import GenericModal from "./GenericModal";
 import Wallet from "~~/components/scaffold-stark/CustomConnectButton/Wallet";
 import { LAST_CONNECTED_TIME_LOCALSTORAGE_KEY } from "~~/utils/Constants";
-import { useTargetNetwork } from "~~/hooks/scaffold-stark/useTargetNetwork";
 
 const loader = ({ src }: { src: string }) => src;
 
@@ -29,19 +28,6 @@ const ConnectModal = () => {
     "wasDisconnectedManually",
     false,
   );
-  const { targetNetwork } = useTargetNetwork();
-  const [showOtherOptions, setShowOtherOptions] = useState(false);
-
-  // Identify devnet by network name
-  const isDevnet = targetNetwork.network === "devnet";
-
-  // Split connectors into main and other options for devnet
-  let mainConnectors = connectors;
-  let otherConnectors: typeof connectors = [];
-  if (isDevnet) {
-    mainConnectors = connectors.filter((c) => c.id === "burner-wallet");
-    otherConnectors = connectors.filter((c) => c.id !== "burner-wallet");
-  }
 
   const handleCloseModal = () => {
     if (modalRef.current) modalRef.current.checked = false;
@@ -81,9 +67,9 @@ const ConnectModal = () => {
     <div>
       <label
         htmlFor="connect-modal"
-        className="rounded-[18px] btn-sm  font-bold px-8 bg-btn-wallet py-3 cursor-pointer"
+        className="inline-flex items-center justify-center rounded-lg bg-vaca-green px-4 py-2 text-sm font-semibold text-vaca-neutral-white shadow-sm transition hover:bg-vaca-green-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vaca-blue/30"
       >
-        <span>Connect</span>
+        <span>Connect wallet</span>
       </label>
       <input
         ref={modalRef}
@@ -95,16 +81,11 @@ const ConnectModal = () => {
         <>
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold">
-              {isBurnerWallet
-                ? "Choose account"
-                : showOtherOptions
-                  ? "Other Wallet Options"
-                  : "Connect a Wallet"}
+              {isBurnerWallet ? "Choose account" : "Connect a Wallet"}
             </h3>
             <label
               onClick={() => {
                 setIsBurnerWallet(false);
-                setShowOtherOptions(false);
               }}
               htmlFor="connect-modal"
               className="btn btn-ghost btn-sm btn-circle cursor-pointer"
@@ -115,43 +96,16 @@ const ConnectModal = () => {
           <div className="flex flex-col flex-1 lg:grid">
             <div className="flex flex-col gap-4 w-full px-8 py-10">
               {!isBurnerWallet ? (
-                !showOtherOptions ? (
-                  <>
-                    {mainConnectors.map((connector, index) => (
-                      <Wallet
-                        key={connector.id || index}
-                        connector={connector}
-                        loader={loader}
-                        handleConnectWallet={handleConnectWallet}
-                      />
-                    ))}
-                    {isDevnet && otherConnectors.length > 0 && (
-                      <button
-                        className="btn btn-ghost rounded-md mt-4 font-normal text-base"
-                        onClick={() => setShowOtherOptions(true)}
-                      >
-                        Other Options
-                      </button>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {otherConnectors.map((connector, index) => (
-                      <Wallet
-                        key={connector.id || index}
-                        connector={connector}
-                        loader={loader}
-                        handleConnectWallet={handleConnectWallet}
-                      />
-                    ))}
-                    <button
-                      className="btn btn-ghost font-normal text-base mt-4 rounded-md"
-                      onClick={() => setShowOtherOptions(false)}
-                    >
-                      Back
-                    </button>
-                  </>
-                )
+                <>
+                  {connectors.map((connector, index) => (
+                    <Wallet
+                      key={connector.id || index}
+                      connector={connector}
+                      loader={loader}
+                      handleConnectWallet={handleConnectWallet}
+                    />
+                  ))}
+                </>
               ) : (
                 <div className="flex flex-col pb-[20px] justify-end gap-3">
                   <div className="h-[300px] overflow-y-auto flex w-full flex-col gap-2">
