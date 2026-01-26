@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Link } from "~~/lib/i18n/routing";
 import { usePathname } from "~~/lib/i18n/routing";
 import { useTranslations } from 'next-intl';
 import { Bars3Icon } from "@heroicons/react/24/outline";
-import { useOutsideClick } from "~~/hooks/scaffold-stark";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { CustomConnectButton } from "~~/components/scaffold-stark/CustomConnectButton";
 
 type HeaderMenuLink = {
   translationKey: string;
@@ -93,41 +93,39 @@ export const HeaderMenuLinks = () => {
  */
 export const Header = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const burgerMenuRef = useRef<HTMLDivElement>(null);
   const t = useTranslations('common.header');
   const tBrand = useTranslations('brand');
-
-  useOutsideClick(
-    burgerMenuRef,
-    useCallback(() => setIsDrawerOpen(false), []),
-  );
 
   return (
     <div className="navbar min-h-0 shrink-0 justify-between z-20 px-4 sm:px-6 bg-vaca-neutral-white border-b-2 border-vaca-neutral-gray-100">
       <div className="navbar-start w-auto lg:w-1/2">
         {/* Mobile Menu */}
-        <div className="lg:hidden dropdown" ref={burgerMenuRef}>
-          <label
-            tabIndex={0}
+        <div className="relative lg:hidden">
+          <button
+            type="button"
             className={`btn btn-ghost ${
               isDrawerOpen ? "hover:bg-vaca-green/10" : "hover:bg-transparent"
             }`}
-            onClick={() => {
-              setIsDrawerOpen((prevIsOpenState) => !prevIsOpenState);
-            }}
+            onClick={() => setIsDrawerOpen((prevIsOpenState) => !prevIsOpenState)}
+            aria-label="Open navigation menu"
+            aria-expanded={isDrawerOpen}
           >
             <Bars3Icon className="h-6 w-6 text-vaca-neutral-gray-700" />
-          </label>
+          </button>
           {isDrawerOpen && (
-            <ul
-              tabIndex={0}
-              className="menu menu-compact dropdown-content mt-3 p-2 shadow-lg rounded-xl w-52 bg-vaca-neutral-white border-2 border-vaca-neutral-gray-100"
-              onClick={() => {
-                setIsDrawerOpen(false);
-              }}
-            >
-              <HeaderMenuLinks />
-            </ul>
+            <>
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setIsDrawerOpen(false)}
+                aria-hidden="true"
+              />
+              <ul
+                className="menu menu-compact absolute left-0 z-20 mt-3 w-52 rounded-xl border-2 border-vaca-neutral-gray-100 bg-vaca-neutral-white p-2 shadow-lg"
+                onClick={() => setIsDrawerOpen(false)}
+              >
+                <HeaderMenuLinks />
+              </ul>
+            </>
           )}
         </div>
 
@@ -160,12 +158,10 @@ export const Header = () => {
         </ul>
       </div>
 
-      {/* Right Side - Language Switcher */}
+      {/* Right Side - Wallet + Language Switcher */}
       <div className="navbar-end gap-4">
+        <CustomConnectButton />
         <LanguageSwitcher />
-
-        {/* TODO: Add user profile/auth button when ready */}
-        {/* <CustomConnectButton /> */}
       </div>
     </div>
   );
