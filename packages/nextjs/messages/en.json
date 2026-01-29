@@ -3,6 +3,7 @@
     "header": {
       "home": "Home",
       "marketplace": "Marketplace",
+      "p2p": "P2P",
       "portfolio": "Portfolio",
       "dashboard": "Dashboard",
       "producerDashboard": "Producer Dashboard",
@@ -30,6 +31,7 @@
       "dashboard": "Dashboard",
       "portfolio": "Portfolio",
       "marketplace": "Marketplace",
+      "p2p": "P2P",
       "position": "Position",
       "profile": "Profile"
     },
@@ -116,6 +118,19 @@
         "pricePerShare": "Price per Share",
         "sharesAvailable": "Shares Available",
         "investButton": "Invest Now"
+      }
+    },
+    "p2p": {
+      "title": "P2P Marketplace",
+      "subtitle": "Trade cattle lot shares with other investors. Set your price or accept existing offers.",
+      "filters": {
+        "label": "Filter:",
+        "open": "Open",
+        "partiallyFilled": "Partially Filled",
+        "all": "All"
+      },
+      "emptyState": {
+        "description": "No offers available right now. Check back soon."
       }
     },
     "portfolio": {

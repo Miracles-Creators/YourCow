@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Lot, LotStatus, OnChainSyncStatus, ProducerStatus, Prisma } from "@prisma/client";
 import { hash } from "starknet";
+import { Decimal } from "@prisma/client-runtime-utils";
 
 import { PrismaService } from "../../../database/prisma.service";
 import { toBigInt } from "../../../utils/bigint";
@@ -47,35 +48,53 @@ export class LotsService {
     });
   }
 
+  //TODO:REVIEW THIS TO REFACTOR 
   async listLots(): Promise<
     (Prisma.LotGetPayload<{
       include: {
         producer: { include: { user: true } };
-        payments: { select: { sharesAmount: true } };
       };
     }> & { fundedPercent: number })[]
   > {
     const lots = await this.prisma.lot.findMany({
       include: {
         producer: { include: { user: true } },
-        payments: {
-          where: { status: "CONFIRMED" },
-          select: { sharesAmount: true },
-        },
       },
       orderBy: { createdAt: "desc" },
     });
 
+    const lotIds = lots.map((lot) => lot.id);
+    const balancesByLot = lotIds.length
+      ? await this.prisma.balance.groupBy({
+          by: ["lotId"],
+          where: {
+            lotId: { in: lotIds },
+            assetType: "LOT_SHARES",
+          },
+          _sum: {
+            available: true,
+            locked: true,
+          },
+        })
+      : [];
+
+    const mintedByLotId = new Map<number, Decimal>();
+    for (const row of balancesByLot) {
+      if (row.lotId == null) {
+        continue;
+      }
+      const available = new Decimal(row._sum.available ?? 0);
+      const locked = new Decimal(row._sum.locked ?? 0);
+      mintedByLotId.set(row.lotId, available.plus(locked));
+    }
+
     return lots.map((lot) => {
       const totalShares = lot.totalShares;
-      const fundedShares = lot.payments.reduce(
-        (acc, payment) => acc + payment.sharesAmount,
-        0
-      );
+      const fundedShares = mintedByLotId.get(lot.id) ?? new Decimal(0);
       const fundedPercent =
         totalShares === 0
           ? 0
-          : Math.round((fundedShares / totalShares) * 10000) / 100;
+          : Number(fundedShares.div(totalShares).mul(100).toFixed(2));
 
       return {
         ...lot,

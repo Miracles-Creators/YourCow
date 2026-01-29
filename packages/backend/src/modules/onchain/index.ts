@@ -15,3 +15,5 @@ export * from "./traceability-oracle/traceability-oracle.service";
 
 export * from "./settlement-registry/settlement-registry.module";
 export * from "./settlement-registry/settlement-registry.service";
+
+export * from "./audit-registry/audit-registry.service";

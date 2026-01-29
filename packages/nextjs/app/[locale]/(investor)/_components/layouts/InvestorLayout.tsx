@@ -25,7 +25,7 @@ const PUBLIC_ROUTES = ["/welcome", "/login"];
 export function InvestorLayout({ children, className }: InvestorLayoutProps) {
   const pathname = usePathname();
   const showBottomNav = !PUBLIC_ROUTES.includes(pathname);
-  const isMarketplace = pathname.endsWith("/marketplace");
+  const isMarketplace = pathname.endsWith("/marketplace") || pathname.endsWith("/p2p");
 
   return (
     <div
