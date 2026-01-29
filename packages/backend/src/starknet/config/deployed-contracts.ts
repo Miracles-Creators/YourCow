@@ -7,7 +7,7 @@ const deployedContracts = {
   devnet: {
     LotFactory: {
       address:
-        "0x7710228ca46f6d0e222357339c6c33ec065c6190b50dfb99ea2986b5c4ba78a",
+        "0x4f183e16be9d9e13ade2f553d50b4ba398cb1cd298bd6b5f76b4e4607bd3f03",
       abi: [
         {
           type: "impl",
@@ -664,7 +664,7 @@ const deployedContracts = {
     },
     AnimalRegistry: {
       address:
-        "0xe0b7a7c8754e0100f0a51d86395978a98b23da70762d7da11700169f285b55",
+        "0x750aa72f8114880d42f54083cdb08c70436ecca02afa2730858279f1c2c8e7d",
       abi: [
         {
           type: "impl",
@@ -1456,7 +1456,7 @@ const deployedContracts = {
     },
     TraceabilityOracle: {
       address:
-        "0x77b270d15f5773883119b09b108f6575ef110b067f36d546cc6bae0c11cfa70",
+        "0x3509d9f060ff265bbece3e542ab4f8e2318577d649075895be57d5ef6fe7955",
       abi: [
         {
           type: "impl",
@@ -1922,7 +1922,7 @@ const deployedContracts = {
     },
     SettlementRegistry: {
       address:
-        "0x5b62129773d560cd29e39c773a85fddc157ee918b0f5c4f88f7883c6d662ab0",
+        "0x25729fb9a2bfa2b85540abc60602ad92fbd460624dd57908a4d8d65b2b7d1e",
       abi: [
         {
           type: "impl",
@@ -2404,7 +2404,7 @@ const deployedContracts = {
     },
     YourContract: {
       address:
-        "0x69f61fc1a605cb84e14109b5d2f067db80c2ace3a44e31cea3502c29944c1b5",
+        "0x7943e0500a9bd88493f95181460bcdf1fb376623d2c67022ba95bdaaf533acc",
       abi: [
         {
           type: "impl",

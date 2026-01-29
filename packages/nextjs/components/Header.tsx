@@ -26,6 +26,10 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/marketplace",
   },
   {
+    translationKey: "p2p",
+    href: "/p2p",
+  },
+  {
     translationKey: "portfolio",
     href: "/portfolio",
   },

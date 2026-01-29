@@ -10,7 +10,6 @@ export type CreatePaymentInput = {
   lotId: number;
   amountFiat: number;
   currency: string;
-  sharesAmount: number;
   txHash?: string;
 };
 
@@ -35,8 +34,8 @@ export async function confirmPayment(
   return PaymentSchema.parse(payment);
 }
 
-export async function mintPayment(id: number): Promise<PaymentDto> {
-  const payment = await apiFetch<PaymentDto>(`/payments/${id}/mint`, {
+export async function fiatDeposit(id: number): Promise<PaymentDto> {
+  const payment = await apiFetch<PaymentDto>(`/payments/${id}/fiat-deposit`, {
     method: "POST",
   });
   return PaymentSchema.parse(payment);

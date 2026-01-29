@@ -11,6 +11,7 @@ import {
   shellItemVariants,
 } from "~~/app/[locale]/(onboarding)/_components";
 import { Button } from "~~/components/ui";
+import { useOnboardingStore } from "~~/services/store/onboarding";
 
 interface FormData {
   fullName: string;
@@ -30,6 +31,7 @@ interface FormErrors {
 export function RegisterScreen() {
   const t = useTranslations("onboarding.register");
   const router = useRouter();
+  const updateRegister = useOnboardingStore((state) => state.updateRegister);
 
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
@@ -63,6 +65,11 @@ export function RegisterScreen() {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
+
+    updateRegister({
+      fullName: formData.fullName.trim(),
+      email: formData.email.trim(),
+    });
 
     // Mock API call - replace with actual registration
     await new Promise((resolve) => setTimeout(resolve, 1000));
