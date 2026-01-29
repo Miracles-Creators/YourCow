@@ -57,6 +57,24 @@ export function BottomNav() {
       ),
     },
     {
+      label: t("p2p"),
+      href: "/p2p",
+      icon: (isActive) => (
+        <svg
+          className={cn("h-6 w-6", isActive ? "fill-current" : "fill-none")}
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M7 7h8m0 0-3-3m3 3-3 3M17 17H9m0 0 3 3m-3-3 3-3"
+          />
+        </svg>
+      ),
+    },
+    {
       label: t("portfolio"),
       href: "/portfolio",
       icon: (isActive) => (

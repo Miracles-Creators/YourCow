@@ -18,9 +18,9 @@ export class PaymentsController {
     return this.paymentsService.confirmPayment(Number(id), body.txHash);
   }
 
-  @Post(":id/mint")
-  async mintPayment(@Param("id") id: string) {
-    return this.paymentsService.mintPayment(Number(id));
+  @Post(":id/fiat-deposit")
+  async fiatDeposit(@Param("id") id: string) {
+    return this.paymentsService.fiatDeposit(Number(id));
   }
 
   @Get(":id")

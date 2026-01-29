@@ -1,21 +1,18 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import {
-  OnChainSyncStatus,
-  Payment,
-  PaymentStatus,
-  ShareTransferKind,
-} from "@prisma/client";
+import { OnChainSyncStatus, Payment, PaymentStatus } from "@prisma/client";
+import { Decimal } from "@prisma/client-runtime-utils";
 
 import { PrismaService } from "../../../database/prisma.service";
-import { toBigInt } from "../../../utils/bigint";
-import { LotSharesTokenService } from "../../onchain/lot-shares-token/lot-shares-token.service";
+import { CustodyService } from "../custody/custody.service";
+import { LedgerService } from "../ledger/ledger.service";
 import { CreatePaymentDto } from "./dto/create-payment.dto";
 
 @Injectable()
 export class PaymentsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly lotSharesTokenService: LotSharesTokenService,
+    private readonly custodyService: CustodyService,
+    private readonly ledgerService: LedgerService,
   ) {}
 
   async createPayment(data: CreatePaymentDto): Promise<Payment> {
@@ -30,7 +27,7 @@ export class PaymentsService {
       return existingByIntent;
     }
 
-    const pendingMint = await this.prisma.payment.findFirst({
+    const pendingDeposit = await this.prisma.payment.findFirst({
       where: {
         userId: data.investorId,
         lotId: data.lotId,
@@ -39,9 +36,9 @@ export class PaymentsService {
       },
     });
 
-    if (pendingMint) {
+    if (pendingDeposit) {
       throw new BadRequestException(
-        "Existing confirmed payment is pending mint; retry mint instead of creating a new payment",
+        "Existing confirmed payment is pending deposit; retry fiat deposit instead of creating a new payment",
       );
     }
 
@@ -49,10 +46,11 @@ export class PaymentsService {
       data: {
         paymentIntentId: data.paymentIntentId,
         userId: data.investorId,
+        // TODO: Remove lotId dependency from payments; payments should be general fiat deposits.
+        // Lot association should happen only when spending balance to buy shares.
         lotId: data.lotId,
         amountFiat: data.amountFiat,
         currency: data.currency,
-        sharesAmount: data.sharesAmount,
         txHash: data.txHash ?? null,
       },
     });
@@ -100,10 +98,9 @@ export class PaymentsService {
     });
   }
 
-  async mintPayment(id: number): Promise<Payment> {
+  async fiatDeposit(id: number): Promise<Payment> {
     const payment = await this.prisma.payment.findUnique({
       where: { id },
-      include: { user: true, lot: true },
     });
 
     if (!payment) {
@@ -118,14 +115,6 @@ export class PaymentsService {
       return payment;
     }
 
-    if (!payment.user.walletAddress) {
-      throw new BadRequestException("Investor wallet address is missing");
-    }
-
-    if (payment.lot.onChainLotId == null) {
-      throw new BadRequestException("Lot onChainLotId is missing");
-    }
-
     const lockResult = await this.prisma.payment.updateMany({
       where: {
         id,
@@ -138,7 +127,6 @@ export class PaymentsService {
     if (lockResult.count === 0) {
       const latest = await this.prisma.payment.findUnique({
         where: { id },
-        include: { user: true, lot: true },
       });
 
       if (!latest) {
@@ -150,7 +138,7 @@ export class PaymentsService {
       }
 
       if (latest.onChainStatus === OnChainSyncStatus.SYNCING) {
-        throw new BadRequestException("Payment mint already in progress");
+        throw new BadRequestException("Payment deposit already in progress");
       }
 
       if (latest.status !== PaymentStatus.CONFIRMED) {
@@ -159,68 +147,34 @@ export class PaymentsService {
     }
 
     try {
-      let txHash = payment.txHash ?? null;
-
-      if (!txHash) {
-        txHash = await this.lotSharesTokenService.mint(
-        toBigInt(payment.lot.onChainLotId),
-        payment.user.walletAddress,
-        toBigInt(payment.sharesAmount),
-      );
-
-        await this.prisma.payment.update({
-          where: { id },
-          data: { txHash },
-        });
-      }
+      const account = await this.custodyService.getOrCreateAccount(payment.userId);
+      //TODO:review role of protocol vault
+      const protocolVault = await this.custodyService.getOrCreateSystemAccount("PROTOCOL_VAULT");
+      const assetType = this.mapCurrencyToAssetType(payment.currency);
 
       return await this.prisma.$transaction(async (tx) => {
+        await this.custodyService.creditFiat(
+          tx,
+          account.id,
+          assetType,
+          new Decimal(payment.amountFiat),
+        );
+
+        await this.ledgerService.writeEntry(tx, {
+          eventType: "FIAT_DEPOSIT",
+          debitAccountId: protocolVault.id,
+          creditAccountId: account.id,
+          assetType,
+          lotId: null,
+          amount: new Decimal(payment.amountFiat),
+        });
+
         const updatedPayment = await tx.payment.update({
           where: { id },
           data: {
-            txHash,
             onChainStatus: OnChainSyncStatus.SYNCED,
           },
         });
-
-        const existingTransfer = await tx.shareTransfer.findFirst({
-          where: { txHash, kind: ShareTransferKind.MINT },
-        });
-
-        if (!existingTransfer) {
-          await tx.shareBalance.upsert({
-            where: {
-              userId_lotId: {
-                userId: payment.userId,
-                lotId: payment.lotId,
-              },
-            },
-            update: {
-            amount: {
-              increment: payment.sharesAmount,
-            },
-            lastSyncedAt: new Date(),
-          },
-          create: {
-            userId: payment.userId,
-            lotId: payment.lotId,
-            amount: payment.sharesAmount,
-            lastSyncedAt: new Date(),
-          },
-        });
-
-          await tx.shareTransfer.create({
-            data: {
-              lotId: payment.lotId,
-            fromUserId: null,
-            toUserId: payment.userId,
-            amount: payment.sharesAmount,
-            kind: ShareTransferKind.MINT,
-            txHash,
-            onChainStatus: OnChainSyncStatus.SYNCED,
-            },
-          });
-        }
 
         return updatedPayment;
       });
@@ -231,6 +185,20 @@ export class PaymentsService {
       });
       throw error;
     }
+  }
+//TODO:UTILS
+  private mapCurrencyToAssetType(currency: string): "FIAT_ARS" | "FIAT_USD" {
+    const normalized = currency.trim().toUpperCase();
+
+    if (normalized === "ARS" || normalized === "FIAT_ARS") {
+      return "FIAT_ARS";
+    }
+
+    if (normalized === "USD" || normalized === "FIAT_USD") {
+      return "FIAT_USD";
+    }
+
+    throw new BadRequestException(`Unsupported currency: ${currency}`);
   }
 
   async failPayment(id: number): Promise<Payment> {

@@ -13,7 +13,8 @@ import {
   shellItemVariants,
 } from "~~/app/[locale]/(onboarding)/_components";
 import { Button } from "~~/components/ui";
-import { useCreateProducer } from "~~/hooks/producers/useCreateProducer";
+import { useLogin } from "~~/hooks/auth/useLogin";
+import { useOnboardingStore } from "~~/services/store/onboarding";
 
 interface FormData {
   country: string;
@@ -21,9 +22,6 @@ interface FormData {
   address: string;
   city: string;
   postalCode: string;
-  name: string;
-  email: string;
-  senasaId: string;
 }
 
 interface FormErrors {
@@ -32,9 +30,6 @@ interface FormErrors {
   address?: string;
   city?: string;
   postalCode?: string;
-  name?: string;
-  email?: string;
-  senasaId?: string;
 }
 
 /**
@@ -45,7 +40,9 @@ interface FormErrors {
 export function InvestorProfileScreen() {
   const t = useTranslations("onboarding.investorProfile");
   const router = useRouter();
-  const createProducer = useCreateProducer();
+  const login = useLogin();
+  const register = useOnboardingStore((state) => state.register);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   
   const [formData, setFormData] = useState<FormData>({
     country: "",
@@ -53,9 +50,6 @@ export function InvestorProfileScreen() {
     address: "",
     city: "",
     postalCode: "",
-    name: "",
-    email: "",
-    senasaId: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -100,11 +94,29 @@ export function InvestorProfileScreen() {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
+    setSubmitError(null);
+
+    if (!register.email.trim()) {
+      setIsSubmitting(false);
+      router.push("/onboarding/register");
+      return;
+    }
 
     // Mock API call - replace with actual profile save
     await new Promise((resolve) => setTimeout(resolve, 1000));
     console.log("Profile saved:", formData);
-    await createProducer.mutateAsync(formData);
+
+    try {
+      await login.mutateAsync({
+        email: register.email,
+        name: register.fullName || undefined,
+        role: "INVESTOR",
+      });
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Login failed.");
+      setIsSubmitting(false);
+      return;
+    }
 
     // Navigate to KYC screen
     router.push("/onboarding/investor/kyc");
@@ -151,6 +163,12 @@ export function InvestorProfileScreen() {
         onSubmit={handleSubmit}
         className="space-y-5"
       >
+        {submitError && (
+          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {submitError}
+          </p>
+        )}
+
         <CountrySelect
           label={t("fields.country.label")}
           value={formData.country}

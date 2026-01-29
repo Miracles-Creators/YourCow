@@ -21,6 +21,7 @@ export { WelcomeScreen } from "./screens/WelcomeScreen";
 export { LoginScreen } from "./screens/LoginScreen";
 export { DashboardScreen } from "./screens/DashboardScreen";
 export { MarketplaceScreen } from "./screens/MarketplaceScreen";
+export { P2PScreen } from "./screens/P2PScreen";
 export { LotDetailScreen } from "./screens/LotDetailScreen";
 export { InvestAmountScreen } from "./screens/InvestAmountScreen";
 export { PositionDetailScreen } from "./screens/PositionDetailScreen";

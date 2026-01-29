@@ -7,7 +7,8 @@ import { useState } from "react";
 import { useLot } from "~~/hooks/lots/useLot";
 import { useConfirmPayment } from "~~/hooks/payments/useConfirmPayment";
 import { useCreatePayment } from "~~/hooks/payments/useCreatePayment";
-import { useMintPayment } from "~~/hooks/payments/useMintPayment";
+import { useFiatDeposit } from "~~/hooks/payments/useFiatDeposit";
+import { useBuyPrimary } from "~~/hooks/marketplace";
 import { useMe } from "~~/hooks/auth/useMe";
 import { cn } from "~~/lib/utils/cn";
 import { PrimaryButton } from "../ui/PrimaryButton";
@@ -52,7 +53,8 @@ export function ConfirmInvestmentScreen({
   const { data: me } = useMe();
   const createPayment = useCreatePayment();
   const confirmPayment = useConfirmPayment();
-  const mintPayment = useMintPayment();
+  const fiatDeposit = useFiatDeposit();
+  const buyPrimary = useBuyPrimary();
 
   // Fee calculations
   const platformFee = investmentAmount * 0.015; // 1.5% platform fee
@@ -75,12 +77,16 @@ export function ConfirmInvestmentScreen({
         investorId: me.id,
         lotId: lot.id,
         amountFiat: Math.round(investmentAmount * 100),
-        currency: "USD",
-        sharesAmount: shares,
+        currency: "ARS",
       });
 
       await confirmPayment.mutateAsync({ id: payment.id });
-      await mintPayment.mutateAsync({ id: payment.id });
+      await fiatDeposit.mutateAsync({ id: payment.id });
+      await buyPrimary.mutateAsync({
+        lotId: lot.id,
+        sharesAmount: shares,
+        idempotencyKey: `primary_${payment.id}`,
+      });
 
       router.push(
         `/investment-success/${lot.id}?amount=${investmentAmount}&shares=${shares}`,
@@ -192,6 +198,10 @@ export function ConfirmInvestmentScreen({
           </div>
 
           <div className="border-t border-vaca-neutral-gray-100" />
+
+          <div className="rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-gray-50 px-4 py-3 text-sm text-vaca-neutral-gray-600">
+            This step deposits fiat first, then purchases shares using the available balance.
+          </div>
 
           {/* Investment Amount */}
           <SummaryRow

@@ -170,23 +170,12 @@ export const PaymentSchema = z.object({
   lotId: z.number(),
   amountFiat: z.number(),
   currency: z.string(),
-  sharesAmount: z.number(),
   status: PaymentStatusSchema,
   sourceApp: AppContextSchema,
   txHash: z.string().nullable().optional(),
   onChainStatus: OnChainSyncStatusSchema,
   createdAt: z.string(),
   confirmedAt: z.string().nullable().optional(),
-});
-
-export const ShareBalanceSchema = z.object({
-  id: z.number(),
-  userId: z.number(),
-  lotId: z.number(),
-  amount: z.number(),
-  lastSyncedAt: z.string().nullable().optional(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
 });
 
 export const ShareTransferSchema = z.object({
@@ -211,5 +200,170 @@ export type AnimalApprovalStatus = z.infer<typeof AnimalApprovalStatusSchema>;
 export type ApproveLotInput = z.infer<typeof ApproveLotInputSchema>;
 export type ApproveAnimalsInput = z.infer<typeof ApproveAnimalsInputSchema>;
 export type PaymentDto = z.infer<typeof PaymentSchema>;
-export type ShareBalanceDto = z.infer<typeof ShareBalanceSchema>;
 export type ShareTransferDto = z.infer<typeof ShareTransferSchema>;
+
+// ============================================
+// P2P MARKETPLACE SCHEMAS
+// ============================================
+
+export const OfferStatusSchema = z.enum([
+  "OPEN",
+  "PARTIALLY_FILLED",
+  "FILLED",
+  "CANCELLED",
+]);
+
+export const AssetTypeSchema = z.enum(["LOT_SHARES", "FIAT_ARS", "FIAT_USD"]);
+
+export const AccountTypeSchema = z.enum([
+  "TRADING",
+  "FEES_COLLECTED",
+  "PROTOCOL_VAULT",
+]);
+
+// Offer schema (sell offers in the marketplace)
+export const OfferSchema = z.object({
+  id: z.number(),
+  sellerId: z.number(),
+  lotId: z.number(),
+  sharesAmount: z.number(),
+  pricePerShare: z.number(),
+  currency: z.string(),
+  sharesFilled: z.number(),
+  status: OfferStatusSchema,
+  idempotencyKey: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  // Optional relations
+  seller: UserSchema.optional(),
+  lot: LotSchema.optional(),
+});
+
+// Trade schema (completed transactions)
+export const TradeSchema = z.object({
+  id: z.number(),
+  offerId: z.number(),
+  buyerId: z.number(),
+  sharesAmount: z.number(),
+  totalPrice: z.number(),
+  feeAmount: z.number(),
+  currency: z.string(),
+  idempotencyKey: z.string(),
+  settledAt: z.string(),
+  // Optional relations
+  buyer: UserSchema.optional(),
+  offer: OfferSchema.optional(),
+});
+
+// Balance schema (user balances in the custody system)
+export const MarketplaceBalanceSchema = z.object({
+  id: z.number(),
+  accountId: z.number(),
+  assetType: AssetTypeSchema,
+  lotId: z.number().nullable(),
+  available: z.string(), // Decimal as string
+  locked: z.string(), // Decimal as string
+  updatedAt: z.string(),
+  // Optional relations
+  lot: LotSchema.optional(),
+});
+
+// Portfolio fiat balance summary
+export const PortfolioFiatBalanceSchema = z.object({
+  currency: z.string(),
+  available: z.string(),
+  locked: z.string(),
+  total: z.string(),
+});
+
+// Portfolio item for lot shares (summary)
+export const PortfolioLotPositionSchema = z.object({
+  lotId: z.number(),
+  lotName: z.string().nullable(),
+  available: z.string(),
+  locked: z.string(),
+  total: z.string(),
+  valuation: z.string().nullable(),
+  lastPricePerShare: z.number().nullable(),
+});
+
+export const PortfolioActiveOfferSchema = z.object({
+  id: z.number(),
+  sharesAmount: z.number(),
+  sharesFilled: z.number(),
+  remainingShares: z.number(),
+  pricePerShare: z.number(),
+  currency: z.string(),
+  status: OfferStatusSchema,
+  createdAt: z.string(),
+});
+
+// Portfolio detail for a specific lot
+export const PortfolioLotItemSchema = z.object({
+  accountId: z.number(),
+  lotId: z.number(),
+  lotName: z.string().nullable(),
+  available: z.string(),
+  locked: z.string(),
+  total: z.string(),
+  activeOffers: z.array(PortfolioActiveOfferSchema),
+});
+
+// Full portfolio response
+export const PortfolioSchema = z.object({
+  accountId: z.number(),
+  fiat: z.array(PortfolioFiatBalanceSchema),
+  lots: z.array(PortfolioLotPositionSchema),
+});
+
+// Input schemas for mutations
+export const CreateOfferInputSchema = z.object({
+  lotId: z.number(),
+  sharesAmount: z.number().positive(),
+  pricePerShare: z.number().positive(),
+  currency: z.string().default("ARS"),
+  idempotencyKey: z.string(),
+});
+
+export const AcceptOfferInputSchema = z.object({
+  sharesAmount: z.number().positive(),
+  idempotencyKey: z.string(),
+});
+
+export const BuyPrimaryInputSchema = z.object({
+  lotId: z.number(),
+  sharesAmount: z.number().positive(),
+  idempotencyKey: z.string(),
+});
+
+export const BuyPrimaryResultSchema = z.object({
+  txHash: z.string(),
+  balance: MarketplaceBalanceSchema,
+  sharesAmount: z.number(),
+  totalCost: z.number(),
+});
+
+// Query filters
+export const OfferFiltersSchema = z.object({
+  lotId: z.number().optional(),
+  sellerId: z.number().optional(),
+  status: OfferStatusSchema.optional(),
+});
+
+// Type exports
+export type OfferStatus = z.infer<typeof OfferStatusSchema>;
+export type AssetType = z.infer<typeof AssetTypeSchema>;
+export type AccountType = z.infer<typeof AccountTypeSchema>;
+export type OfferDto = z.infer<typeof OfferSchema>;
+export type TradeDto = z.infer<typeof TradeSchema>;
+export type MarketplaceBalanceDto = z.infer<typeof MarketplaceBalanceSchema>;
+export type PortfolioFiatBalanceDto = z.infer<typeof PortfolioFiatBalanceSchema>;
+export type PortfolioLotPositionDto = z.infer<typeof PortfolioLotPositionSchema>;
+export type PortfolioActiveOfferDto = z.infer<typeof PortfolioActiveOfferSchema>;
+export type PortfolioLotItemDto = z.infer<typeof PortfolioLotItemSchema>;
+export type PortfolioDto = z.infer<typeof PortfolioSchema>;
+export type CreateOfferInput = z.infer<typeof CreateOfferInputSchema>;
+export type AcceptOfferInput = z.infer<typeof AcceptOfferInputSchema>;
+export type BuyPrimaryInput = z.infer<typeof BuyPrimaryInputSchema>;
+export type BuyPrimaryResult = z.infer<typeof BuyPrimaryResultSchema>;
+export type OfferFilters = z.infer<typeof OfferFiltersSchema>;

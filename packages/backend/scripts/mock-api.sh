@@ -45,7 +45,7 @@ animal_id=$(printf '%s' "$animal_json" | json_get "id")
 
 
 echo "Creating payment..."
-payment_json=$(post "payments" "{\"paymentIntentId\":\"pi_demo_001\",\"investorId\":\"$investor_id\",\"lotId\":\"$lot_id\",\"amountFiat\":10000,\"currency\":\"USD\",\"sharesAmount\":\"100\"}")
+payment_json=$(post "payments" "{\"paymentIntentId\":\"pi_demo_001\",\"investorId\":\"$investor_id\",\"lotId\":\"$lot_id\",\"amountFiat\":10000,\"currency\":\"USD\"}")
 payment_id=$(printf '%s' "$payment_json" | json_get "id")
 
 

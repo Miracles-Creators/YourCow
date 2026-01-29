@@ -9,7 +9,7 @@
 // 5. DB-first: write off-chain record before sending on-chain tx
 
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
   engineType = "library"
 }
 
@@ -22,22 +22,24 @@ datasource db {
 // ============================================
 
 model User {
-  id            Int        @id @default(autoincrement())
-  role          UserRole
-  walletAddress String?    @unique
-  email         String     @unique
-  name          String?
-  status        UserStatus @default(ACTIVE)
-  kycProfile    KycProfile?
-  producer      ProducerProfile? @relation("ProducerUser")
-  payments      Payment[]
-  shareBalances ShareBalance[]
-  shareTransfersFrom ShareTransfer[] @relation("ShareTransferFrom")
-  shareTransfersTo   ShareTransfer[] @relation("ShareTransferTo")
-  producerApprovals  ProducerProfile[] @relation("ProducerApprovedBy")
-  animalApprovals    Animal[] @relation("AnimalApprovedBy")
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id                Int               @id @default(autoincrement())
+  role              UserRole
+  walletAddress     String?           @unique
+  email             String            @unique
+  name              String?
+  status            UserStatus        @default(ACTIVE)
+  kycProfile        KycProfile?
+  producer          ProducerProfile?  @relation("ProducerUser")
+  payments          Payment[]
+  producerApprovals ProducerProfile[] @relation("ProducerApprovedBy")
+  animalApprovals   Animal[]          @relation("AnimalApprovedBy")
+  // P2P Marketplace relations
+  accounts          Account[]
+  offers            Offer[] // Offers created by this user (as seller)
+  trades            Trade[] // Trades where this user is buyer
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  primaryPurchases  PrimaryPurchase[]
 }
 
 enum UserRole {
@@ -77,17 +79,17 @@ enum KycLevel {
 }
 
 model ProducerProfile {
-  userId       Int            @id
-  user         User           @relation("ProducerUser", fields: [userId], references: [id])
-  senasaId     String         @unique
-  status       ProducerStatus @default(PENDING)
-  location     String?
-  phone        String?
+  userId         Int            @id
+  user           User           @relation("ProducerUser", fields: [userId], references: [id])
+  senasaId       String         @unique
+  status         ProducerStatus @default(PENDING)
+  location       String?
+  phone          String?
   yearsOperating Int?
-  approvedById Int?
-  approvedBy   User?          @relation("ProducerApprovedBy", fields: [approvedById], references: [id])
-  approvedAt   DateTime?
-  lots         Lot[]
+  approvedById   Int?
+  approvedBy     User?          @relation("ProducerApprovedBy", fields: [approvedById], references: [id])
+  approvedAt     DateTime?
+  lots           Lot[]
 
   @@index([approvedById])
 }
@@ -104,58 +106,61 @@ enum ProducerStatus {
 // ============================================
 
 model Lot {
-  id            Int       @id @default(autoincrement())
-  name          String
-  description   String
-  status        LotStatus @default(DRAFT)
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  status      LotStatus @default(DRAFT)
 
   // Location & Operation
   farmName       String
-  location       String   // Province/State + Country
+  location       String // Province/State + Country
   productionType ProductionType
 
   // Herd data (legally relevant for SENASA/traceability)
-  cattleCount      Int     // Number of animals in the lot
-  averageWeightKg  Int   // Average weight per animal in kg
-  initialWeightKg  Int?  // Initial average weight per animal in kg
-  durationWeeks    Int     // Expected fattening duration
-  startDate        DateTime?
-  endDate          DateTime?
+  cattleCount     Int // Number of animals in the lot
+  averageWeightKg Int // Average weight per animal in kg
+  initialWeightKg Int? // Initial average weight per animal in kg
+  durationWeeks   Int // Expected fattening duration
+  startDate       DateTime?
+  endDate         DateTime?
 
   // Financing terms (contractually binding)
-  totalShares      Int  // Total investor shares
-  pricePerShare    Int  // Smallest unit
-  investorPercent  Float   // Investor profit share percentage
-  fundingDeadline  DateTime? // Deadline to reach funding goal
-  operatingCosts   Int?   // Estimated costs
+  totalShares     Int // Total investor shares
+  pricePerShare   Int // Smallest unit
+  investorPercent Float // Investor profit share percentage
+  fundingDeadline DateTime? // Deadline to reach funding goal
+  operatingCosts  Int? // Estimated costs
 
   // On-chain data (filled AFTER deploy)
-  onChainLotId  Int? @unique // lot_id from contract
+  onChainLotId  Int?              @unique // lot_id from contract
   tokenAddress  String? // ERC20 shares token address
   txHash        String? // Creation tx hash
   metadataHash  String? // Poseidon hash of metadata
   onChainStatus OnChainSyncStatus @default(PENDING)
 
   // Relations
-  producerId Int
-  producer   ProducerProfile @relation(fields: [producerId], references: [userId])
-  animals           Animal[]
-  payments          Payment[]
-  settlement        Settlement?
-  shareBalances     ShareBalance[]
-  shareTransfers    ShareTransfer[]
-  documents         LotDocument[]
+  producerId          Int
+  producer            ProducerProfile @relation(fields: [producerId], references: [userId])
+  animals             Animal[]
+  payments            Payment[]
+  settlement          Settlement?
+  documents           LotDocument[]
+  // P2P Marketplace relations
+  marketplaceBalances Balance[]
+  marketplaceOffers   Offer[]
+  ledgerEntries       LedgerEntry[]
 
   // Flexible metadata (UI prefs, notes, non-critical data)
   notes    String? // Producer notes
-  metadata Json?   // Additional non-queryable data
+  metadata Json? // Additional non-queryable data
 
   // Weight stats (grams) mirrored off-chain for queries
   initialTotalWeightGrams Int?
   currentTotalWeightGrams Int?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  primaryPurchases PrimaryPurchase[]
 
   @@index([producerId])
   @@index([status])
@@ -169,22 +174,22 @@ enum ProductionType {
 }
 
 model LotDocument {
-  id        Int             @id @default(autoincrement())
-  lotId     Int
-  lot       Lot             @relation(fields: [lotId], references: [id])
-  type      LotDocumentType
-  fileUrl   String          // S3/IPFS URL
-  fileHash  String?         // Hash for integrity verification
-  uploadedAt DateTime       @default(now())
+  id         Int             @id @default(autoincrement())
+  lotId      Int
+  lot        Lot             @relation(fields: [lotId], references: [id])
+  type       LotDocumentType
+  fileUrl    String // S3/IPFS URL
+  fileHash   String? // Hash for integrity verification
+  uploadedAt DateTime        @default(now())
 
   @@index([lotId])
 }
 
 enum LotDocumentType {
-  OWNERSHIP    // Proof of cattle ownership
-  LOT_DOCS     // General lot documentation
-  INSURANCE    // Insurance certificates
-  VIDEO        // Video verification
+  OWNERSHIP // Proof of cattle ownership
+  LOT_DOCS // General lot documentation
+  INSURANCE // Insurance certificates
+  VIDEO // Video verification
   OTHER
 }
 
@@ -203,27 +208,27 @@ model Animal {
   eid String @unique // Electronic ID (SENASA ear tag)
 
   // On-chain data (filled after registration)
-  onChainId Int? @unique // animal_id on contract
+  onChainId          Int?              @unique // animal_id on contract
   registrationTxHash String?
-  onChainStatus OnChainSyncStatus @default(PENDING)
+  onChainStatus      OnChainSyncStatus @default(PENDING)
 
   // Relations
   lotId Int?
-  lot   Lot?    @relation(fields: [lotId], references: [id])
+  lot   Lot? @relation(fields: [lotId], references: [id])
 
   // Animal data
-  custodian   String // Feedlot wallet address
-  status      AnimalStatus @default(ALIVE)
-  approvalStatus AnimalApprovalStatus @default(PENDING_APPROVAL)
-  approvedById Int?
-  approvedBy   User? @relation("AnimalApprovedBy", fields: [approvedById], references: [id])
+  custodian          String // Feedlot wallet address
+  status             AnimalStatus         @default(ALIVE)
+  approvalStatus     AnimalApprovalStatus @default(PENDING_APPROVAL)
+  approvedById       Int?
+  approvedBy         User?                @relation("AnimalApprovedBy", fields: [approvedById], references: [id])
   initialWeightGrams Int?
   currentWeightGrams Int?
-  profile     Json // breed, birthDate, sex, etc
-  profileHash String? // Poseidon hash of profile
+  profile            Json // breed, birthDate, sex, etc
+  profileHash        String? // Poseidon hash of profile
 
   // Traceability
-  traceEvents TraceabilityEvent[]
+  traceEvents  TraceabilityEvent[]
   traceAnchors TraceAnchor[]
 
   createdAt DateTime @default(now())
@@ -278,16 +283,16 @@ enum TraceEventType {
 }
 
 model TraceAnchor {
-  id         Int      @id @default(autoincrement())
-  animalId   Int
-  animal     Animal   @relation(fields: [animalId], references: [id])
-  root       String   // felt252 as string
-  eventCount Int
-  timestamp  DateTime
+  id               Int               @id @default(autoincrement())
+  animalId         Int
+  animal           Animal            @relation(fields: [animalId], references: [id])
+  root             String // felt252 as string
+  eventCount       Int
+  timestamp        DateTime
   correctionReason String?
-  txHash     String?
-  onChainStatus OnChainSyncStatus @default(PENDING)
-  createdAt  DateTime @default(now())
+  txHash           String?
+  onChainStatus    OnChainSyncStatus @default(PENDING)
+  createdAt        DateTime          @default(now())
 
   @@index([animalId])
 }
@@ -309,12 +314,11 @@ model Payment {
   // Payment details
   amountFiat   Int // In cents
   currency     String // USD, ARS
-  sharesAmount Int
   status       PaymentStatus @default(PENDING)
-  sourceApp    AppContext     @default(WEB)
+  sourceApp    AppContext    @default(WEB)
 
   // On-chain data (filled after minting)
-  txHash String? // Starknet tx hash of mint
+  txHash        String? // Starknet tx hash of mint
   onChainStatus OnChainSyncStatus @default(PENDING)
 
   createdAt   DateTime  @default(now())
@@ -338,46 +342,6 @@ enum AppContext {
   API
 }
 
-model ShareBalance {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  lotId       Int
-  lot         Lot      @relation(fields: [lotId], references: [id])
-  amount      Int
-  lastSyncedAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([userId, lotId])
-  @@index([lotId])
-}
-
-model ShareTransfer {
-  id        Int      @id @default(autoincrement())
-  lotId     Int
-  lot       Lot      @relation(fields: [lotId], references: [id])
-  fromUserId Int?
-  fromUser   User?    @relation("ShareTransferFrom", fields: [fromUserId], references: [id])
-  toUserId   Int
-  toUser     User     @relation("ShareTransferTo", fields: [toUserId], references: [id])
-  amount    Int
-  kind      ShareTransferKind
-  txHash    String   @unique
-  onChainStatus OnChainSyncStatus @default(PENDING)
-  createdAt DateTime @default(now())
-
-  @@index([lotId])
-  @@index([fromUserId])
-  @@index([toUserId])
-}
-
-enum ShareTransferKind {
-  MINT
-  TRANSFER
-  BURN
-}
-
 // ============================================
 // SETTLEMENTS
 // ============================================
@@ -385,16 +349,16 @@ enum ShareTransferKind {
 // DB first: se crea en DB, luego se ancla on-chain
 
 model Settlement {
-  id    Int    @id @default(autoincrement())
-  lotId Int    @unique
-  lot   Lot    @relation(fields: [lotId], references: [id])
+  id    Int @id @default(autoincrement())
+  lotId Int @unique
+  lot   Lot @relation(fields: [lotId], references: [id])
 
   // Settlement data
-  totalProceeds           Int  // Fiat in smallest unit
-  currency                String  @default("USD")
-  finalReportHash         String  // Poseidon hash of final report
-  finalReportUrl          String? // Link to IPFS/S3
-  settledBy               String? // Contract address that executed settlement
+  totalProceeds   Int // Fiat in smallest unit
+  currency        String  @default("USD")
+  finalReportHash String // Poseidon hash of final report
+  finalReportUrl  String? // Link to IPFS/S3
+  settledBy       String? // Contract address that executed settlement
 
   // Weight stats (grams)
   finalTotalWeightGrams   Int
@@ -412,8 +376,182 @@ model Settlement {
 }
 
 enum OnChainSyncStatus {
-  PENDING  // Created in DB, not yet on-chain
-  SYNCING  // Transaction sent, waiting confirmation
-  SYNCED   // Confirmed on-chain
-  FAILED   // Transaction failed
+  PENDING // Created in DB, not yet on-chain
+  SYNCING // Transaction sent, waiting confirmation
+  SYNCED // Confirmed on-chain
+  FAILED // Transaction failed
+}
+
+// ============================================
+// P2P MARKETPLACE
+// ============================================
+
+enum AccountType {
+  TRADING // Normal user trading account
+  FEES_COLLECTED // Protocol account where fees go
+  PROTOCOL_VAULT // Represents the on-chain vault (for reconciliation)
+}
+
+enum AssetType {
+  LOT_SHARES // Shares of a lot
+  FIAT_ARS // Argentine Pesos
+  FIAT_USD // US Dollars
+}
+
+enum OfferStatus {
+  OPEN // Just created, accepting buys
+  PARTIALLY_FILLED // Some shares sold //TODO: for mvp we don't want this 
+  FILLED // 100% sold
+  CANCELLED // Cancelled by seller
+}
+
+enum LedgerEventType {
+  FIAT_DEPOSIT // Admin credits fiat to user
+  SHARES_MINT // Admin credits shares to user
+  TRADE_SHARES // Shares transfer in a trade
+  TRADE_FIAT // Fiat transfer in a trade
+  FEE_CHARGE // Fee charge (1%)
+}
+
+enum PrimaryPurchaseStatus {
+  PENDING // Fiat locked, mint not attempted
+  ONCHAIN_MINTED // Mint succeeded, awaiting off-chain settlement
+  COMPLETED // Fiat settled, shares credited, ledger written
+  FAILED // Mint failed, fiat unlocked
+}
+
+enum AuditBatchStatus {
+  PENDING // Created in DB, not yet anchored
+  ANCHORING // Transaction sent, waiting confirmation
+  ANCHORED // Confirmed on-chain
+  FAILED // Transaction failed
+}
+
+model Account {
+  id            Int           @id @default(autoincrement())
+  userId        Int?
+  user          User?         @relation(fields: [userId], references: [id])
+  type          AccountType
+  balances      Balance[]
+  debitEntries  LedgerEntry[] @relation("LedgerDebitAccount")
+  creditEntries LedgerEntry[] @relation("LedgerCreditAccount")
+  createdAt     DateTime      @default(now())
+
+  @@unique([userId, type])
+  @@index([userId])
+}
+
+model Balance {
+  id        Int       @id @default(autoincrement())
+  accountId Int
+  account   Account   @relation(fields: [accountId], references: [id])
+  assetType AssetType
+  lotId     Int? // Only for LOT_SHARES
+  lot       Lot?      @relation(fields: [lotId], references: [id])
+  available Decimal   @default(0) @db.Decimal(20, 2) //TODO: See if we can have only int for mvp
+  locked    Decimal   @default(0) @db.Decimal(20, 2)
+  updatedAt DateTime  @updatedAt
+
+  @@unique([accountId, assetType, lotId])
+  @@index([accountId])
+  @@index([lotId])
+}
+
+model PrimaryPurchase {
+  id             Int                   @id @default(autoincrement())
+  userId         Int
+  user           User                  @relation(fields: [userId], references: [id])
+  lotId          Int
+  lot            Lot                   @relation(fields: [lotId], references: [id])
+  sharesAmount   Int
+  totalCost      Int // sharesAmount * pricePerShare
+  currency       String // USD, ARS
+  idempotencyKey String                @unique
+  status         PrimaryPurchaseStatus @default(PENDING)
+  txHash         String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  @@index([userId])
+  @@index([lotId])
+  @@index([status])
+}
+
+model Offer {
+  id             Int           @id @default(autoincrement())
+  sellerId       Int
+  seller         User          @relation(fields: [sellerId], references: [id])
+  lotId          Int
+  lot            Lot           @relation(fields: [lotId], references: [id])
+  sharesAmount   Int // Total shares to sell
+  pricePerShare  Int // Price per share in smallest fiat unit
+  currency       String        @default("ARS")
+  sharesFilled   Int           @default(0) // How many already sold - TODO: For mvp not permit partially sale
+  status         OfferStatus   @default(OPEN)
+  idempotencyKey String        @unique
+  trades         Trade[]
+  ledgerEntries  LedgerEntry[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([sellerId])
+  @@index([lotId])
+  @@index([status])
+}
+
+model Trade {
+  id             Int           @id @default(autoincrement())
+  offerId        Int
+  offer          Offer         @relation(fields: [offerId], references: [id])
+  buyerId        Int
+  buyer          User          @relation(fields: [buyerId], references: [id])
+  sharesAmount   Int
+  totalPrice     Int // shares * pricePerShare in smallest fiat unit
+  feeAmount      Int // 1% fee in smallest fiat unit
+  currency       String
+  idempotencyKey String        @unique
+  ledgerEntries  LedgerEntry[]
+  settledAt      DateTime      @default(now())
+
+  @@index([offerId])
+  @@index([buyerId])
+}
+
+//TODO:Explain better this
+model LedgerEntry {
+  id              Int             @id @default(autoincrement())
+  eventType       LedgerEventType
+  debitAccountId  Int
+  debitAccount    Account         @relation("LedgerDebitAccount", fields: [debitAccountId], references: [id])
+  creditAccountId Int
+  creditAccount   Account         @relation("LedgerCreditAccount", fields: [creditAccountId], references: [id])
+  assetType       AssetType
+  lotId           Int?
+  lot             Lot?            @relation(fields: [lotId], references: [id])
+  amount          Decimal         @db.Decimal(20, 2)
+  tradeId         Int?
+  trade           Trade?          @relation(fields: [tradeId], references: [id])
+  offerId         Int?
+  offer           Offer?          @relation(fields: [offerId], references: [id])
+  txHash          String?
+  description     String?
+  metadata        Json?
+  createdAt       DateTime        @default(now())
+
+  @@index([debitAccountId])
+  @@index([creditAccountId])
+  @@index([tradeId])
+  @@index([offerId])
+  @@index([lotId])
+}
+
+model AuditBatch {
+  id           Int              @id @default(autoincrement())
+  fromLedgerId Int
+  toLedgerId   Int
+  batchHash    String // SHA256 hash of canonical JSON
+  txHash       String? // Starknet tx hash
+  blockNumber  Int?
+  status       AuditBatchStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
 }

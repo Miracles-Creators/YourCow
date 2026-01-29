@@ -3,6 +3,7 @@
     "header": {
       "home": "Inicio",
       "marketplace": "Mercado",
+      "p2p": "P2P",
       "portfolio": "Portafolio",
       "dashboard": "Panel",
       "producerDashboard": "Panel del Productor",
@@ -30,6 +31,7 @@
       "dashboard": "Panel",
       "portfolio": "Portafolio",
       "marketplace": "Mercado",
+      "p2p": "P2P",
       "position": "Posición",
       "profile": "Perfil"
     },
@@ -116,6 +118,19 @@
         "pricePerShare": "Precio por Acción",
         "sharesAvailable": "Acciones Disponibles",
         "investButton": "Invertir Ahora"
+      }
+    },
+    "p2p": {
+      "title": "Mercado P2P",
+      "subtitle": "Intercambia acciones de lotes con otros inversores. Publica tu precio o acepta ofertas existentes.",
+      "filters": {
+        "label": "Filtrar:",
+        "open": "Abiertas",
+        "partiallyFilled": "Parcialmente Completadas",
+        "all": "Todas"
+      },
+      "emptyState": {
+        "description": "No hay ofertas disponibles por ahora. Vuelve pronto."
       }
     },
     "portfolio": {

@@ -1,10 +1,14 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { mockPositions, type Position } from "../../_constants/mockData";
+import { mockPositions, type Lot, type Position } from "../../_constants/mockData";
 import { useMe } from "~~/hooks/auth/useMe";
+import { useLots } from "~~/hooks/lots/useLots";
+import { usePortfolio } from "~~/hooks/marketplace";
+import type { LotDto } from "~~/lib/api/schemas";
 import { cn } from "~~/lib/utils/cn";
 
 /**
@@ -21,18 +25,196 @@ export function PortfolioScreen() {
   const t = useTranslations("investor.portfolio");
 
   useMe();
+  const { data: portfolio } = usePortfolio();
+  const { data: lots } = useLots();
+
+  const mergedPositions = useMemo(() => {
+    if (!portfolio?.lots) {
+      return mockPositions;
+    }
+
+    if (portfolio.lots.length === 0) {
+      return [];
+    }
+
+    const fallbackText = "no backend";
+    const mockByLotId = new Map(
+      mockPositions.map((position) => [Number(position.lotId), position]),
+    );
+    const lotById = new Map(
+      (lots ?? []).map((lot) => [lot.id, lot]),
+    );
+
+    const parseNumber = (value?: string | null) => {
+      if (value == null) return null;
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const parseCurrency = (value?: string | null) => {
+      const parsed = parseNumber(value);
+      return parsed == null ? null : parsed / 100;
+    };
+
+    const buildFallbackLot = (
+      lotId: number,
+      portfolioLotName: string | null,
+      lotFromDb: LotDto | undefined,
+      pricePerShare: number | null,
+      currentNAV: number,
+    ): Lot => {
+      const metadata =
+        lotFromDb?.metadata && typeof lotFromDb.metadata === "object"
+          ? (lotFromDb.metadata as Record<string, unknown>)
+          : {};
+      const getMetaString = (key: string) => {
+        const value = metadata[key];
+        return typeof value === "string" ? value : null;
+      };
+      const getMetaNumber = (key: string) => {
+        const value = metadata[key];
+        return typeof value === "number" ? value : null;
+      };
+      const mapCategory = (productionType?: string): Lot["category"] => {
+        switch (productionType) {
+          case "PASTURE":
+            return "Breeding";
+          case "FEEDLOT":
+          case "MIXED":
+            return "Fattening";
+          default:
+            return "Fattening";
+        }
+      };
+
+      return {
+        id: String(lotId),
+        name: lotFromDb?.name ?? portfolioLotName ?? fallbackText,
+        location: lotFromDb?.location ?? fallbackText,
+        duration:
+          lotFromDb?.durationWeeks != null
+            ? `${lotFromDb.durationWeeks} weeks`
+            : fallbackText,
+        expectedReturn:
+          getMetaString("expectedReturn") ??
+          (lotFromDb ? `${lotFromDb.investorPercent}%` : fallbackText),
+        fundingProgress:
+          lotFromDb?.fundedPercent ??
+          getMetaNumber("fundingProgress") ??
+          0,
+        imageUrl: getMetaString("imageUrl") ?? undefined,
+        capitalRequired:
+          lotFromDb != null ? lotFromDb.totalShares * lotFromDb.pricePerShare : 0,
+        currentNAV,
+        breed: getMetaString("breed") ?? fallbackText,
+        herdSize: lotFromDb?.cattleCount ?? getMetaNumber("herdSize") ?? 0,
+        category: mapCategory(lotFromDb?.productionType),
+        pricePerShare: lotFromDb?.pricePerShare ?? pricePerShare ?? 0,
+        totalShares: lotFromDb?.totalShares ?? 0,
+        sharesAvailable: getMetaNumber("sharesAvailable") ?? 0,
+        producer: {
+          name: lotFromDb?.producer?.user?.name ?? fallbackText,
+          experience: getMetaString("producerExperience") ?? fallbackText,
+        },
+        traceabilityEvents: Array.isArray(metadata.traceabilityEvents)
+          ? metadata.traceabilityEvents
+              .filter(
+                (event): event is Record<string, unknown> =>
+                  Boolean(event) && typeof event === "object",
+              )
+              .map((event) => ({
+                date: typeof event.date === "string" ? event.date : "",
+                description:
+                  typeof event.description === "string" ? event.description : "",
+              }))
+          : [],
+      };
+    };
+
+    return portfolio.lots.map((portfolioLot) => {
+      const lotId = portfolioLot.lotId;
+      const mockPosition = mockByLotId.get(lotId);
+      const lotFromDb = lotById.get(lotId);
+
+      const sharesFromDb = parseNumber(portfolioLot.total);
+      const shares = sharesFromDb ?? mockPosition?.shares ?? 0;
+
+      const valuationFromDb = parseCurrency(portfolioLot.valuation);
+      const pricePerShareFromDb =
+        portfolioLot.lastPricePerShare != null
+          ? portfolioLot.lastPricePerShare / 100
+          : null;
+
+      const currentNAVFromDb =
+        valuationFromDb ??
+        (pricePerShareFromDb != null ? pricePerShareFromDb * shares : null);
+      const currentNAV =
+        currentNAVFromDb ?? mockPosition?.currentNAV ?? 0;
+
+      const investmentAmount =
+        mockPosition?.investmentAmount ?? currentNAV ?? 0;
+      const investmentDate =
+        mockPosition?.investmentDate ?? new Date().toISOString();
+
+      const lot = buildFallbackLot(
+        lotId,
+        portfolioLot.lotName,
+        lotFromDb,
+        pricePerShareFromDb,
+        currentNAV,
+      );
+
+      const gain = currentNAV - investmentAmount;
+      const gainPercentage =
+        investmentAmount > 0 ? (gain / investmentAmount) * 100 : 0;
+
+      return {
+        id: mockPosition?.id ?? `POS-${lotId}`,
+        lotId: String(lotId),
+        lot,
+        investmentAmount,
+        shares,
+        investmentDate,
+        currentNAV,
+        initialNAV: mockPosition?.initialNAV ?? investmentAmount,
+        gain,
+        gainPercentage,
+        status: mockPosition?.status ?? "active",
+        liquidityWindow: mockPosition?.liquidityWindow ?? {
+          nextDate: "",
+          daysRemaining: 0,
+          isEligible: false,
+        },
+        productionMetrics: mockPosition?.productionMetrics ?? {
+          totalHeadCount: 0,
+          avgWeightKg: 0,
+          totalMeatKg: 0,
+          pricePerKg: 0,
+          projectedRevenue: 0,
+        },
+        navHistory: mockPosition?.navHistory ?? [
+          { date: investmentDate, value: investmentAmount },
+          {
+            date: new Date().toISOString().slice(0, 10),
+            value: currentNAV,
+          },
+        ],
+      };
+    });
+  }, [portfolio?.lots, lots]);
 
   // Calculate portfolio totals
-  const totalInvested = mockPositions.reduce(
+  const totalInvested = mergedPositions.reduce(
     (sum, pos) => sum + pos.investmentAmount,
     0,
   );
-  const totalCurrentValue = mockPositions.reduce(
+  const totalCurrentValue = mergedPositions.reduce(
     (sum, pos) => sum + pos.currentNAV,
     0,
   );
   const totalGain = totalCurrentValue - totalInvested;
-  const totalGainPercentage = (totalGain / totalInvested) * 100;
+  const totalGainPercentage =
+    totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0;
 
   // Animation variants
   const containerVariants = {
@@ -105,18 +287,18 @@ export function PortfolioScreen() {
       {/* Positions List */}
       <motion.div variants={itemVariants} className="space-y-3">
         <h2 className="font-inter text-xs font-semibold uppercase tracking-wide text-vaca-neutral-gray-500">
-          {t("positions.title", { count: mockPositions.length })}
+          {t("positions.title", { count: mergedPositions.length })}
         </h2>
 
         <div className="space-y-2">
-          {mockPositions.map((position, index) => (
+          {mergedPositions.map((position, index) => (
             <PositionCard key={position.id} position={position} index={index} />
           ))}
         </div>
       </motion.div>
 
       {/* Empty State (when no positions) */}
-      {mockPositions.length === 0 && (
+      {mergedPositions.length === 0 && (
         <motion.div
           variants={itemVariants}
           className="rounded-2xl border-2 border-dashed border-vaca-neutral-gray-200 bg-vaca-neutral-gray-50 py-16 text-center"

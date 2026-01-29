@@ -4,6 +4,5 @@ export class CreatePaymentDto {
   lotId!: number;
   amountFiat!: number;
   currency!: string;
-  sharesAmount!: number;
   txHash?: string;
 }
