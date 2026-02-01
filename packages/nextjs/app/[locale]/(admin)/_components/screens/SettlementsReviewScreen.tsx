@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AdminPageHeader, DataTable, StatusPill, type AdminStatusTone } from "../index";
 import { cn } from "~~/lib/utils/cn";
+import { useConfirmSettlement } from "~~/hooks/settlements/useConfirmSettlement";
+import { useSettlements } from "~~/hooks/settlements/useSettlements";
+import type { SettlementDto } from "~~/lib/api/schemas";
 
 interface SettlementRecord {
   id: string;
@@ -12,6 +16,8 @@ interface SettlementRecord {
   finalCosts: string;
   netResult: string;
   status: "Pending" | "Confirmed";
+  source: "api" | "mock";
+  settlementId?: number;
 }
 
 const settlementsSeed: SettlementRecord[] = [
@@ -23,6 +29,7 @@ const settlementsSeed: SettlementRecord[] = [
     finalCosts: "$42,500",
     netResult: "$467,500",
     status: "Pending",
+    source: "mock",
   },
   {
     id: "S-87",
@@ -32,6 +39,7 @@ const settlementsSeed: SettlementRecord[] = [
     finalCosts: "$36,900",
     netResult: "$353,100",
     status: "Confirmed",
+    source: "mock",
   },
 ];
 
@@ -45,12 +53,83 @@ const statusTone: Record<SettlementRecord["status"], AdminStatusTone> = {
  * Review and confirm settlement details.
  */
 export function SettlementsReviewScreen() {
-  const [settlements, setSettlements] = useState(settlementsSeed);
+  const queryClient = useQueryClient();
+  const { data: apiSettlements } = useSettlements();
+  const confirmSettlement = useConfirmSettlement();
+  const mappedApiSettlements = useMemo<SettlementRecord[]>(() => {
+    const formatDate = (value: string) =>
+      new Date(value).toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      });
+
+    const formatCurrency = (value: number, currency: string) =>
+      new Intl.NumberFormat("en-US", { style: "currency", currency }).format(
+        value,
+      );
+
+    return (apiSettlements ?? []).map(
+      (settlement: SettlementDto): SettlementRecord => {
+        const saleDate = settlement.settledAt ?? settlement.createdAt;
+        const currency = settlement.currency ?? "USD";
+        const grossAmount = formatCurrency(settlement.totalProceeds, currency);
+
+        return {
+          id: `DB-${settlement.id}`,
+          lot: `Lot #${settlement.lotId}`,
+          saleDate: formatDate(saleDate),
+          grossAmount,
+          finalCosts: "—",
+          netResult: grossAmount,
+          status: settlement.onChainStatus === "SYNCED" ? "Confirmed" : "Pending",
+          source: "api",
+          settlementId: settlement.id,
+        };
+      },
+    );
+  }, [apiSettlements]);
+
+  const combinedSettlements = useMemo(
+    () => [...mappedApiSettlements, ...settlementsSeed],
+    [mappedApiSettlements],
+  );
+
+  const [settlements, setSettlements] = useState<SettlementRecord[]>(
+    combinedSettlements,
+  );
   const [active, setActive] = useState<SettlementRecord | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [confirmError, setConfirmError] = useState<string | null>(null);
 
-  const handleConfirm = () => {
+  useEffect(() => {
+    setSettlements(combinedSettlements);
+  }, [combinedSettlements]);
+
+  const handleConfirm = async () => {
     if (!active || !confirmed) return;
+    setConfirmError(null);
+    if (active.source === "api" && active.settlementId) {
+      try {
+        const updated = await confirmSettlement.mutateAsync(active.settlementId);
+        const nextStatus =
+          updated.onChainStatus === "SYNCED" ? "Confirmed" : "Pending";
+        setSettlements((prev) =>
+          prev.map((item) =>
+            item.id === active.id ? { ...item, status: nextStatus } : item,
+          ),
+        );
+        await queryClient.invalidateQueries({ queryKey: ["settlements"] });
+        setActive(null);
+        setConfirmed(false);
+      } catch (error) {
+        setConfirmError(
+          error instanceof Error ? error.message : "Failed to confirm settlement.",
+        );
+      }
+      return;
+    }
+
     setSettlements((prev) =>
       prev.map((item) =>
         item.id === active.id ? { ...item, status: "Confirmed" } : item,
@@ -195,12 +274,17 @@ export function SettlementsReviewScreen() {
               I confirm the values were reviewed
             </label>
 
+            {confirmError ? (
+              <p className="mt-3 text-xs text-vaca-brown">{confirmError}</p>
+            ) : null}
+
             <div className="mt-6 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => {
                   setActive(null);
                   setConfirmed(false);
+                  setConfirmError(null);
                 }}
                 className="rounded-full border border-vaca-neutral-gray-200 px-4 py-2 text-xs font-semibold text-vaca-neutral-gray-700"
               >
@@ -209,7 +293,7 @@ export function SettlementsReviewScreen() {
               <button
                 type="button"
                 onClick={handleConfirm}
-                disabled={!confirmed}
+                disabled={!confirmed || confirmSettlement.isPending}
                 className={cn(
                   "rounded-full px-4 py-2 text-xs font-semibold text-vaca-neutral-white",
                   confirmed
@@ -217,7 +301,7 @@ export function SettlementsReviewScreen() {
                     : "bg-vaca-neutral-gray-300 cursor-not-allowed",
                 )}
               >
-                Confirm settlement
+                {confirmSettlement.isPending ? "Confirming..." : "Confirm settlement"}
               </button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Param, Post } from "@nestjs/common";
 
 import { CreateSettlementDto } from "./dto/create-settlement.dto";
 import { SettlementsService } from "./settlements.service";
@@ -10,6 +10,20 @@ export class SettlementsController {
   @Post()
   async createSettlement(@Body() body: CreateSettlementDto) {
     return this.settlementsService.createSettlement(body);
+  }
+
+  @Get()
+  async listSettlements() {
+    return this.settlementsService.listSettlements();
+  }
+
+  @Post(":id/confirm")
+  async confirmSettlement(@Param("id") id: string) {
+    const parsedId = Number(id);
+    if (!Number.isInteger(parsedId)) {
+      throw new BadRequestException("id must be an integer");
+    }
+    return this.settlementsService.confirmSettlement(parsedId);
   }
 
   @Get("lot/:lotId")

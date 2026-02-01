@@ -57,13 +57,13 @@ const mapProducerStatus = (status: string): ProducerRecord["status"] => {
  */
 export function ProducersListScreen() {
   const router = useRouter();
-  const producersQuery = useProducers();
+  const { data, isPending, error } = useProducers();
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
   const dataProducers: ProducerRecord[] = useMemo(
     () =>
-      (producersQuery.data ?? []).map((producer) => {
+      (data ?? []).map((producer) => {
         const lastActivitySource =
           producer.lots?.reduce<string | null>((latest, lot) => {
             if (!lot.updatedAt) return latest;
@@ -82,7 +82,7 @@ export function ProducersListScreen() {
           lastActivity: formatActivityDate(lastActivitySource),
         };
       }),
-    [producersQuery.data],
+    [data],
   );
 
   const filtered = useMemo(() => {
@@ -130,7 +130,21 @@ export function ProducersListScreen() {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {isPending ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={index}
+              className="h-32 animate-pulse rounded-2xl border border-vaca-neutral-gray-200 bg-vaca-neutral-white"
+            />
+          ))}
+        </div>
+      ) : error ? (
+        <EmptyState
+          title="Unable to load producers"
+          description={error.message || "Please try again in a moment."}
+        />
+      ) : filtered.length === 0 ? (
         <EmptyState
           title="No producers found"
           description="Try adjusting your filters or search terms."

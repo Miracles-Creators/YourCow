@@ -16,7 +16,7 @@ use starknet::ContractAddress;
 // ----------------------------------------------------------------------------
 #[derive(Drop, Serde, starknet::Store)]
 pub struct BatchAnchor {
-    pub batch_hash: felt252,      // SHA256 hash of canonical JSON (truncated to felt252)
+    pub batch_hash: felt252,      // Poseidon hash of canonical JSON
     pub from_ledger_id: u64,      // First ledger entry ID in batch
     pub to_ledger_id: u64,        // Last ledger entry ID in batch
     pub timestamp: u64,           // Block timestamp when anchored
@@ -30,7 +30,7 @@ pub trait IAuditRegistry<TContractState> {
     // Write functions (Operator only)
     /// @notice Anchors a new audit batch with its hash and ledger ID range.
     /// @param batch_id Unique identifier for the batch
-    /// @param batch_hash SHA256 hash of the canonical JSON data
+    /// @param batch_hash Poseidon hash of the canonical JSON data
     /// @param from_ledger_id First ledger entry ID included in this batch
     /// @param to_ledger_id Last ledger entry ID included in this batch
     fn anchor_batch(

@@ -1,11 +1,13 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { useMemo } from "react";
 import Link from "next/link";
 import { cn } from "~~/lib/utils/cn";
 import { LotRowCard } from "../ui/LotRowCard";
 import { ProducerStatCard } from "../ui/ProducerStatCard";
 import { StatusPill, type StatusTone } from "../ui/StatusPill";
+import { useLots } from "~~/hooks/lots/useLots";
+import type { LotDto } from "~~/lib/api/schemas";
 
 type ProducerLot = {
   id: string;
@@ -67,32 +69,44 @@ const mockLots: ProducerLot[] = [
   },
 ];
 
+const mapLotStatus = (status?: string): { label: string; tone: StatusTone } => {
+  switch (status) {
+    case "ACTIVE":
+    case "FUNDING":
+    case "FUNDED":
+      return { label: "Active", tone: "success" };
+    case "COMPLETED":
+      return { label: "Completed", tone: "neutral" };
+    case "SETTLING":
+      return { label: "Settling", tone: "warning" };
+    case "PENDING_DEPLOY":
+    case "DRAFT":
+    default:
+      return { label: "Pending", tone: "info" };
+  }
+};
+
 export function ProducerDashboardScreen() {
-  const prefersReducedMotion = useReducedMotion();
+  const { data: apiLots } = useLots();
+  const mappedApiLots = useMemo<ProducerLot[]>(() => {
+    const formatDate = (value?: string | null) =>
+      value ? new Date(value).toLocaleDateString("en-US") : "—";
 
-  const lotContainerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: prefersReducedMotion ? 0 : 0.08,
-        delayChildren: prefersReducedMotion ? 0 : 0.05,
-      },
-    },
-  };
+    return (apiLots ?? []).map((lot: LotDto) => ({
+      id: `DB-${lot.id}`,
+      name: lot.name,
+      status: mapLotStatus(lot.status),
+      fundedPercent: lot.fundedPercent ?? 0,
+      lastUpdate: formatDate(lot.updatedAt ?? lot.createdAt ?? null),
+    }));
+  }, [apiLots]);
 
-  const lotItemVariants = {
-    hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 16 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: prefersReducedMotion
-        ? { duration: 0 }
-        : { duration: 0.35, ease: [0.4, 0, 0.2, 1] as const },
-    },
-  };
+  const combinedLots = useMemo(
+    () => [...mappedApiLots, ...mockLots],
+    [mappedApiLots],
+  );
 
-  const hasLots = mockLots.length > 0;
+  const hasLots = combinedLots.length > 0;
   const hasAlerts = mockAlerts.length > 0;
 
   return (
@@ -186,30 +200,24 @@ export function ProducerDashboardScreen() {
             My Lots
           </h2>
           <p className="text-sm text-vaca-neutral-gray-500">
-            {mockLots.length} total
+            {combinedLots.length} total
           </p>
         </div>
 
         {hasLots ? (
-          <motion.div
-            variants={lotContainerVariants}
-            initial="hidden"
-            animate="visible"
-            className="space-y-4"
-          >
-            {mockLots.map(lot => (
-              <motion.div key={lot.id} variants={lotItemVariants}>
-                <LotRowCard
-                  name={lot.name}
-                  statusLabel={lot.status.label}
-                  statusTone={lot.status.tone}
-                  fundedPercent={lot.fundedPercent}
-                  lastUpdate={lot.lastUpdate}
-                  manageHref={`/producer/lots/${lot.id}`}
-                />
-              </motion.div>
+          <div className="space-y-4">
+            {combinedLots.map(lot => (
+              <LotRowCard
+                key={lot.id}
+                name={lot.name}
+                statusLabel={lot.status.label}
+                statusTone={lot.status.tone}
+                fundedPercent={lot.fundedPercent}
+                lastUpdate={lot.lastUpdate}
+                manageHref={`/producer/lots/${lot.id.replace("DB-", "")}`}
+              />
             ))}
-          </motion.div>
+          </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-vaca-neutral-gray-200 bg-vaca-neutral-white p-8 text-center">
             <h3 className="font-playfair text-2xl font-semibold text-vaca-neutral-gray-900">

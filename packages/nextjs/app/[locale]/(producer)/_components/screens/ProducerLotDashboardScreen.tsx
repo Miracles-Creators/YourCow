@@ -118,8 +118,7 @@ export function ProducerLotDashboardScreen() {
     if (!lotQuery.data?.updatedAt) return "—";
     return new Date(lotQuery.data.updatedAt).toLocaleDateString();
   }, [lotQuery.data?.updatedAt]);
-  const canRegisterSale = lotQuery.data?.status === "ACTIVE";
-
+  const canRegisterSale = lotQuery.data?.status === "ACTIVE" || lotQuery.data?.status === "FUNDED";
   const handleAnimalChange = (field: keyof typeof animalForm, value: string) => {
     setAnimalForm(prev => ({ ...prev, [field]: value }));
     setAnimalError("");
@@ -193,7 +192,7 @@ export function ProducerLotDashboardScreen() {
           >
             View Timeline
           </Link>
-          {canRegisterSale && (
+          {canRegisterSale ? (
             <Link
               href={`/producer/lots/${lotId}/sale`}
               className={cn(
@@ -203,6 +202,19 @@ export function ProducerLotDashboardScreen() {
             >
               Register Sale
             </Link>
+          ) : (
+            <button
+              type="button"
+              disabled
+              title="Available when the lot is ACTIVE"
+              className={cn(
+                "btn btn-outline w-full sm:w-auto",
+                "border-vaca-brown/40 text-vaca-brown/60",
+                "cursor-not-allowed opacity-70",
+              )}
+            >
+              Register Sale
+            </button>
           )}
         </div>
       </header>

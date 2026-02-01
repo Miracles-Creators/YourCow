@@ -71,7 +71,7 @@ const deployYourCowProtocol = async (): Promise<void> => {
   // 1. Declare LotSharesToken to get its class hash (needed by LotFactory)
   // We deploy a "dummy" instance just to declare it and get the class hash
   // This instance won't be used - LotFactory will deploy real instances via create_lot()
-  console.log(yellow("1/5 Declaring LotSharesToken (for class hash)..."));
+  console.log(yellow("1/6 Declaring LotSharesToken (for class hash)..."));
   const lotSharesToken = await declareContract({
     contract: "LotSharesToken",
     contractName: "LotSharesToken_ClassHash",
@@ -82,7 +82,7 @@ const deployYourCowProtocol = async (): Promise<void> => {
   console.log(yellow(`   LotSharesToken class hash: ${lotSharesTokenClassHash}`));
 
   // 2. Deploy LotFactory with the LotSharesToken class hash
-  console.log(yellow("2/5 Deploying LotFactory..."));
+  console.log(yellow("2/6 Deploying LotFactory..."));
   const lotFactory = await deployContract({
     contract: "LotFactory",
     constructorArgs: {
@@ -93,7 +93,7 @@ const deployYourCowProtocol = async (): Promise<void> => {
   });
 
   // 3. Deploy AnimalRegistry
-  console.log(yellow("3/5 Deploying AnimalRegistry..."));
+  console.log(yellow("3/6 Deploying AnimalRegistry..."));
   await deployContract({
     contract: "AnimalRegistry",
     constructorArgs: {
@@ -104,7 +104,7 @@ const deployYourCowProtocol = async (): Promise<void> => {
   });
 
   // 4. Deploy TraceabilityOracle
-  console.log(yellow("4/5 Deploying TraceabilityOracle..."));
+  console.log(yellow("4/6 Deploying TraceabilityOracle..."));
   await deployContract({
     contract: "TraceabilityOracle",
     constructorArgs: {
@@ -114,13 +114,23 @@ const deployYourCowProtocol = async (): Promise<void> => {
   });
 
   // 5. Deploy SettlementRegistry
-  console.log(yellow("5/5 Deploying SettlementRegistry..."));
+  console.log(yellow("5/6 Deploying SettlementRegistry..."));
   await deployContract({
     contract: "SettlementRegistry",
     constructorArgs: {
       owner: owner,
       protocol_operator: protocolOperator,
       lot_factory: lotFactory.address,
+    },
+  });
+
+  //6- Deploy Audit Registry
+  console.log(yellow("6/6 Deploying AuditRegistry..."));
+  await deployContract({
+    contract: "AuditRegistry",
+    constructorArgs: {
+      owner: owner,
+      operator: protocolOperator,
     },
   });
 

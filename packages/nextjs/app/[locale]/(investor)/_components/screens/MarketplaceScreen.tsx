@@ -89,10 +89,13 @@ export function MarketplaceScreen() {
     if (!lots) {
       return [];
     }
+    const eligibleLots = lots.filter(
+      (lot) => lot.status === "ACTIVE" || lot.status === "FUNDING",
+    );
     if (selectedCategory === "ALL") {
-      return lots;
+      return eligibleLots;
     }
-    return lots.filter(
+    return eligibleLots.filter(
       (lot) => mapProductionTypeToCategory(lot.productionType) === selectedCategory,
     );
   }, [lots, selectedCategory]);

@@ -4,12 +4,16 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { cn } from "~~/lib/utils/cn";
+import { useCreateSettlement } from "~~/hooks/settlements/useCreateSettlement";
 
 type SaleFormState = {
   saleDate: string;
   totalAmount: string;
   finalCosts: string;
   notes: string;
+  finalTotalWeightGrams: string;
+  finalAverageWeightGrams: string;
+  initialTotalWeightGrams: string;
 };
 
 const INITIAL_STATE: SaleFormState = {
@@ -17,15 +21,20 @@ const INITIAL_STATE: SaleFormState = {
   totalAmount: "",
   finalCosts: "",
   notes: "",
+  finalTotalWeightGrams: "",
+  finalAverageWeightGrams: "",
+  initialTotalWeightGrams: "",
 };
 
 export function RegisterSaleEventScreen() {
   const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
   const params = useParams();
-  const lotId = typeof params.lotId === "string" ? params.lotId : "lot-001";
+  const lotId = typeof params.lotId === "string" ? params.lotId : "";
+  const createSettlement = useCreateSettlement();
   const [formState, setFormState] = useState<SaleFormState>(INITIAL_STATE);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const transition = useMemo(
     () =>
@@ -48,14 +57,65 @@ export function RegisterSaleEventScreen() {
     if (!formState.totalAmount.trim()) {
       nextErrors.totalAmount = "Total sale amount is required.";
     }
+    if (!formState.finalTotalWeightGrams.trim()) {
+      nextErrors.finalTotalWeightGrams = "Final total weight is required.";
+    }
+    if (!formState.finalAverageWeightGrams.trim()) {
+      nextErrors.finalAverageWeightGrams = "Final average weight is required.";
+    }
+    if (!formState.initialTotalWeightGrams.trim()) {
+      nextErrors.initialTotalWeightGrams = "Initial total weight is required.";
+    }
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const parseNumber = (value: string) => {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) ? parsed : null;
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setSubmitError(null);
     if (!validate()) return;
-    router.push(`/producer/lots/${lotId}/sale/submitted`);
+
+    const parsedLotId = Number(lotId);
+    if (!Number.isFinite(parsedLotId)) {
+      setSubmitError("Invalid lot id.");
+      return;
+    }
+
+    const totalProceeds = parseNumber(formState.totalAmount);
+    const finalTotalWeightGrams = parseNumber(formState.finalTotalWeightGrams);
+    const finalAverageWeightGrams = parseNumber(formState.finalAverageWeightGrams);
+    const initialTotalWeightGrams = parseNumber(formState.initialTotalWeightGrams);
+
+    if (
+      totalProceeds === null ||
+      finalTotalWeightGrams === null ||
+      finalAverageWeightGrams === null ||
+      initialTotalWeightGrams === null
+    ) {
+      setSubmitError("Please provide valid numeric values.");
+      return;
+    }
+
+    try {
+      await createSettlement.mutateAsync({
+        lotId: parsedLotId,
+        totalProceeds,
+        currency: "USD",
+        finalTotalWeightGrams,
+        finalAverageWeightGrams,
+        initialTotalWeightGrams,
+      });
+      router.push(`/producer/lots/${lotId}/sale/submitted`);
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Failed to submit sale event.",
+      );
+    }
   };
 
   return (
@@ -116,6 +176,7 @@ export function RegisterSaleEventScreen() {
               id="total-amount"
               type="number"
               min={0}
+              step={1}
               className={cn(
                 "input input-bordered w-full",
                 errors.totalAmount && "border-vaca-brown",
@@ -148,10 +209,120 @@ export function RegisterSaleEventScreen() {
               id="final-costs"
               type="number"
               min={0}
+              step={1}
               className="input input-bordered w-full"
               value={formState.finalCosts}
               onChange={event => handleChange("finalCosts", event.target.value)}
             />
+          </div>
+
+          <div className="form-control">
+            <label className="label" htmlFor="final-total-weight">
+              <span className="label-text font-medium">
+                Final total weight (grams)
+              </span>
+            </label>
+            <input
+              id="final-total-weight"
+              type="number"
+              min={0}
+              step={1}
+              className={cn(
+                "input input-bordered w-full",
+                errors.finalTotalWeightGrams && "border-vaca-brown",
+              )}
+              value={formState.finalTotalWeightGrams}
+              onChange={event =>
+                handleChange("finalTotalWeightGrams", event.target.value)
+              }
+              aria-invalid={Boolean(errors.finalTotalWeightGrams)}
+              aria-describedby={
+                errors.finalTotalWeightGrams ? "final-total-weight-error" : undefined
+              }
+              required
+            />
+            {errors.finalTotalWeightGrams && (
+              <p
+                id="final-total-weight-error"
+                className="mt-1 text-xs text-vaca-brown"
+              >
+                {errors.finalTotalWeightGrams}
+              </p>
+            )}
+          </div>
+
+          <div className="form-control">
+            <label className="label" htmlFor="final-average-weight">
+              <span className="label-text font-medium">
+                Final average weight (grams)
+              </span>
+            </label>
+            <input
+              id="final-average-weight"
+              type="number"
+              min={0}
+              step={1}
+              className={cn(
+                "input input-bordered w-full",
+                errors.finalAverageWeightGrams && "border-vaca-brown",
+              )}
+              value={formState.finalAverageWeightGrams}
+              onChange={event =>
+                handleChange("finalAverageWeightGrams", event.target.value)
+              }
+              aria-invalid={Boolean(errors.finalAverageWeightGrams)}
+              aria-describedby={
+                errors.finalAverageWeightGrams
+                  ? "final-average-weight-error"
+                  : undefined
+              }
+              required
+            />
+            {errors.finalAverageWeightGrams && (
+              <p
+                id="final-average-weight-error"
+                className="mt-1 text-xs text-vaca-brown"
+              >
+                {errors.finalAverageWeightGrams}
+              </p>
+            )}
+          </div>
+
+          <div className="form-control">
+            <label className="label" htmlFor="initial-total-weight">
+              <span className="label-text font-medium">
+                Initial total weight (grams)
+              </span>
+            </label>
+            <input
+              id="initial-total-weight"
+              type="number"
+              min={0}
+              step={1}
+              className={cn(
+                "input input-bordered w-full",
+                errors.initialTotalWeightGrams && "border-vaca-brown",
+              )}
+              value={formState.initialTotalWeightGrams}
+              onChange={event =>
+                handleChange("initialTotalWeightGrams", event.target.value)
+              }
+              aria-invalid={Boolean(errors.initialTotalWeightGrams)}
+              aria-describedby={
+                errors.initialTotalWeightGrams
+                  ? "initial-total-weight-error"
+                  : undefined
+              }
+              required
+            />
+            {errors.initialTotalWeightGrams && (
+              <p
+                id="initial-total-weight-error"
+                className="mt-1 text-xs text-vaca-brown"
+              >
+                {errors.initialTotalWeightGrams}
+              </p>
+            )}
           </div>
         </div>
 
@@ -173,15 +344,20 @@ export function RegisterSaleEventScreen() {
           </p>
         </div>
 
+        {submitError ? (
+          <p className="text-sm text-vaca-brown">{submitError}</p>
+        ) : null}
+
         <button
           type="submit"
+          disabled={createSettlement.isPending}
           className={cn(
             "btn btn-primary w-full sm:w-auto",
             "border-vaca-green bg-vaca-green text-vaca-neutral-white hover:bg-vaca-green-dark",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vaca-blue focus-visible:ring-offset-2 focus-visible:ring-offset-vaca-neutral-bg",
           )}
         >
-          Submit sale event
+          {createSettlement.isPending ? "Submitting..." : "Submit sale event"}
         </button>
       </motion.form>
     </motion.div>

@@ -7,7 +7,7 @@ const deployedContracts = {
   devnet: {
     LotFactory: {
       address:
-        "0x4f183e16be9d9e13ade2f553d50b4ba398cb1cd298bd6b5f76b4e4607bd3f03",
+        "0x17b2fc20d74815510c0b88b94b2448292e465a0a31ef3bb05b40989ef585257",
       abi: [
         {
           type: "impl",
@@ -664,7 +664,7 @@ const deployedContracts = {
     },
     AnimalRegistry: {
       address:
-        "0x750aa72f8114880d42f54083cdb08c70436ecca02afa2730858279f1c2c8e7d",
+        "0x94dbc6ebe165c7cd62d4d56bd6e047e34a214485e5870257b335843279793c",
       abi: [
         {
           type: "impl",
@@ -1456,7 +1456,7 @@ const deployedContracts = {
     },
     TraceabilityOracle: {
       address:
-        "0x3509d9f060ff265bbece3e542ab4f8e2318577d649075895be57d5ef6fe7955",
+        "0x467b23505cd4e2c194fd0e21524a13ea944b8daf077005334182649bb391517",
       abi: [
         {
           type: "impl",
@@ -1922,7 +1922,7 @@ const deployedContracts = {
     },
     SettlementRegistry: {
       address:
-        "0x25729fb9a2bfa2b85540abc60602ad92fbd460624dd57908a4d8d65b2b7d1e",
+        "0x6f3096b3bacc902ec54a9030643a23f08d4ad9dc5c6911baaba49b8da1e9419",
       abi: [
         {
           type: "impl",
@@ -2402,9 +2402,352 @@ const deployedContracts = {
       classHash:
         "0x13fce223d5ff6f359e3bfb904ec04aadda6b629e5627b0179f6f9e0f6e7b5b7",
     },
+    AuditRegistry: {
+      address:
+        "0x52a5e383251e7e0b9775e521fad6e455ba061d84b2162248d07cf5828949a9b",
+      abi: [
+        {
+          type: "impl",
+          name: "AuditRegistryImpl",
+          interface_name: "contracts::audit_registry::IAuditRegistry",
+        },
+        {
+          type: "struct",
+          name: "contracts::audit_registry::BatchAnchor",
+          members: [
+            {
+              name: "batch_hash",
+              type: "core::felt252",
+            },
+            {
+              name: "from_ledger_id",
+              type: "core::integer::u64",
+            },
+            {
+              name: "to_ledger_id",
+              type: "core::integer::u64",
+            },
+            {
+              name: "timestamp",
+              type: "core::integer::u64",
+            },
+          ],
+        },
+        {
+          type: "enum",
+          name: "core::bool",
+          variants: [
+            {
+              name: "False",
+              type: "()",
+            },
+            {
+              name: "True",
+              type: "()",
+            },
+          ],
+        },
+        {
+          type: "interface",
+          name: "contracts::audit_registry::IAuditRegistry",
+          items: [
+            {
+              type: "function",
+              name: "anchor_batch",
+              inputs: [
+                {
+                  name: "batch_id",
+                  type: "core::integer::u64",
+                },
+                {
+                  name: "batch_hash",
+                  type: "core::felt252",
+                },
+                {
+                  name: "from_ledger_id",
+                  type: "core::integer::u64",
+                },
+                {
+                  name: "to_ledger_id",
+                  type: "core::integer::u64",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_operator",
+              inputs: [
+                {
+                  name: "new_operator",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "get_batch",
+              inputs: [
+                {
+                  name: "batch_id",
+                  type: "core::integer::u64",
+                },
+              ],
+              outputs: [
+                {
+                  type: "contracts::audit_registry::BatchAnchor",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "is_anchored",
+              inputs: [
+                {
+                  name: "batch_id",
+                  type: "core::integer::u64",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::bool",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_operator",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_batch_count",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::integer::u64",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_latest_batch_id",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::integer::u64",
+                },
+              ],
+              state_mutability: "view",
+            },
+          ],
+        },
+        {
+          type: "impl",
+          name: "OwnableImpl",
+          interface_name: "openzeppelin_interfaces::access::ownable::IOwnable",
+        },
+        {
+          type: "interface",
+          name: "openzeppelin_interfaces::access::ownable::IOwnable",
+          items: [
+            {
+              type: "function",
+              name: "owner",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "transfer_ownership",
+              inputs: [
+                {
+                  name: "new_owner",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "renounce_ownership",
+              inputs: [],
+              outputs: [],
+              state_mutability: "external",
+            },
+          ],
+        },
+        {
+          type: "constructor",
+          name: "constructor",
+          inputs: [
+            {
+              name: "owner",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "operator",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnershipTransferred",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+              kind: "nested",
+            },
+            {
+              name: "OwnershipTransferStarted",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+              kind: "nested",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::audit_registry::AuditRegistry::BatchAnchored",
+          kind: "struct",
+          members: [
+            {
+              name: "batch_id",
+              type: "core::integer::u64",
+              kind: "key",
+            },
+            {
+              name: "batch_hash",
+              type: "core::felt252",
+              kind: "data",
+            },
+            {
+              name: "from_ledger_id",
+              type: "core::integer::u64",
+              kind: "data",
+            },
+            {
+              name: "to_ledger_id",
+              type: "core::integer::u64",
+              kind: "data",
+            },
+            {
+              name: "timestamp",
+              type: "core::integer::u64",
+              kind: "data",
+            },
+            {
+              name: "anchored_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::audit_registry::AuditRegistry::OperatorUpdated",
+          kind: "struct",
+          members: [
+            {
+              name: "old_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "new_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "updated_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::audit_registry::AuditRegistry::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnableEvent",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+              kind: "flat",
+            },
+            {
+              name: "BatchAnchored",
+              type: "contracts::audit_registry::AuditRegistry::BatchAnchored",
+              kind: "nested",
+            },
+            {
+              name: "OperatorUpdated",
+              type: "contracts::audit_registry::AuditRegistry::OperatorUpdated",
+              kind: "nested",
+            },
+          ],
+        },
+      ],
+      classHash:
+        "0x77ef4367c709775f661653a3c4da07bf3acd8499596f08602aacfb584bc0017",
+    },
     YourContract: {
       address:
-        "0x7943e0500a9bd88493f95181460bcdf1fb376623d2c67022ba95bdaaf533acc",
+        "0x4069f8b61878874f7fc20259692b78f4a9e9555e11a155a09082c4a7b1ef149",
       abi: [
         {
           type: "impl",
