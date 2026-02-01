@@ -1,7 +1,19 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~~/components/ui";
+import { useCreateAuditBatch } from "~~/hooks/audit/useCreateAuditBatch";
+import { useVerifyLatestAuditBatch } from "~~/hooks/audit/useVerifyLatestAuditBatch";
 import { AdminPageHeader, KpiCard, QueueCard } from "../index";
 
 const kpis = [
@@ -80,6 +92,78 @@ const containerVariants = {
  * Ops dashboard for approvals, queues, and quick navigation.
  */
 export function AdminDashboardScreen() {
+  const createAuditBatch = useCreateAuditBatch();
+  const verifyLatestBatch = useVerifyLatestAuditBatch();
+  const [auditMessage, setAuditMessage] = useState<string | null>(null);
+  const [auditError, setAuditError] = useState<string | null>(null);
+  const [verifyMessage, setVerifyMessage] = useState<string | null>(null);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [isAnchorModalOpen, setIsAnchorModalOpen] = useState(false);
+  const modalRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isAnchorModalOpen) return;
+    const firstFocusable = modalRef.current?.querySelector<HTMLElement>("button");
+    firstFocusable?.focus();
+  }, [isAnchorModalOpen]);
+
+  const handleModalKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape") {
+      setIsAnchorModalOpen(false);
+    }
+
+    if (event.key === "Tab" && modalRef.current) {
+      const focusable = modalRef.current.querySelectorAll<HTMLElement>("button");
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  };
+
+  const handleAnchorBatch = async () => {
+    setAuditMessage(null);
+    setAuditError(null);
+    try {
+      const batch = await createAuditBatch.mutateAsync();
+      setAuditMessage(
+        `Batch #${batch.id} anchored (${batch.fromLedgerId}-${batch.toLedgerId}).`,
+      );
+      setVerifyMessage(null);
+      setIsAnchorModalOpen(false);
+    } catch (error) {
+      setAuditError(error instanceof Error ? error.message : "Failed to anchor batch.");
+    }
+  };
+
+  const handleVerifyLatest = async () => {
+    setVerifyMessage(null);
+    setVerifyError(null);
+    try {
+      const result = await verifyLatestBatch.mutateAsync();
+      const matches =
+        result.matches.dbComputed &&
+        result.matches.dbOnchain &&
+        result.matches.computedOnchain &&
+        result.rangesMatch;
+
+      if (matches) {
+        setVerifyMessage(`Batch #${result.batchId} verified on-chain.`);
+      } else {
+        setVerifyError(`Mismatch detected for batch #${result.batchId}.`);
+      }
+    } catch (error) {
+      setVerifyError(error instanceof Error ? error.message : "Failed to verify batch.");
+    }
+  };
+
   return (
     <motion.div
       variants={containerVariants}
@@ -140,6 +224,62 @@ export function AdminDashboardScreen() {
             ))}
           </div>
 
+          <Card variant="bordered" className="space-y-3">
+            <CardHeader className="mb-0">
+              <CardTitle size="sm">Ledger audit</CardTitle>
+              <CardDescription>
+                Manually anchor the latest ledger batch on-chain.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {auditMessage ? (
+                <p className="text-xs font-semibold text-vaca-green">
+                  {auditMessage}
+                </p>
+              ) : null}
+              {auditError ? (
+                <p className="text-xs font-semibold text-red-600">
+                  {auditError}
+                </p>
+              ) : null}
+              {verifyMessage ? (
+                <p className="text-xs font-semibold text-vaca-green">
+                  {verifyMessage}
+                </p>
+              ) : null}
+              {verifyError ? (
+                <p className="text-xs font-semibold text-red-600">
+                  {verifyError}
+                </p>
+              ) : null}
+            </CardContent>
+            <CardFooter className="mt-0 border-t-0 pt-0 flex items-center gap-2">
+              <Button
+                type="button"
+                variant="primary"
+                colorScheme="blue"
+                size="sm"
+                onClick={() => {
+                  setAuditError(null);
+                  setIsAnchorModalOpen(true);
+                }}
+                disabled={createAuditBatch.isPending}
+              >
+                Anchor batch
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                colorScheme="blue"
+                size="sm"
+                onClick={handleVerifyLatest}
+                disabled={verifyLatestBatch.isPending}
+              >
+                {verifyLatestBatch.isPending ? "Verifying..." : "Verify latest"}
+              </Button>
+            </CardFooter>
+          </Card>
+
           <div className="rounded-xl border border-vaca-neutral-gray-200 bg-vaca-neutral-white p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-vaca-neutral-gray-500">
               Loading preview
@@ -152,6 +292,50 @@ export function AdminDashboardScreen() {
           </div>
         </div>
       </section>
+
+      {isAnchorModalOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Confirm ledger anchor"
+          onKeyDown={handleModalKeyDown}
+        >
+          <div
+            ref={modalRef}
+            className="w-full max-w-md rounded-2xl bg-vaca-neutral-white p-6 shadow-xl"
+          >
+            <h3 className="text-lg font-semibold text-vaca-neutral-gray-900">
+              Confirm ledger anchor
+            </h3>
+            <p className="mt-2 text-sm text-vaca-neutral-gray-500">
+              This will anchor the latest ledger batch on-chain and register it for audit.
+            </p>
+
+            {auditError ? (
+              <p className="mt-3 text-xs text-red-600">{auditError}</p>
+            ) : null}
+
+            <div className="mt-6 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setIsAnchorModalOpen(false)}
+                className="rounded-full border border-vaca-neutral-gray-200 px-4 py-2 text-xs font-semibold text-vaca-neutral-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAnchorBatch}
+                disabled={createAuditBatch.isPending}
+                className="rounded-full bg-vaca-blue px-4 py-2 text-xs font-semibold text-vaca-neutral-white disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {createAuditBatch.isPending ? "Anchoring..." : "Anchor batch"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </motion.div>
   );
 }

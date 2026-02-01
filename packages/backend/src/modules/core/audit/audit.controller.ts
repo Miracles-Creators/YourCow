@@ -36,6 +36,11 @@ export class AuditController {
     return this.auditService.verifyBatch(parsedId);
   }
 
+  @Get("batch/verify-latest")
+  async verifyLatestBatch() {
+    return this.auditService.verifyLatestBatch();
+  }
+
   private requireAdmin(req: AuthenticatedRequest): void {
     if (!req.user || req.user.role !== UserRole.ADMIN) {
       throw new ForbiddenException("Admin role required");

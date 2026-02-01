@@ -9,6 +9,10 @@ export const UserSchema = z.object({
   walletAddress: z.string().nullable().optional(),
 });
 
+const ProducerUserSchema = UserSchema.extend({
+  email: z.string(),
+});
+
 export const WalletLinkTypedDataSchema = z.object({
   types: z.record(z.array(z.object({ name: z.string(), type: z.string() }))),
   primaryType: z.string(),
@@ -48,6 +52,65 @@ export const OnChainSyncStatusSchema = z.enum([
   "SYNCED",
   "FAILED",
 ]);
+
+export const SettlementSchema = z.object({
+  id: z.number(),
+  lotId: z.number(),
+  totalProceeds: z.number(),
+  currency: z.string(),
+  finalReportHash: z.string(),
+  finalReportUrl: z.string().nullable(),
+  settledBy: z.string().nullable(),
+  finalTotalWeightGrams: z.number(),
+  finalAverageWeightGrams: z.number(),
+  initialTotalWeightGrams: z.number(),
+  onChainStatus: OnChainSyncStatusSchema,
+  onChainTxHash: z.string().nullable(),
+  settledAt: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type SettlementDto = z.infer<typeof SettlementSchema>;
+
+export const AuditBatchStatusSchema = z.enum([
+  "PENDING",
+  "ANCHORED",
+  "FAILED",
+]);
+
+export const AuditBatchSchema = z.object({
+  id: z.number(),
+  fromLedgerId: z.string(),
+  toLedgerId: z.string(),
+  batchHash: z.string(),
+  txHash: z.string().nullable(),
+  blockNumber: z.number().nullable(),
+  status: AuditBatchStatusSchema,
+  createdAt: z.string(),
+});
+
+export type AuditBatchDto = z.infer<typeof AuditBatchSchema>;
+
+export const AuditBatchVerificationSchema = z.object({
+  batchId: z.number(),
+  dbHash: z.string(),
+  computedHash: z.string(),
+  onchainHash: z.string(),
+  matches: z.object({
+    dbComputed: z.boolean(),
+    dbOnchain: z.boolean(),
+    computedOnchain: z.boolean(),
+  }),
+  rangesMatch: z.boolean(),
+  onchainRange: z.object({
+    fromLedgerId: z.string(),
+    toLedgerId: z.string(),
+    timestamp: z.string(),
+  }),
+});
+
+export type AuditBatchVerificationDto = z.infer<typeof AuditBatchVerificationSchema>;
 
 export const ShareTransferKindSchema = z.enum(["MINT", "TRANSFER", "BURN"]);
 
@@ -125,7 +188,7 @@ export const ProducerSchema = z.object({
   approvedById: z.number().nullable().optional(),
   approvedAt: z.string().nullable().optional(),
   lots: LotSchema.array().optional(),
-  user: UserSchema,
+  user: ProducerUserSchema,
 });
 
 export const AnimalApprovalStatusSchema = z.enum([

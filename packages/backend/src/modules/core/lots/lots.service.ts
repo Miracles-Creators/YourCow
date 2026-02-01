@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Lot, LotStatus, OnChainSyncStatus, ProducerStatus, Prisma } from "@prisma/client";
-import { hash } from "starknet";
 import { Decimal } from "@prisma/client-runtime-utils";
 
 import { PrismaService } from "../../../database/prisma.service";
 import { toBigInt } from "../../../utils/bigint";
+import { hashObject } from "../../../utils/hash";
 import { LotFactoryService } from "../../onchain/lot-factory/lot-factory.service";
 import { ApproveLotDto, CreateLotDto, DeployLotDto } from "./dto/lots.dto";
 
@@ -102,15 +102,47 @@ export class LotsService {
       };
     });
   }
-
-  async getLotById(id: number): Promise<Lot> {
-    const lot = await this.prisma.lot.findUnique({ where: { id },include:{producer:{include:{user:true}}} });
-    console.log(lot, "lot");
+//TODO:REVIEW THIS TO REFACTOR 
+  async getLotById(
+    id: number,
+  ): Promise<
+    Prisma.LotGetPayload<{
+      include: {
+        producer: { include: { user: true } };
+      };
+    }> & { fundedPercent: number }
+  > {
+    const lot = await this.prisma.lot.findUnique({
+      where: { id },
+      include: { producer: { include: { user: true } } },
+    });
     if (!lot) {
       throw new NotFoundException("Lot not found");
     }
 
-    return lot;
+    const balances = await this.prisma.balance.aggregate({
+      where: {
+        lotId: id,
+        assetType: "LOT_SHARES",
+      },
+      _sum: {
+        available: true,
+        locked: true,
+      },
+    });
+
+    const available = new Decimal(balances._sum.available ?? 0);
+    const locked = new Decimal(balances._sum.locked ?? 0);
+    const fundedShares = available.plus(locked);
+    const fundedPercent =
+      lot.totalShares === 0
+        ? 0
+        : Number(fundedShares.div(lot.totalShares).mul(100).toFixed(2));
+
+    return {
+      ...lot,
+      fundedPercent,
+    };
   }
 
   async getLotByOnChainId(onChainLotId: number): Promise<Lot | null> {
@@ -239,8 +271,6 @@ export class LotsService {
   }
 
   private computeMetadataHash(metadata: Record<string, unknown>): string {
-    const json = JSON.stringify(metadata);
-    const keccak = hash.starknetKeccak(json);
-    return hash.computePoseidonHashOnElements([keccak]).toString();
+    return hashObject(metadata);
   }
 }

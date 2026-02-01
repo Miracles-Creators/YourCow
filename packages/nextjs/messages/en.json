@@ -54,6 +54,17 @@
     "currency": {
       "usd": "USD",
       "format": "${amount}"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "network": "Connection error. Check your internet.",
+      "notFound": "Not found",
+      "unauthorized": "Unauthorized",
+      "invalidInput": "Invalid input"
+    },
+    "loading": {
+      "default": "Loading...",
+      "please_wait": "Please wait..."
     }
   },
   "brand": {

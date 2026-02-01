@@ -1,71 +1,18 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { AuditBatch, AuditBatchStatus, LedgerEntry, Trade } from "@prisma/client";
+import { AuditBatch, LedgerEntry, Trade } from "@prisma/client";
 import { Decimal } from "@prisma/client-runtime-utils";
-import crypto from "crypto";
-
 import { PrismaService } from "../../../database/prisma.service";
+import { canonicalJson, hashCanonicalJson, normalizeHash } from "../../../utils/hash";
 import { AuditRegistryService } from "../../onchain/audit-registry/audit-registry.service";
 import { LedgerService } from "../ledger/ledger.service";
+import type {
+  AuditBatchResponse,
+  AuditVerificationResult,
+  CanonicalLedgerEntry,
+  CanonicalTrade,
+} from "./audit.types";
+import { AuditBatchStatus } from "@prisma/client";
 
-//TODO:MOVE THIS TO A UTILS FILE
-type CanonicalLedgerEntry = {
-  id: string;
-  eventType: string;
-  debitAccountId: string;
-  creditAccountId: string;
-  assetType: string;
-  lotId: string | null;
-  amount: string;
-  tradeId: string | null;
-  offerId: string | null;
-  txHash: string | null;
-  description: string | null;
-  metadata: unknown;
-  createdAt: string;
-};
-
-type CanonicalTrade = {
-  id: string;
-  offerId: string;
-  buyerId: string;
-  sharesAmount: string;
-  totalPrice: string;
-  feeAmount: string;
-  currency: string;
-  idempotencyKey: string;
-  settledAt: string;
-};
-
-type AuditBatchResponse = {
-  id: number;
-  fromLedgerId: string;
-  toLedgerId: string;
-  batchHash: string;
-  txHash: string | null;
-  blockNumber: number | null;
-  status: AuditBatchStatus;
-  createdAt: Date;
-};
-
-type AuditVerificationResult = {
-  batchId: number;
-  dbHash: string;
-  computedHash: string;
-  onchainHash: string;
-  matches: {
-    dbComputed: boolean;
-    dbOnchain: boolean;
-    computedOnchain: boolean;
-  };
-  rangesMatch: boolean;
-  onchainRange: {
-    fromLedgerId: string;
-    toLedgerId: string;
-    timestamp: string;
-  };
-};
-
-//TODO:try better this
 @Injectable()
 export class AuditService {
   constructor(
@@ -106,11 +53,11 @@ export class AuditService {
       trades: trades.map((trade) => this.mapTrade(trade)),
     };
 
-    return this.stringifyCanonical(payload);
+    return canonicalJson(payload);
   }
 
-  computeHash(canonicalJson: string): string {
-    return crypto.createHash("sha256").update(canonicalJson).digest("hex");
+  computeHash(canonical: string): string {
+    return hashCanonicalJson(canonical);
   }
 
   async createAndAnchorBatch(): Promise<AuditBatchResponse> {
@@ -159,7 +106,7 @@ export class AuditService {
     });
 
     try {
-      const result = await this.auditRegistryService.anchorBatch(
+      const transactionHash = await this.auditRegistryService.anchorBatch(
         batch.id,
         batchHash,
         BigInt(fromLedgerId),
@@ -169,8 +116,7 @@ export class AuditService {
       const updated = await this.prisma.auditBatch.update({
         where: { id: batch.id },
         data: {
-          txHash: result.transactionHash,
-          blockNumber: result.blockNumber ?? null,
+          txHash: transactionHash,
           status: AuditBatchStatus.ANCHORED,
         },
       });
@@ -206,9 +152,9 @@ export class AuditService {
 
     const onchain = await this.auditRegistryService.getBatch(batch.id);
 
-    const dbHash = this.normalizeHash(batch.batchHash);
-    const computed = this.normalizeHash(computedHash);
-    const onchainHash = this.normalizeHash(onchain.batchHash);
+    const dbHash = normalizeHash(batch.batchHash);
+    const computed = normalizeHash(computedHash);
+    const onchainHash = normalizeHash(onchain.batchHash);
 
     return {
       batchId: batch.id,
@@ -229,6 +175,19 @@ export class AuditService {
         timestamp: onchain.timestamp.toString(),
       },
     };
+  }
+
+  async verifyLatestBatch(): Promise<AuditVerificationResult> {
+    const latestBatch = await this.prisma.auditBatch.findFirst({
+      where: { status: AuditBatchStatus.ANCHORED },
+      orderBy: { toLedgerId: "desc" },
+    });
+
+    if (!latestBatch) {
+      throw new NotFoundException("No anchored audit batches found");
+    }
+
+    return this.verifyBatch(latestBatch.id);
   }
 
   private mapLedgerEntry(entry: LedgerEntry): CanonicalLedgerEntry {
@@ -263,25 +222,6 @@ export class AuditService {
     };
   }
 
-  private stringifyCanonical(payload: unknown): string {
-    return JSON.stringify(this.sortKeys(payload));
-  }
-
-  private sortKeys(value: unknown): unknown {
-    if (Array.isArray(value)) {
-      return value.map((item) => this.sortKeys(item));
-    }
-    if (value && typeof value === "object") {
-      const obj = value as Record<string, unknown>;
-      const sorted: Record<string, unknown> = {};
-      for (const key of Object.keys(obj).sort()) {
-        sorted[key] = this.sortKeys(obj[key]);
-      }
-      return sorted;
-    }
-    return value;
-  }
-
   private normalizeDecimal(value: Decimal): string {
     return value.toString();
   }
@@ -291,16 +231,11 @@ export class AuditService {
       id: batch.id,
       fromLedgerId: batch.fromLedgerId.toString(),
       toLedgerId: batch.toLedgerId.toString(),
-      batchHash: this.normalizeHash(batch.batchHash),
+      batchHash: normalizeHash(batch.batchHash),
       txHash: batch.txHash ?? null,
       blockNumber: batch.blockNumber ?? null,
       status: batch.status,
       createdAt: batch.createdAt,
     };
-  }
-
-  private normalizeHash(hash: string): string {
-    const normalized = hash.trim().toLowerCase();
-    return normalized.startsWith("0x") ? normalized.slice(2) : normalized;
   }
 }

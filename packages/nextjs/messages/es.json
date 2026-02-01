@@ -54,6 +54,17 @@
     "currency": {
       "usd": "USD",
       "format": "${amount}"
+    },
+    "errors": {
+      "generic": "Algo salió mal. Por favor intenta de nuevo.",
+      "network": "Error de conexión. Verifica tu internet.",
+      "notFound": "No encontrado",
+      "unauthorized": "No autorizado",
+      "invalidInput": "Entrada inválida"
+    },
+    "loading": {
+      "default": "Cargando...",
+      "please_wait": "Por favor espera..."
     }
   },
   "brand": {

@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { Contract } from "starknet";
+import { Contract, num } from "starknet";
 
 import { StarknetService } from "../../../starknet/core/starknet.service";
+import { normalizeHash } from "../../../utils/hash";
 
 export type AuditBatchAnchor = {
   batchHash: string;
@@ -28,30 +29,16 @@ export class AuditRegistryService {
     batchHash: string,
     fromId: bigint,
     toId: bigint,
-  ): Promise<{ transactionHash: string; blockNumber?: number }> {
+  ): Promise<string> {
     const contract = this.getContract();
-    const tx = await contract.anchor_batch(
-      batchId,
-      this.toFelt(batchHash),
-      fromId,
-      toId,
+    return this.starknetService.executeTransaction(
+      contract.anchor_batch(
+        batchId,
+        this.toFelt(batchHash),
+        fromId,
+        toId,
+      )
     );
-
-    const receipt = (await this.starknetService
-      .getProvider()
-      .waitForTransaction(tx.transaction_hash)) as {
-      block_number?: number | string | bigint;
-      blockNumber?: number | string | bigint;
-    };
-
-    const blockNumberRaw = receipt.block_number ?? receipt.blockNumber;
-    const blockNumber =
-      blockNumberRaw == null ? undefined : Number(blockNumberRaw);
-
-    return {
-      transactionHash: tx.transaction_hash,
-      blockNumber: Number.isNaN(blockNumber) ? undefined : blockNumber,
-    };
   }
 
   async getBatch(batchId: number): Promise<AuditBatchAnchor> {
@@ -62,20 +49,16 @@ export class AuditRegistryService {
     const result = await contract.get_batch(batchId);
 
     return {
-      batchHash: this.normalizeHash(result.batch_hash.toString()),
+      batchHash: normalizeHash(num.toHex(result.batch_hash)),
       fromLedgerId: BigInt(result.from_ledger_id.toString()),
       toLedgerId: BigInt(result.to_ledger_id.toString()),
       timestamp: BigInt(result.timestamp.toString()),
     };
   }
 
-  private normalizeHash(hash: string): string {
-    const normalized = hash.trim().toLowerCase();
-    return normalized.startsWith("0x") ? normalized.slice(2) : normalized;
-  }
-
   private toFelt(hash: string): string {
-    const normalized = this.normalizeHash(hash);
+    const normalized = normalizeHash(hash);
+    // Poseidon hash is already a valid felt252
     return `0x${normalized}`;
   }
 }

@@ -1,15 +1,19 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { AnimalApprovalStatus, OnChainSyncStatus } from "@prisma/client";
-import { hash } from "starknet";
-
 import { AnimalRegistryService } from "../../onchain/animal-registry/animal-registry.service";
+import { LotFactoryService } from "../../onchain/lot-factory/lot-factory.service";
 import { AnimalsService } from "./animals.service";
+import { PrismaService } from "../../../database/prisma.service";
+import { LotStatus as OnChainLotStatus } from "../../../starknet/types";
+import { hashObject } from "../../../utils/hash";
 
 @Injectable()
 export class AnimalsApprovalService {
   constructor(
     private readonly animalsService: AnimalsService,
-    private readonly animalRegistryService: AnimalRegistryService
+    private readonly animalRegistryService: AnimalRegistryService,
+    private readonly prisma: PrismaService,
+    private readonly lotFactoryService: LotFactoryService
   ) {}
 
   async approveBatch(params: {
@@ -36,6 +40,24 @@ export class AnimalsApprovalService {
     const wrongLot = animals.filter((animal) => animal.lotId !== params.lotId);
     if (wrongLot.length) {
       throw new BadRequestException("All animals must belong to the provided lot");
+    }
+
+    const lot = await this.prisma.lot.findUnique({
+      where: { id: params.lotId },
+      select: { onChainLotId: true },
+    });
+    if (!lot) {
+      throw new NotFoundException("Lot not found");
+    }
+    if (!lot.onChainLotId) {
+      throw new BadRequestException("Lot is not deployed on-chain yet");
+    }
+
+    const onChainStatus = await this.lotFactoryService.getLotStatus(
+      BigInt(lot.onChainLotId),
+    );
+    if (onChainStatus !== OnChainLotStatus.ACTIVE) {
+      throw new BadRequestException("Lot is not active on-chain");
     }
 
     const computedProfileHashes = animals.map((animal) => ({
@@ -73,7 +95,7 @@ export class AnimalsApprovalService {
 
       await this.animalRegistryService.assignToLotBatch(
         onChainIds,
-        BigInt(params.lotId)
+        BigInt(lot.onChainLotId)
       );
 
       return this.animalsService.updateApprovalOnChainResults(
@@ -100,8 +122,6 @@ export class AnimalsApprovalService {
   }
 
   private computeProfileHash(profile: unknown): string {
-    const json = JSON.stringify(profile);
-    const keccak = hash.starknetKeccak(json);
-    return hash.computePoseidonHashOnElements([keccak]).toString();
+    return hashObject(profile);
   }
 }
