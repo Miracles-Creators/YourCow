@@ -63,8 +63,7 @@ packages/nextjs/
 │       │   │   ├── producers/
 │       │   │   ├── settlements/
 │       │   │   ├── updates/
-│       │   │   ├── support/
-│       │   │   └── liquidity/
+│       │   │   └── support/
 │       │   └── layout.tsx            # Shared admin layout + metadata
 │       │
 │       ├── debug/                    # Debug/development screens
