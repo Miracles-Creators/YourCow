@@ -37,10 +37,6 @@ export const mockPortfolio = {
   gain: 7450,
   gainPercentage: 5.96,
   status: "Production ongoing" as const,
-  nextLiquidityWindow: {
-    date: "March 15, 2026",
-    daysRemaining: 72,
-  },
 };
 
 export const mockLots: Lot[] = [
@@ -224,17 +220,13 @@ export interface Position {
   gain: number;
   gainPercentage: number;
   status: "active" | "pending_sale" | "liquidated";
-  liquidityWindow: {
-    nextDate: string;
-    daysRemaining: number;
-    isEligible: boolean;
-  };
   productionMetrics: {
     totalHeadCount: number;
     avgWeightKg: number;
     totalMeatKg: number;
     pricePerKg: number;
     projectedRevenue: number;
+    projectedCosts: number;
   };
   navHistory: {
     date: string;
@@ -255,17 +247,13 @@ export const mockPositions: Position[] = [
     gain: 1250,
     gainPercentage: 10.0,
     status: "active",
-    liquidityWindow: {
-      nextDate: "2026-03-15",
-      daysRemaining: 72,
-      isEligible: true,
-    },
     productionMetrics: {
       totalHeadCount: 30, // Investor's share of 120 total (25%)
       avgWeightKg: 450,
       totalMeatKg: 13500, // 30 heads × 450kg
       pricePerKg: 8.5,
       projectedRevenue: 114750, // 13500kg × $8.5
+      projectedCosts: 31200,
     },
     navHistory: [
       { date: "2025-11-15", value: 12500 },
@@ -288,17 +276,13 @@ export const mockPositions: Position[] = [
     gain: 3200,
     gainPercentage: 10.0,
     status: "active",
-    liquidityWindow: {
-      nextDate: "2026-02-01",
-      daysRemaining: 30,
-      isEligible: true,
-    },
     productionMetrics: {
       totalHeadCount: 64, // 32% of 200 total
       avgWeightKg: 520,
       totalMeatKg: 33280, // 64 heads × 520kg
       pricePerKg: 9.2,
       projectedRevenue: 306176, // 33280kg × $9.2
+      projectedCosts: 84500,
     },
     navHistory: [
       { date: "2025-10-01", value: 32000 },

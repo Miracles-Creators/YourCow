@@ -35,12 +35,6 @@ const kpis = [
     delta: "1 critical",
     tone: "danger" as const,
   },
-  {
-    label: "Open liquidity windows",
-    value: "3",
-    delta: "Next closes in 8 days",
-    tone: "success" as const,
-  },
 ];
 
 const queueItems = [
@@ -173,7 +167,7 @@ export function AdminDashboardScreen() {
     >
       <AdminPageHeader
         title="Admin Dashboard"
-        subtitle="Operational overview for approvals, flags, and liquidity events."
+        subtitle="Operational overview for approvals, flags, and settlements."
       />
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

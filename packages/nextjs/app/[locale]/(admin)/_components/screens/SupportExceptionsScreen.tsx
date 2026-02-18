@@ -44,7 +44,6 @@ const exceptions = [
   "Missing documents",
   "Disputed update",
   "Settlement mismatch",
-  "Liquidity request exception",
 ];
 
 const statusTone: Record<TicketRecord["status"], AdminStatusTone> = {

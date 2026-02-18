@@ -26,7 +26,6 @@ interface ConfirmInvestmentScreenProps {
  * Shows:
  * - Investment summary
  * - Fees breakdown
- * - Liquidity rules reminder
  * - Final confirm button
  *
  * Style: Neutral, institutional, very clear
@@ -270,59 +269,6 @@ export function ConfirmInvestmentScreen({
               })}`}
               valueClassName="text-vaca-green font-playfair text-2xl font-semibold"
             />
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Liquidity Rules Reminder */}
-      <motion.div
-        variants={itemVariants}
-        className={cn(
-          "rounded-2xl border-2 border-vaca-blue/20 bg-vaca-blue/5",
-          "p-5",
-        )}
-      >
-        <div className="flex gap-3">
-          {/* Info Icon */}
-          <div className="flex-shrink-0 pt-0.5">
-            <svg
-              className="h-5 w-5 text-vaca-blue"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-
-          <div className="flex-1 space-y-2">
-            <h3 className="font-inter text-sm font-semibold text-vaca-neutral-gray-900">
-              Liquidity Rules
-            </h3>
-            <ul className="space-y-1.5 font-inter text-sm text-vaca-neutral-gray-700">
-              <li className="flex gap-2">
-                <span className="text-vaca-blue">•</span>
-                <span>
-                  Your shares will be locked during the production cycle
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-vaca-blue">•</span>
-                <span>
-                  Liquidity windows open periodically for share transfers
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-vaca-blue">•</span>
-                <span>Final settlement occurs when cattle are sold</span>
-              </li>
-            </ul>
           </div>
         </div>
       </motion.div>

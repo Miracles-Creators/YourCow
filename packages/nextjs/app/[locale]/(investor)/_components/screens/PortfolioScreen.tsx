@@ -180,17 +180,13 @@ export function PortfolioScreen() {
         gain,
         gainPercentage,
         status: mockPosition?.status ?? "active",
-        liquidityWindow: mockPosition?.liquidityWindow ?? {
-          nextDate: "",
-          daysRemaining: 0,
-          isEligible: false,
-        },
         productionMetrics: mockPosition?.productionMetrics ?? {
           totalHeadCount: 0,
           avgWeightKg: 0,
           totalMeatKg: 0,
           pricePerKg: 0,
           projectedRevenue: 0,
+          projectedCosts: 0,
         },
         navHistory: mockPosition?.navHistory ?? [
           { date: investmentDate, value: investmentAmount },
@@ -249,6 +245,9 @@ export function PortfolioScreen() {
     >
       {/* Header */}
       <motion.div variants={itemVariants} className="text-center">
+        <div className="mb-3 inline-flex items-center rounded-full bg-vaca-neutral-gray-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-vaca-neutral-gray-600">
+          {t("pill")}
+        </div>
         <h1 className="mb-2 font-playfair text-3xl font-semibold tracking-tight text-vaca-neutral-gray-900">
           {t("title")}
         </h1>

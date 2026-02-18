@@ -1,8 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "~~/lib/i18n/routing";
 import { cn } from "~~/lib/utils/cn";
 
 interface AdminLayoutProps {
@@ -15,7 +14,6 @@ const navItems = [
   { label: "Producers", href: "/admin/producers" },
   { label: "Lots", href: "/admin/lots" },
   { label: "Updates", href: "/admin/updates" },
-  { label: "Liquidity", href: "/admin/liquidity" },
   { label: "Settlements", href: "/admin/settlements" },
   { label: "Support", href: "/admin/support" },
 ];
@@ -59,7 +57,7 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
 
           <nav className="mt-8 flex flex-col gap-2">
             {navItems.map((item) => {
-              const isActive = pathname?.startsWith(item.href);
+              const isActive = pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.href}
@@ -100,7 +98,7 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
           <div className="border-b border-vaca-neutral-gray-100 bg-vaca-neutral-white px-5 py-3 lg:hidden">
             <nav className="flex gap-3 overflow-x-auto pb-2">
               {navItems.map((item) => {
-                const isActive = pathname?.startsWith(item.href);
+                const isActive = pathname.startsWith(item.href);
                 return (
                   <Link
                     key={item.href}
