@@ -33,7 +33,8 @@
       "marketplace": "Mercado",
       "p2p": "P2P",
       "position": "Posición",
-      "profile": "Perfil"
+      "profile": "Perfil",
+      "oracle": "Oráculo"
     },
     "status": {
       "active": "Activo",
@@ -90,21 +91,36 @@
       "helperText": "Acceso seguro. Sin contraseñas."
     },
     "dashboard": {
+      "pill": "Resumen Ejecutivo",
       "title": "Tu Portafolio",
+      "subtitle": "Resumen ejecutivo de tu cartera, efectivo disponible y relación por lote.",
       "stats": {
         "totalInvested": "Total Invertido",
         "currentValue": "Valor Actual (basado en NAV)",
         "gain": "Ganancia",
-        "status": "Estado"
+        "status": "Estado",
+        "returnLabel": "Retorno {value}"
+      },
+      "cash": {
+        "title": "Cash Balance",
+        "available": "Disponible",
+        "ars": "Pesos (ARS)",
+        "usd": "Dólares (USD)"
+      },
+      "lots": {
+        "title": "Relación por lote",
+        "shares": "Acciones",
+        "shareOfLot": "% del lote",
+        "empty": "Aún no tienes posiciones activas."
       },
       "status": {
         "productionOngoing": "Producción en curso"
       },
-      "nextLiquidityWindow": {
-        "title": "Próxima Ventana de Liquidez",
-        "daysRemaining": "{count} días restantes"
-      },
-      "cta": "Invertir en Ganado"
+      "cta": "Invertir en Ganado",
+      "actions": {
+        "marketplace": "Ver Mercado",
+        "portfolio": "Ir a Portafolio"
+      }
     },
     "marketplace": {
       "title": "Lotes de Ganado Disponibles",
@@ -145,6 +161,7 @@
       }
     },
     "portfolio": {
+      "pill": "Detalle de posiciones",
       "title": "Portafolio",
       "subtitle": "Rastrea tus inversiones en ganado",
       "summary": {
@@ -240,6 +257,26 @@
         "browseLots": "Explorar Más Lotes"
       }
     },
+    "oracle": {
+      "title": "Oráculo de Mercado",
+      "subtitle": "Métricas de NAV y riesgo en tiempo real para cada lote ganadero, impulsado por Chainlink CRE y publicado en cadena.",
+      "nav": "Valor Neto de Activos (NAV)",
+      "riskScore": "Puntuación de Riesgo",
+      "beefPrice": "Precio de Carne",
+      "feedPrice": "Precio de Alimento",
+      "lastUpdated": "Última Actualización",
+      "roundId": "ID de Ronda",
+      "stale": "Desactualizado",
+      "poweredBy": "Impulsado por Chainlink CRE",
+      "loading": "Cargando datos del oráculo...",
+      "error": "Datos del oráculo temporalmente no disponibles.",
+      "retry": "Reintentar",
+      "lot": "Lote",
+      "sourceHash": "Hash de Fuente",
+      "viewContract": "Ver Contrato",
+      "oracleStatusLive": "Oráculo: En Vivo",
+      "oracleStatusMock": "Oráculo: Modo Demo"
+    },
     "positionDetail": {
       "title": "Detalle de Posición",
       "overview": "Resumen",
@@ -255,6 +292,26 @@
         "nav": "NAV Actual",
         "gain": "Ganancia",
         "gainPercentage": "Retorno"
+      },
+      "revenue": {
+        "title": "Revenue y Costos",
+        "revenue": "Revenue",
+        "costs": "Costos",
+        "net": "Net Revenue"
+      },
+      "metrics": {
+        "productionTitle": "Producción",
+        "headCount": "Cabezas",
+        "headCountSuffix": "cabezas",
+        "avgWeight": "Peso promedio",
+        "totalMeat": "Total de carne",
+        "pricePerKg": "Precio por kg"
+      },
+      "holdings": {
+        "title": "Tu posición",
+        "shares": "Acciones",
+        "pricePerShare": "Precio por acción",
+        "shareOfLot": "% del lote"
       },
       "lot": {
         "title": "Información del Lote",

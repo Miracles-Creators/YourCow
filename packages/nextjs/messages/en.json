@@ -33,7 +33,8 @@
       "marketplace": "Marketplace",
       "p2p": "P2P",
       "position": "Position",
-      "profile": "Profile"
+      "profile": "Profile",
+      "oracle": "Oracle"
     },
     "status": {
       "active": "Active",
@@ -90,21 +91,36 @@
       "helperText": "Secure access. No passwords."
     },
     "dashboard": {
+      "pill": "Executive Summary",
       "title": "Your Portfolio",
+      "subtitle": "Executive snapshot of your portfolio, cash balance, and lot ownership.",
       "stats": {
         "totalInvested": "Total Invested",
         "currentValue": "Current Value (NAV-based)",
         "gain": "Gain",
-        "status": "Status"
+        "status": "Status",
+        "returnLabel": "Return {value}"
+      },
+      "cash": {
+        "title": "Cash Balance",
+        "available": "Available",
+        "ars": "Pesos (ARS)",
+        "usd": "Dollars (USD)"
+      },
+      "lots": {
+        "title": "Lot ownership",
+        "shares": "Shares",
+        "shareOfLot": "% of lot",
+        "empty": "No active positions yet."
       },
       "status": {
         "productionOngoing": "Production ongoing"
       },
-      "nextLiquidityWindow": {
-        "title": "Next Liquidity Window",
-        "daysRemaining": "{count} days remaining"
-      },
-      "cta": "Invest in Cattle"
+      "cta": "Invest in Cattle",
+      "actions": {
+        "marketplace": "View Marketplace",
+        "portfolio": "Go to Portfolio"
+      }
     },
     "marketplace": {
       "title": "Available Cattle Lots",
@@ -145,6 +161,7 @@
       }
     },
     "portfolio": {
+      "pill": "Positions detail",
       "title": "Portfolio",
       "subtitle": "Track your cattle investments",
       "summary": {
@@ -240,6 +257,26 @@
         "browseLots": "Browse More Lots"
       }
     },
+    "oracle": {
+      "title": "Market Oracle",
+      "subtitle": "Real-time NAV and risk metrics for each cattle lot, powered by Chainlink CRE and published on-chain.",
+      "nav": "Net Asset Value (NAV)",
+      "riskScore": "Risk Score",
+      "beefPrice": "Beef Price",
+      "feedPrice": "Feed Price",
+      "lastUpdated": "Last Updated",
+      "roundId": "Round ID",
+      "stale": "Stale",
+      "poweredBy": "Powered by Chainlink CRE",
+      "loading": "Loading oracle data...",
+      "error": "Oracle data temporarily unavailable.",
+      "retry": "Retry",
+      "lot": "Lot",
+      "sourceHash": "Source Hash",
+      "viewContract": "View Contract",
+      "oracleStatusLive": "Oracle: Live",
+      "oracleStatusMock": "Oracle: Demo Mode"
+    },
     "positionDetail": {
       "title": "Position Details",
       "overview": "Overview",
@@ -255,6 +292,26 @@
         "nav": "Current NAV",
         "gain": "Gain",
         "gainPercentage": "Return"
+      },
+      "revenue": {
+        "title": "Revenue & Costs",
+        "revenue": "Revenue",
+        "costs": "Costs",
+        "net": "Net Revenue"
+      },
+      "metrics": {
+        "productionTitle": "Production",
+        "headCount": "Head count",
+        "headCountSuffix": "heads",
+        "avgWeight": "Avg weight",
+        "totalMeat": "Total meat",
+        "pricePerKg": "Price per kg"
+      },
+      "holdings": {
+        "title": "Your holdings",
+        "shares": "Shares",
+        "pricePerShare": "Price per share",
+        "shareOfLot": "Lot share"
       },
       "lot": {
         "title": "Lot Information",

@@ -1,22 +1,62 @@
-# 🏗 Scaffold-Stark
+# YourCow (monorepo)
 
 <h4 align="center">
-  <a href="https://docs.scaffoldstark.com/">Documentation</a> |
-  <a href="https://scaffoldstark.com/">Website</a> |
-  <a href="https://scaffold-stark-demo.vercel.app/debug">Demo</a>
+  <a href="./docs/README.md">Docs index</a> |
+  <a href="./docs/ARCHITECTURE.md">Architecture</a> |
+  <a href="./docs/CLIENT_BACKEND_INSTRUCTIONS.md">Client↔Backend guide</a>
 </h4>
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on Starknet blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
-
-⚙️ Built using NextJS, Starknet.js, Scarb, Starknet-React, Starknet Foundry.
-
-- ✅ **Contract Fast Reload**: Your frontend auto-adapts to your smart contracts as you deploy them.
-- 🪝 [**Custom hooks**](https://docs.scaffoldstark.com/hooks/): Collection of React hooks wrapper around [starknet-react](https://starknet-react.com/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldstark.com/components): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Prefunded Account**: Quickly test your application with a burner wallet and prefunded accounts.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with Starknet network.
+YourCow is a cattle-lot investment platform with:
+- DB-first off-chain accounting + ledger
+- On-chain integrity primitives on Starknet
+- Next.js 15 frontend + NestJS backend + Starknet contracts
 
 ![Debug Contracts tab](./packages/nextjs/public/debug-image.png)
+
+## Repo source of truth
+
+- Start here: `docs/README.md`
+- System architecture + flows: `docs/ARCHITECTURE.md`
+- Frontend deep dive: `packages/nextjs/ARCHITECTURE.md`
+- Backend deep dive: `packages/backend/ARCHITECTURE.md`
+- On-chain MVP spec: `packages/snfoundry/PROJECT_SPEC.MD`
+
+## Numeric types (important)
+
+Priority rule: **DB + API + UI use `Int`/`number` for business values** (fiat in smallest unit, share counts, price-per-share, settlement proceeds, etc).
+
+- Database types: `packages/backend/prisma/schema.prisma`
+- Contracts may use `u256`, but conversion happens only at the on-chain boundary.
+
+## Quickstart (local)
+
+```bash
+yarn install
+```
+
+Terminal 1 (devnet):
+```bash
+yarn chain
+```
+
+Terminal 2 (backend):
+```bash
+yarn backend:dev
+```
+
+Terminal 3 (frontend):
+```bash
+yarn start
+```
+
+Optional (deploy contracts to devnet):
+```bash
+yarn deploy
+```
+
+---
+
+## Upstream Scaffold-Stark template (legacy reference)
 
 ## 0. Requirements
 
@@ -247,7 +287,7 @@ Visit your app on: `http://localhost:3000`. You can interact with your smart con
 
 <details>
 
-To ensure the proper functioning of the scaffold-stark with Testnet or Mainnet, your RPC version must match the version specified in [Compatible versions](#compatible-versions). This repository contains `.env.example` files with the default RPC URLs. Check the RPC URLs in `packages/nextjs/.env.example` and `packages/snfoundry/.env.example` for the current endpoints. Let's verify this RPC version by calling a `POST` request in an API platform like `Postman` or `Insommia`. Use the RPC URL from the `.env.example` files and the body should be:
+To ensure the proper functioning of the scaffold-stark with Testnet or Mainnet, your RPC version must match the version specified in [Compatible versions](#compatible-versions). This repository contains `.env.example` files with the default RPC URLs. Check the RPC URLs in `packages/nextjs/.env.example` and `packages/snfoundry/.env.example` for the current endpoints. Let's verify this RPC version by calling a `POST` request in an API platform like `Postman` or `Insomnia`. Use the RPC URL from the `.env.example` files and the body should be:
 
 ```json
 {
@@ -296,7 +336,7 @@ Configuration uses these variables with fallbacks:
 ## CLI Usage
 
 <details>
-Depending on your package manager, substitute the word `COMMAND` with the appropiate one from the list.
+Depending on your package manager, substitute the word `COMMAND` with the appropriate one from the list.
 
 ```bash
 yarn COMMAND
@@ -310,7 +350,7 @@ Commands:
 | Command          | Description                                                                               |
 | ---------------- | ----------------------------------------------------------------------------------------- |
 | format:check     | (Read only) Batch checks for format inconsistencies for the nextjs and snfoundry codebase |
-| next:check-types | Compile typscript project                                                                 |
+| next:check-types | Compile TypeScript project                                                                |
 | next:lint        | Runs next lint                                                                            |
 | prepare          | Install husky's git hooks                                                                 |
 | usage            | Show this text                                                                            |
