@@ -17,6 +17,12 @@ export class LotsController {
     return this.lotsService.listLots();
   }
 
+  // Public endpoint for Chainlink CRE oracle — no auth required
+  @Get("oracle")
+  async getActiveLotsForOracle() {
+    return this.lotsService.getActiveLotsForOracle();
+  }
+
   @Get(":id")
   async getLotById(@Param("id") id: string) {
     return this.lotsService.getLotById(Number(id));

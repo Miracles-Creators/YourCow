@@ -1,0 +1,378 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "activeLotIds",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "batchUpdateLotNAV",
+    "inputs": [
+      {
+        "name": "_lotIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "_navs",
+        "type": "int256[]",
+        "internalType": "int256[]"
+      },
+      {
+        "name": "_navPerShares",
+        "type": "int256[]",
+        "internalType": "int256[]"
+      },
+      {
+        "name": "_weightGrams",
+        "type": "uint32[]",
+        "internalType": "uint32[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getActiveLotIds",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getLotNAV",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct NAVOracle.LotNAV",
+        "components": [
+          {
+            "name": "nav",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "navPerShare",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "weightGrams",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "updatedAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMarketPrices",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct NAVOracle.MarketPrices",
+        "components": [
+          {
+            "name": "beefPrice",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "cornPrice",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "arsUsdRate",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "updatedAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isActiveLot",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "lotNAV",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "nav",
+        "type": "int256",
+        "internalType": "int256"
+      },
+      {
+        "name": "navPerShare",
+        "type": "int256",
+        "internalType": "int256"
+      },
+      {
+        "name": "weightGrams",
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      {
+        "name": "updatedAt",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "marketPrices",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "beefPrice",
+        "type": "int256",
+        "internalType": "int256"
+      },
+      {
+        "name": "cornPrice",
+        "type": "int256",
+        "internalType": "int256"
+      },
+      {
+        "name": "arsUsdRate",
+        "type": "int256",
+        "internalType": "int256"
+      },
+      {
+        "name": "updatedAt",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "operator",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setOperator",
+    "inputs": [
+      {
+        "name": "_operator",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateMarketPrices",
+    "inputs": [
+      {
+        "name": "_beefPrice",
+        "type": "int256",
+        "internalType": "int256"
+      },
+      {
+        "name": "_cornPrice",
+        "type": "int256",
+        "internalType": "int256"
+      },
+      {
+        "name": "_arsUsdRate",
+        "type": "int256",
+        "internalType": "int256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "LotNAVUpdated",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "nav",
+        "type": "int256",
+        "indexed": false,
+        "internalType": "int256"
+      },
+      {
+        "name": "navPerShare",
+        "type": "int256",
+        "indexed": false,
+        "internalType": "int256"
+      },
+      {
+        "name": "weightGrams",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "MarketPricesUpdated",
+    "inputs": [
+      {
+        "name": "beefPrice",
+        "type": "int256",
+        "indexed": false,
+        "internalType": "int256"
+      },
+      {
+        "name": "cornPrice",
+        "type": "int256",
+        "indexed": false,
+        "internalType": "int256"
+      },
+      {
+        "name": "arsUsdRate",
+        "type": "int256",
+        "indexed": false,
+        "internalType": "int256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WeighingProcessed",
+    "inputs": [
+      {
+        "name": "lotId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "previousWeightGrams",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "newWeightGrams",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "newNAV",
+        "type": "int256",
+        "indexed": false,
+        "internalType": "int256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  }
+]

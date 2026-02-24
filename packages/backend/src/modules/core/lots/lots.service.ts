@@ -145,6 +145,44 @@ export class LotsService {
     };
   }
 
+  async getActiveLotsForOracle(): Promise<
+    {
+      onChainLotId: number;
+      totalShares: number;
+      currentTotalWeightGrams: number | null;
+      initialTotalWeightGrams: number | null;
+      startDate: Date | null;
+      endDate: Date | null;
+      operatingCosts: number | null;
+    }[]
+  > {
+    const lots = await this.prisma.lot.findMany({
+      where: {
+        //TODO: REVIEW THE DIFFERENTS STATUS OF LOTS
+        status: { in: [LotStatus.ACTIVE] },
+        onChainLotId: { not: null },
+      },
+      select: {
+        onChainLotId: true,
+        totalShares: true,
+        currentTotalWeightGrams: true,
+        initialTotalWeightGrams: true,
+        startDate: true,
+        endDate: true,
+        operatingCosts: true,
+      },
+    });
+    return lots.filter((l) => l.onChainLotId !== null) as {
+      onChainLotId: number;
+      totalShares: number;
+      currentTotalWeightGrams: number | null;
+      initialTotalWeightGrams: number | null;
+      startDate: Date | null;
+      endDate: Date | null;
+      operatingCosts: number | null;
+    }[];
+  }
+
   async getLotByOnChainId(onChainLotId: number): Promise<Lot | null> {
     return this.prisma.lot.findUnique({ where: { onChainLotId } });
   }
