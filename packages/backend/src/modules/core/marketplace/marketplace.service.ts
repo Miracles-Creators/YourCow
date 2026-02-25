@@ -136,6 +136,7 @@ export class MarketplaceService {
           lotId: dto.lotId,
           sharesAmount: dto.sharesAmount,
           pricePerShare: dto.pricePerShare,
+          strkPricePerShare: dto.strkPricePerShare ?? null,
           currency,
           idempotencyKey: dto.idempotencyKey,
           status: OfferStatus.OPEN,
@@ -328,9 +329,6 @@ export class MarketplaceService {
         }
 
         const totalPrice = offer.pricePerShare * dto.sharesAmount;
-        if (!Number.isSafeInteger(totalPrice)) {
-          throw new BadRequestException("Total price exceeds safe integer range");
-        }
 
         const buyerFee = Math.floor((totalPrice * FEE_BPS) / BPS_BASE);
         const sellerFee = Math.floor((totalPrice * FEE_BPS) / BPS_BASE);
@@ -339,9 +337,6 @@ export class MarketplaceService {
         const buyerTotal = totalPrice + buyerFee;
         if (sellerNet < 0) {
           throw new BadRequestException("Fee calculation exceeds total price");
-        }
-        if (!Number.isSafeInteger(buyerTotal)) {
-          throw new BadRequestException("Total debit exceeds safe integer range");
         }
 
         const assetType = this.resolveFiatAssetType(offer.currency);
@@ -360,7 +355,7 @@ export class MarketplaceService {
         const requiredFiat = new Decimal(buyerTotal);
         if (availableFiat.lessThan(requiredFiat)) {
           throw new BadRequestException(
-            `Insufficient fiat balance: have ${availableFiat.toString()}, need ${requiredFiat.toString()}`,
+            `Insufficient balance: have ${availableFiat.toString()}, need ${requiredFiat.toString()}`,
           );
         }
 

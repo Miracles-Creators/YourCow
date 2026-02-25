@@ -19,9 +19,8 @@ export class StarknetService implements OnModuleInit {
   async onModuleInit() {
     this.network = (process.env.STARKNET_NETWORK as NetworkName) || "devnet";
 
-    //process.env.STARKNET_RPC_URL 
     const rpcUrl =
-       "http://127.0.0.1:5050/rpc";
+      process.env.STARKNET_RPC_URL || "http://127.0.0.1:5050/rpc";
 
     this.provider = new RpcProvider({ nodeUrl: rpcUrl });
 
