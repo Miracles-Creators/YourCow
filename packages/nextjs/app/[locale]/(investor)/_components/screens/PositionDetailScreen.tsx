@@ -343,63 +343,6 @@ export function PositionDetailScreen({
             </div>
           </motion.div>
 
-          {/* Right: Liquidity Window */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="rounded-2xl border border-vaca-neutral-gray-200 bg-vaca-neutral-white p-6"
-          >
-            <h2 className="mb-4 font-playfair text-xl font-semibold text-vaca-neutral-gray-900">
-              Ventana de Liquidez
-            </h2>
-
-            <div className="mb-4 text-center">
-              <p className="mb-2 font-inter text-sm text-vaca-neutral-gray-500">
-                Próxima fecha disponible
-              </p>
-              <p className="mb-4 font-playfair text-2xl font-semibold text-vaca-neutral-gray-900">
-                {new Date(position.liquidityWindow.nextDate).toLocaleDateString(
-                  "es-ES",
-                  {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  },
-                )}
-              </p>
-
-              <div className="mb-4 rounded-xl bg-vaca-neutral-gray-50 p-6">
-                <p className="mb-1 font-inter text-sm text-vaca-neutral-gray-500">
-                  Faltan
-                </p>
-                <div className="flex items-baseline justify-center gap-2">
-                  <p className="font-playfair text-6xl font-bold text-vaca-green">
-                    {position.liquidityWindow.daysRemaining}
-                  </p>
-                  <p className="font-inter text-xl text-vaca-neutral-gray-600">
-                    días
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Button */}
-            {position.liquidityWindow.isEligible && (
-              <button
-                className="w-full rounded-xl bg-vaca-green px-6 py-3 font-inter font-semibold text-vaca-neutral-white transition-all hover:bg-green-700"
-                onClick={() => alert("Sell shares functionality coming soon")}
-              >
-                Vender Acciones
-              </button>
-            )}
-
-            {position.liquidityWindow.isEligible && (
-              <p className="mt-3 text-center font-inter text-xs text-vaca-neutral-gray-500">
-                El proceso de venta toma 3-5 días hábiles
-              </p>
-            )}
-          </motion.div>
         </div>
       </div>
     </div>

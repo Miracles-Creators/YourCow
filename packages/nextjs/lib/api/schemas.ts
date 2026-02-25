@@ -291,6 +291,7 @@ export const OfferSchema = z.object({
   lotId: z.number(),
   sharesAmount: z.number(),
   pricePerShare: z.number(),
+  strkPricePerShare: z.string().nullable().optional(),
   currency: z.string(),
   sharesFilled: z.number(),
   status: OfferStatusSchema,
@@ -302,6 +303,13 @@ export const OfferSchema = z.object({
   lot: LotSchema.optional(),
 });
 
+export const TradeStatusSchema = z.enum([
+  "PENDING",
+  "TONGO_SETTLED",
+  "COMPLETED",
+  "FAILED",
+]);
+
 // Trade schema (completed transactions)
 export const TradeSchema = z.object({
   id: z.number(),
@@ -309,13 +317,30 @@ export const TradeSchema = z.object({
   buyerId: z.number(),
   sharesAmount: z.number(),
   totalPrice: z.number(),
+  strkTotalPrice: z.string().nullable().optional(),
   feeAmount: z.number(),
   currency: z.string(),
+  status: TradeStatusSchema.optional(),
+  tongoTxHash: z.string().nullable().optional(),
   idempotencyKey: z.string(),
   settledAt: z.string(),
   // Optional relations
   buyer: UserSchema.optional(),
   offer: OfferSchema.optional(),
+});
+
+// Trade status polling response
+export const TradeStatusResponseSchema = z.object({
+  id: z.number(),
+  status: TradeStatusSchema,
+  tongoTxHash: z.string().nullable().optional(),
+  strkTotalPrice: z.string().nullable().optional(),
+});
+
+// Tongo balance response
+export const TongoBalanceSchema = z.object({
+  current: z.string(),
+  pending: z.string(),
 });
 
 // Balance schema (user balances in the custody system)
@@ -383,8 +408,9 @@ export const PortfolioSchema = z.object({
 export const CreateOfferInputSchema = z.object({
   lotId: z.number(),
   sharesAmount: z.number().positive(),
-  pricePerShare: z.number().positive(),
-  currency: z.string().default("ARS"),
+  pricePerShare: z.number().nonnegative(),
+  strkPricePerShare: z.string().optional(),
+  currency: z.string().default("STRK"),
   idempotencyKey: z.string(),
 });
 
@@ -430,3 +456,6 @@ export type AcceptOfferInput = z.infer<typeof AcceptOfferInputSchema>;
 export type BuyPrimaryInput = z.infer<typeof BuyPrimaryInputSchema>;
 export type BuyPrimaryResult = z.infer<typeof BuyPrimaryResultSchema>;
 export type OfferFilters = z.infer<typeof OfferFiltersSchema>;
+export type TradeStatus = z.infer<typeof TradeStatusSchema>;
+export type TradeStatusResponse = z.infer<typeof TradeStatusResponseSchema>;
+export type TongoBalanceDto = z.infer<typeof TongoBalanceSchema>;

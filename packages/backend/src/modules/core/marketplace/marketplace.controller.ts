@@ -69,6 +69,18 @@ export class MarketplaceController {
     return this.marketplaceService.cancelOffer(Number(id), req.user.id);
   }
 
+  @UseGuards(AuthGuard)
+  @Get("trades/:tradeId/status")
+  async getTradeStatus(
+    @Req() req: AuthenticatedRequest,
+    @Param("tradeId") tradeId: string,
+  ) {
+    if (!req.user) {
+      throw new UnauthorizedException("Not authenticated");
+    }
+    return this.marketplaceService.getTradeStatus(Number(tradeId), req.user.id);
+  }
+
   @Get()
   async getOffers(
     @Query("lotId") lotId?: string,

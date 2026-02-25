@@ -9,6 +9,8 @@ import {
   ArrowRight,
   Info,
   Calculator,
+  Shield,
+  CheckCircle2,
 } from "lucide-react";
 
 import { Button } from "~~/components/ui/Button";
@@ -16,7 +18,16 @@ import { Input } from "~~/components/ui/Input";
 import { Card } from "~~/components/ui/Card";
 import { Badge } from "~~/components/ui/Badge";
 import { useAcceptOffer } from "~~/hooks/marketplace";
+import { useTongoBalance } from "~~/hooks/tongo";
 import type { OfferDto, PortfolioDto } from "~~/lib/api/schemas";
+
+function formatStrk(wei: string): string {
+  const value = BigInt(wei);
+  const whole = value / BigInt(10 ** 18);
+  const fraction = value % BigInt(10 ** 18);
+  const fractionStr = fraction.toString().padStart(18, "0").slice(0, 4);
+  return `${whole.toLocaleString()}.${fractionStr}`;
+}
 
 export interface AcceptOfferModalProps {
   isOpen: boolean;
@@ -74,14 +85,25 @@ export function AcceptOfferModal({
 }: AcceptOfferModalProps) {
   const [sharesAmount, setSharesAmount] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [tradeSubmitted, setTradeSubmitted] = useState(false);
 
   const acceptOffer = useAcceptOffer();
+  const { data: tongoBalance } = useTongoBalance();
 
+  const isStrk = offer?.currency === "STRK";
   const remainingShares = offer ? offer.sharesAmount - offer.sharesFilled : 0;
   const parsedShares = parseInt(sharesAmount, 10) || 0;
-  const subtotalCents = offer ? parsedShares * offer.pricePerShare : 0;
-  const buyerFeeCents = Math.floor((subtotalCents * FEE_BPS) / BPS_BASE);
+
+  // Fiat calculations
+  const subtotalCents = offer && !isStrk ? parsedShares * offer.pricePerShare : 0;
+  const buyerFeeCents = isStrk ? 0 : Math.floor((subtotalCents * FEE_BPS) / BPS_BASE);
   const totalCents = subtotalCents + buyerFeeCents;
+
+  // STRK calculations
+  const strkPricePerShare = offer?.strkPricePerShare ? BigInt(offer.strkPricePerShare) : BigInt(0);
+  const strkTotal = strkPricePerShare * BigInt(parsedShares || 0);
+  const strkTotalStr = strkTotal.toString();
+  const tongoAvailable = tongoBalance ? BigInt(tongoBalance.current) : BigInt(0);
 
   // Get available fiat balance
   const currency = offer?.currency || "ARS";
@@ -89,12 +111,13 @@ export function AcceptOfferModal({
     portfolio?.fiat?.find((balance) => balance.currency === currency)?.available ?? 0,
   );
 
-  const isValidForm =
-    parsedShares > 0 &&
-    parsedShares <= remainingShares &&
-    totalCents <= availableFiatCents;
+  const isValidForm = isStrk
+    ? parsedShares > 0 && parsedShares <= remainingShares && strkTotal <= tongoAvailable
+    : parsedShares > 0 && parsedShares <= remainingShares && totalCents <= availableFiatCents;
 
-  const hasInsufficientFunds = parsedShares > 0 && totalCents > availableFiatCents;
+  const hasInsufficientFunds = isStrk
+    ? parsedShares > 0 && strkTotal > tongoAvailable
+    : parsedShares > 0 && totalCents > availableFiatCents;
 
   const handleSubmit = useCallback(async () => {
     if (!isValidForm || !offer) return;
@@ -110,24 +133,32 @@ export function AcceptOfferModal({
         },
       });
 
-      onSuccess?.();
-      onClose();
-      resetForm();
+      if (isStrk) {
+        setTradeSubmitted(true);
+      } else {
+        onSuccess?.();
+        onClose();
+        resetForm();
+      }
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Failed to purchase shares"
       );
     }
-  }, [isValidForm, offer, acceptOffer, parsedShares, onSuccess, onClose]);
+  }, [isValidForm, offer, acceptOffer, parsedShares, isStrk, onSuccess, onClose]);
 
   if (!offer) return null;
 
   const resetForm = () => {
     setSharesAmount("");
     setErrorMessage(null);
+    setTradeSubmitted(false);
   };
 
   const handleClose = () => {
+    if (tradeSubmitted) {
+      onSuccess?.();
+    }
     resetForm();
     onClose();
   };
@@ -204,7 +235,9 @@ export function AcceptOfferModal({
                         Price per share
                       </span>
                       <span className="text-lg font-semibold text-vaca-green">
-                        {formatCurrency(offer.pricePerShare / 100)}
+                        {isStrk && offer.strkPricePerShare
+                          ? `${formatStrk(offer.strkPricePerShare)} STRK`
+                          : formatCurrency(offer.pricePerShare / 100)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
@@ -219,9 +252,13 @@ export function AcceptOfferModal({
 
                   {/* Your balance */}
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-vaca-neutral-gray-600">Your balance</span>
+                    <span className="text-vaca-neutral-gray-600">
+                      {isStrk ? "Tongo balance" : "Your balance"}
+                    </span>
                     <Badge tone={hasInsufficientFunds ? "error" : "success"} size="md">
-                      {formatCurrency(availableFiatCents / 100)}
+                      {isStrk
+                        ? `${formatStrk(tongoAvailable.toString())} STRK`
+                        : formatCurrency(availableFiatCents / 100)}
                     </Badge>
                   </div>
 
@@ -269,32 +306,51 @@ export function AcceptOfferModal({
                       </div>
 
                       <div className="bg-vaca-neutral-gray-50 rounded-xl p-4 space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-vaca-neutral-gray-600">
-                            Subtotal ({parsedShares} × {formatCurrency(offer.pricePerShare / 100)})
-                          </span>
-                          <span className="text-vaca-neutral-gray-900">
-                            {formatCurrency(subtotalCents / 100)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-vaca-neutral-gray-600">
-                            Fee (1%)
-                          </span>
-                          <span className="text-vaca-neutral-gray-900">
-                            {formatCurrency(buyerFeeCents / 100)}
-                          </span>
-                        </div>
-                        <div className="border-t border-vaca-neutral-gray-200 pt-2 mt-2">
-                          <div className="flex justify-between">
-                            <span className="font-semibold text-vaca-neutral-gray-900">
-                              Total
-                            </span>
-                            <span className="text-lg font-bold text-vaca-green">
-                              {formatCurrency(totalCents / 100)}
-                            </span>
-                          </div>
-                        </div>
+                        {isStrk ? (
+                          <>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-vaca-neutral-gray-600">
+                                Total ({parsedShares} × {offer.strkPricePerShare ? formatStrk(offer.strkPricePerShare) : "0"} STRK)
+                              </span>
+                              <span className="text-lg font-bold text-vaca-green">
+                                {formatStrk(strkTotalStr)} STRK
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs text-vaca-green pt-1">
+                              <Shield className="h-3.5 w-3.5" />
+                              <span>Private transfer — no fees</span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-vaca-neutral-gray-600">
+                                Subtotal ({parsedShares} × {formatCurrency(offer.pricePerShare / 100)})
+                              </span>
+                              <span className="text-vaca-neutral-gray-900">
+                                {formatCurrency(subtotalCents / 100)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-vaca-neutral-gray-600">
+                                Fee (1%)
+                              </span>
+                              <span className="text-vaca-neutral-gray-900">
+                                {formatCurrency(buyerFeeCents / 100)}
+                              </span>
+                            </div>
+                            <div className="border-t border-vaca-neutral-gray-200 pt-2 mt-2">
+                              <div className="flex justify-between">
+                                <span className="font-semibold text-vaca-neutral-gray-900">
+                                  Total
+                                </span>
+                                <span className="text-lg font-bold text-vaca-green">
+                                  {formatCurrency(totalCents / 100)}
+                                </span>
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
 
                       {/* Insufficient funds warning */}
@@ -306,8 +362,9 @@ export function AcceptOfferModal({
                               Insufficient funds
                             </p>
                             <p className="text-xs text-yellow-600 mt-1">
-                              You need {formatCurrency((totalCents - availableFiatCents) / 100)} more to
-                              complete this purchase.
+                              {isStrk
+                                ? "Fund your Tongo balance to complete this purchase."
+                                : `You need ${formatCurrency((totalCents - availableFiatCents) / 100)} more to complete this purchase.`}
                             </p>
                           </div>
                         </div>
@@ -328,29 +385,61 @@ export function AcceptOfferModal({
                   )}
                 </div>
 
+                {/* Trade submitted success for STRK */}
+                {tradeSubmitted && (
+                  <div className="p-6 pt-0">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 mb-4"
+                    >
+                      <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-green-700 font-medium">
+                          Trade submitted
+                        </p>
+                        <p className="text-xs text-green-600 mt-1">
+                          Your private transfer is being processed. Shares will appear in your portfolio once confirmed.
+                        </p>
+                      </div>
+                    </motion.div>
+                    <Button
+                      variant="primary"
+                      colorScheme="green"
+                      size="md"
+                      fullWidth
+                      onClick={handleClose}
+                    >
+                      Done
+                    </Button>
+                  </div>
+                )}
+
                 {/* Footer */}
-                <div className="flex gap-3 p-6 pt-0">
-                  <Button
-                    variant="ghost"
-                    colorScheme="neutral"
-                    size="md"
-                    onClick={handleClose}
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="primary"
-                    colorScheme="green"
-                    size="md"
-                    onClick={handleSubmit}
-                    disabled={!isValidForm || acceptOffer.isPending}
-                    icon={<ArrowRight className="h-4 w-4" />}
-                    className="flex-1"
-                  >
-                    {acceptOffer.isPending ? "Processing..." : "Confirm Purchase"}
-                  </Button>
-                </div>
+                {!tradeSubmitted && (
+                  <div className="flex gap-3 p-6 pt-0">
+                    <Button
+                      variant="ghost"
+                      colorScheme="neutral"
+                      size="md"
+                      onClick={handleClose}
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="primary"
+                      colorScheme="green"
+                      size="md"
+                      onClick={handleSubmit}
+                      disabled={!isValidForm || acceptOffer.isPending}
+                      icon={<ArrowRight className="h-4 w-4" />}
+                      className="flex-1"
+                    >
+                      {acceptOffer.isPending ? "Processing..." : "Confirm Purchase"}
+                    </Button>
+                  </div>
+                )}
               </Card>
             </motion.div>
           </div>

@@ -1,13 +1,21 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MapPin, Calendar, TrendingUp } from "lucide-react";
+import { MapPin, Calendar, TrendingUp, Shield } from "lucide-react";
 
 import { Card, CardContent } from "~~/components/ui/Card";
 import { Badge } from "~~/components/ui/Badge";
 import { Button } from "~~/components/ui/Button";
 import { ProgressBar } from "~~/components/ui/ProgressBar";
 import type { OfferDto } from "~~/lib/api/schemas";
+
+function formatStrk(wei: string): string {
+  const value = BigInt(wei);
+  const whole = value / BigInt(10 ** 18);
+  const fraction = value % BigInt(10 ** 18);
+  const fractionStr = fraction.toString().padStart(18, "0").slice(0, 4);
+  return `${whole.toLocaleString()}.${fractionStr}`;
+}
 
 export interface OfferCardProps {
   offer: OfferDto;
@@ -52,6 +60,7 @@ export function OfferCard({
       : fallbackText;
 
   const isActive = offer.status === "OPEN" || offer.status === "PARTIALLY_FILLED";
+  const isStrk = offer.currency === "STRK";
 
   // Format currency
   const formatCurrency = (value: number) => {
@@ -62,6 +71,14 @@ export function OfferCard({
       maximumFractionDigits: 0,
     }).format(value / 100); // Convert from cents
   };
+
+  const displayPrice = isStrk && offer.strkPricePerShare
+    ? `${formatStrk(offer.strkPricePerShare)} STRK`
+    : formatCurrency(offer.pricePerShare);
+
+  const displayTotalValue = isStrk && offer.strkPricePerShare
+    ? `${formatStrk((BigInt(offer.strkPricePerShare) * BigInt(remainingShares)).toString())} STRK`
+    : formatCurrency(totalValue);
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -99,9 +116,12 @@ export function OfferCard({
         <CardContent className="p-4 flex-1 flex flex-col">
           {/* Price per share */}
           <div className="mb-4">
-            <p className="text-xs text-vaca-neutral-gray-500 mb-1">Price per share</p>
+            <div className="flex items-center gap-2 mb-1">
+              <p className="text-xs text-vaca-neutral-gray-500">Price per share</p>
+              {isStrk && <Shield className="h-3.5 w-3.5 text-vaca-green" />}
+            </div>
             <p className="text-2xl font-bold text-vaca-green">
-              {formatCurrency(offer.pricePerShare)}
+              {displayPrice}
             </p>
           </div>
 
@@ -116,7 +136,7 @@ export function OfferCard({
             <div className="bg-vaca-neutral-gray-50 rounded-lg p-3">
               <p className="text-xs text-vaca-neutral-gray-500 mb-0.5">Total Value</p>
               <p className="text-sm font-semibold text-vaca-neutral-gray-900">
-                {formatCurrency(totalValue)}
+                {displayTotalValue}
               </p>
             </div>
           </div>

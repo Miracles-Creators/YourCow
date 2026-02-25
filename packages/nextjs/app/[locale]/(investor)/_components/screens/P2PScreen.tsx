@@ -9,6 +9,9 @@ import { OfferList } from "../marketplace/OfferList";
 import { AcceptOfferModal } from "../marketplace/AcceptOfferModal";
 import { CreateOfferModal } from "../marketplace/CreateOfferModal";
 import { PortfolioSummary } from "../marketplace/PortfolioSummary";
+import { TongoBalanceCard } from "../tongo/TongoBalanceCard";
+import { FundModal } from "../tongo/FundModal";
+import { WithdrawModal } from "../tongo/WithdrawModal";
 import { cn } from "~~/lib/utils/cn";
 import { useMe } from "~~/hooks/auth/useMe";
 import {
@@ -37,6 +40,8 @@ export function P2PScreen() {
   const [selectedOffer, setSelectedOffer] = useState<OfferDto | null>(null);
   const [createOfferPosition, setCreateOfferPosition] =
     useState<PortfolioLotPositionDto | null>(null);
+  const [isFundOpen, setIsFundOpen] = useState(false);
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
 
   const statusFilters = useMemo(
     () => [
@@ -96,6 +101,18 @@ export function P2PScreen() {
         <p className="font-inter text-lg text-vaca-neutral-gray-600">
           {t("subtitle")}
         </p>
+      </motion.div>
+
+      {/* Private STRK balance */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <TongoBalanceCard
+          onFund={() => setIsFundOpen(true)}
+          onWithdraw={() => setIsWithdrawOpen(true)}
+        />
       </motion.div>
 
       {/* Portfolio summary */}
@@ -160,6 +177,16 @@ export function P2PScreen() {
           position={createOfferPosition}
         />
       )}
+
+      <FundModal
+        isOpen={isFundOpen}
+        onClose={() => setIsFundOpen(false)}
+      />
+
+      <WithdrawModal
+        isOpen={isWithdrawOpen}
+        onClose={() => setIsWithdrawOpen(false)}
+      />
     </div>
   );
 }

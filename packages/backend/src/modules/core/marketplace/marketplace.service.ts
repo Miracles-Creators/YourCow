@@ -17,6 +17,7 @@ import { LotSharesTokenService } from "../../onchain/lot-shares-token/lot-shares
 import { CustodyService } from "../custody/custody.service";
 import { LedgerService } from "../ledger/ledger.service";
 import { AcceptOfferDto, BuySharesFromLotDto, CreateOfferDto } from "./dto/dto";
+import { PrivateTradeService } from "./private-trade.service";
 
 const FEE_BPS = 100;
 const BPS_BASE = 10_000;
@@ -85,17 +86,24 @@ export class MarketplaceService {
     private readonly custodyService: CustodyService,
     private readonly ledgerService: LedgerService,
     private readonly lotSharesTokenService: LotSharesTokenService,
+    private readonly privateTradeService: PrivateTradeService,
   ) {}
 
   async createOffer(dto: CreateOfferDto, userId: number): Promise<Offer> {
     await this.ensureKycApproved(userId);
     this.assertPositiveInt(dto.lotId, "lotId");
     this.assertPositiveInt(dto.sharesAmount, "sharesAmount");
-    this.assertPositiveInt(dto.pricePerShare, "pricePerShare");
     this.assertIdempotencyKey(dto.idempotencyKey);
 
     const currency = this.normalizeCurrency(dto.currency);
-    this.resolveFiatAssetType(currency);
+    if (currency === "STRK") {
+      if (!dto.strkPricePerShare || !/^\d+$/.test(dto.strkPricePerShare) || BigInt(dto.strkPricePerShare) <= 0n) {
+        throw new BadRequestException("strkPricePerShare must be a positive integer string for STRK offers");
+      }
+    } else {
+      this.assertPositiveInt(dto.pricePerShare, "pricePerShare");
+      this.resolveFiatAssetType(currency);
+    }
 
     const lot = await this.prisma.lot.findUnique({ where: { id: dto.lotId } });
     if (!lot) {
@@ -308,37 +316,51 @@ export class MarketplaceService {
       throw new BadRequestException("idempotencyKey already used for another trade");
     }
 
+    const offer = await this.prisma.offer.findUnique({ where: { id: offerId } });
+    if (!offer) {
+      throw new NotFoundException("Offer not found");
+    }
+
+    // STRK offers → delegate to PrivateTradeService (Tongo confidential payments)
+    if (offer.currency === "STRK") {
+      return this.privateTradeService.acceptOfferStrk(offer, dto, buyerId);
+    }
+
+    // Fiat offers → original synchronous flow
+    return this.acceptOfferFiat(offer, dto, buyerId);
+  }
+
+  private async acceptOfferFiat(
+    offer: Offer,
+    dto: AcceptOfferDto,
+    buyerId: number,
+  ): Promise<Trade> {
+    if (offer.status !== OfferStatus.OPEN && offer.status !== OfferStatus.PARTIALLY_FILLED) {
+      throw new BadRequestException("Offer is not open for acceptance");
+    }
+
+    if (offer.sellerId === buyerId) {
+      throw new BadRequestException("Buyer cannot accept their own offer");
+    }
+
+    const remainingShares = offer.sharesAmount - offer.sharesFilled;
+    if (dto.sharesAmount > remainingShares) {
+      throw new BadRequestException("sharesAmount exceeds remaining offer shares");
+    }
+
+    const totalPrice = offer.pricePerShare * dto.sharesAmount;
+
+    const buyerFee = Math.floor((totalPrice * FEE_BPS) / BPS_BASE);
+    const sellerFee = Math.floor((totalPrice * FEE_BPS) / BPS_BASE);
+    const totalFee = buyerFee + sellerFee;
+    const sellerNet = totalPrice - sellerFee;
+    const buyerTotal = totalPrice + buyerFee;
+    if (sellerNet < 0) {
+      throw new BadRequestException("Fee calculation exceeds total price");
+    }
+
     return this.prisma.$transaction(
       async (tx) => {
-        const offer = await tx.offer.findUnique({ where: { id: offerId } });
-        if (!offer) {
-          throw new NotFoundException("Offer not found");
-        }
-
-        if (offer.status !== OfferStatus.OPEN && offer.status !== OfferStatus.PARTIALLY_FILLED) {
-          throw new BadRequestException("Offer is not open for acceptance");
-        }
-
-        if (offer.sellerId === buyerId) {
-          throw new BadRequestException("Buyer cannot accept their own offer");
-        }
-
-        const remainingShares = offer.sharesAmount - offer.sharesFilled;
-        if (dto.sharesAmount > remainingShares) {
-          throw new BadRequestException("sharesAmount exceeds remaining offer shares");
-        }
-
-        const totalPrice = offer.pricePerShare * dto.sharesAmount;
-
-        const buyerFee = Math.floor((totalPrice * FEE_BPS) / BPS_BASE);
-        const sellerFee = Math.floor((totalPrice * FEE_BPS) / BPS_BASE);
-        const totalFee = buyerFee + sellerFee;
-        const sellerNet = totalPrice - sellerFee;
-        const buyerTotal = totalPrice + buyerFee;
-        if (sellerNet < 0) {
-          throw new BadRequestException("Fee calculation exceeds total price");
-        }
-
         const assetType = this.resolveFiatAssetType(offer.currency);
         const buyerAccount = await this.custodyService.getOrCreateAccountTx(tx, buyerId);
         const sellerAccount = await this.custodyService.getOrCreateAccountTx(tx, offer.sellerId);
@@ -573,6 +595,23 @@ export class MarketplaceService {
       where,
       orderBy: { createdAt: "desc" },
     });
+  }
+
+  async getTradeStatus(tradeId: number, userId: number) {
+    this.assertPositiveInt(tradeId, "tradeId");
+    const trade = await this.prisma.trade.findUnique({ where: { id: tradeId } });
+    if (!trade) {
+      throw new NotFoundException("Trade not found");
+    }
+    if (trade.buyerId !== userId) {
+      throw new BadRequestException("Not your trade");
+    }
+    return {
+      id: trade.id,
+      status: trade.status,
+      tongoTxHash: trade.tongoTxHash,
+      strkTotalPrice: trade.strkTotalPrice,
+    };
   }
 
   async getOfferById(id: number): Promise<Offer> {

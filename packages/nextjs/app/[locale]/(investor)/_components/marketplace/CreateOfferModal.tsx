@@ -2,13 +2,15 @@
 
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, AlertCircle, Tag } from "lucide-react";
+import { X, AlertCircle, Tag, Shield } from "lucide-react";
 
 import { Button } from "~~/components/ui/Button";
 import { Input } from "~~/components/ui/Input";
 import { Card } from "~~/components/ui/Card";
 import { useCreateOffer } from "~~/hooks/marketplace";
 import type { PortfolioLotPositionDto } from "~~/lib/api/schemas";
+
+type OfferCurrency = "ARS" | "STRK";
 
 export interface CreateOfferModalProps {
   isOpen: boolean;
@@ -66,15 +68,22 @@ export function CreateOfferModal({
 }: CreateOfferModalProps) {
   const [sharesAmount, setSharesAmount] = useState("");
   const [pricePerShare, setPricePerShare] = useState("");
+  const [currency, setCurrency] = useState<OfferCurrency>("STRK");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const createOffer = useCreateOffer();
 
+  const isStrk = currency === "STRK";
   const availableShares = parseFloat(position.available) || 0;
   const parsedShares = parseInt(sharesAmount, 10) || 0;
-  const parsedPrice = parseInt(pricePerShare, 10) || 0;
+  const parsedPrice = parseFloat(pricePerShare) || 0;
   const totalValue = parsedShares * parsedPrice;
-  const sellerFee = Math.floor((totalValue * 100) / 10_000);
+  const sellerFee = isStrk ? 0 : Math.floor((totalValue * 100) / 10_000);
+
+  // Convert human-readable STRK to wei string
+  const strkPriceWei = isStrk && parsedPrice > 0
+    ? (BigInt(Math.floor(parsedPrice * 10000)) * BigInt(10 ** 14)).toString()
+    : undefined;
 
   const isValidForm =
     parsedShares > 0 &&
@@ -90,8 +99,9 @@ export function CreateOfferModal({
       await createOffer.mutateAsync({
         lotId,
         sharesAmount: parsedShares,
-        pricePerShare: parsedPrice * 100, // Convert to cents
-        currency: "ARS",
+        pricePerShare: isStrk ? 0 : parsedPrice * 100, // cents for fiat, 0 for STRK
+        strkPricePerShare: strkPriceWei,
+        currency,
         idempotencyKey: createIdempotencyKey(),
       });
 
@@ -109,6 +119,9 @@ export function CreateOfferModal({
     lotId,
     parsedShares,
     parsedPrice,
+    isStrk,
+    strkPriceWei,
+    currency,
     onSuccess,
     onClose,
   ]);
@@ -124,8 +137,10 @@ export function CreateOfferModal({
     onClose();
   };
 
-  // Format currency
-  const formatCurrency = (value: number) => {
+  const formatValue = (value: number) => {
+    if (isStrk) {
+      return `${value.toLocaleString(undefined, { maximumFractionDigits: 4 })} STRK`;
+    }
     return new Intl.NumberFormat("es-AR", {
       style: "currency",
       currency: "ARS",
@@ -221,17 +236,50 @@ export function CreateOfferModal({
                     )}
                   </div>
 
+                  {/* Currency selector */}
+                  <div>
+                    <label className="font-inter text-sm font-medium text-vaca-neutral-gray-700 mb-2 block">
+                      Payment currency
+                    </label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => { setCurrency("STRK"); setPricePerShare(""); }}
+                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all text-sm font-medium ${
+                          isStrk
+                            ? "border-vaca-green bg-vaca-green/5 text-vaca-green"
+                            : "border-vaca-neutral-gray-200 text-vaca-neutral-gray-500 hover:border-vaca-neutral-gray-300"
+                        }`}
+                      >
+                        <Shield className="h-4 w-4" />
+                        STRK (Private)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setCurrency("ARS"); setPricePerShare(""); }}
+                        className={`flex-1 px-4 py-2.5 rounded-xl border-2 transition-all text-sm font-medium ${
+                          !isStrk
+                            ? "border-vaca-green bg-vaca-green/5 text-vaca-green"
+                            : "border-vaca-neutral-gray-200 text-vaca-neutral-gray-500 hover:border-vaca-neutral-gray-300"
+                        }`}
+                      >
+                        ARS (Fiat)
+                      </button>
+                    </div>
+                  </div>
+
                   {/* Price per share input */}
                   <Input
-                    label="Price per share (ARS)"
+                    label={isStrk ? "Price per share (STRK)" : "Price per share (ARS)"}
                     type="number"
                     inputSize="md"
                     fullWidth
                     value={pricePerShare}
                     onChange={(e) => setPricePerShare(e.target.value)}
-                    placeholder="Enter price"
-                    min={1}
-                    helperText="Set your asking price per share"
+                    placeholder={isStrk ? "0.00" : "Enter price"}
+                    min={isStrk ? 0 : 1}
+                    step={isStrk ? "0.0001" : "1"}
+                    helperText={isStrk ? "STRK amount per share (private transfer)" : "Set your asking price per share"}
                   />
 
                   {/* Summary */}
@@ -246,12 +294,19 @@ export function CreateOfferModal({
                           Total offer value
                         </span>
                         <span className="text-xl font-bold text-vaca-green">
-                          {formatCurrency(totalValue)}
+                          {formatValue(totalValue)}
                         </span>
                       </div>
-                      <p className="text-xs text-vaca-neutral-gray-500 mt-2">
-                        1% fee ({formatCurrency(sellerFee)}) will be deducted upon sale
-                      </p>
+                      {isStrk ? (
+                        <div className="flex items-center gap-1.5 mt-2 text-xs text-vaca-green">
+                          <Shield className="h-3.5 w-3.5" />
+                          <span>Private transfer via Tongo — no fees</span>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-vaca-neutral-gray-500 mt-2">
+                          1% fee ({formatValue(sellerFee)}) will be deducted upon sale
+                        </p>
+                      )}
                     </motion.div>
                   )}
 
