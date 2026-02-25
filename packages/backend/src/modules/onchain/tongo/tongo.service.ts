@@ -8,8 +8,8 @@ import { StarknetService } from "../../../starknet/core/starknet.service";
 
 const hkdfAsync = promisify(hkdf);
 
-const TONGO_CONTRACT =
-  "0x00b4cca30f0f641e01140c1c388f55641f1c3fe5515484e622b6cb91d8cee585";
+const TONGO_CONTRACT_STRK =
+  "0x408163bfcfc2d76f34b444cb55e09dace5905cf84c0884e4637c2c0f06ab6ed";
 
 interface TongoBalance {
   current: bigint;
@@ -39,15 +39,29 @@ export class TongoService {
     });
     if (existing) return existing;
 
-    const privateKeyBytes = randomBytes(32);
-    const privateKeyHex = "0x" + privateKeyBytes.toString("hex");
-
-    // Cast provider to avoid type mismatch between starknet versions
-    const sdkAccount = new TongoSdkAccount(
-      BigInt(privateKeyHex),
-      TONGO_CONTRACT,
-      this.starknetService.getProvider() as any,
+  //todo:refactor thhis to do it in another way
+    // StarkNet curve order — random key must be in [1, n)
+    const STARK_CURVE_ORDER = BigInt(
+      "3618502788666131213697322783095070105526743751716087489154079457884512865583",
     );
+    const raw = BigInt("0x" + randomBytes(32).toString("hex"));
+    const safeKey = (raw % (STARK_CURVE_ORDER - 1n)) + 1n;
+    const privateKeyHex = "0x" + safeKey.toString(16);
+
+    let sdkAccount: TongoSdkAccount;
+    try {
+      sdkAccount = new TongoSdkAccount(
+        BigInt(privateKeyHex),
+        TONGO_CONTRACT_STRK,
+        this.starknetService.getProvider() as any,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to create TongoSdkAccount for user ${userId}: key=${safeKey.toString()}, curveOrder=${STARK_CURVE_ORDER.toString()}`,
+        error,
+      );
+      throw new BadRequestException("Failed to initialize Tongo account");
+    }
 
     const pubKey = sdkAccount.publicKey;
     const tongoPublicKey = JSON.stringify({
@@ -69,6 +83,10 @@ export class TongoService {
     });
   }
 
+  getOperatorAddress(): string {
+    return this.starknetService.getOperatorAccount().address;
+  }
+
   async getBalance(userId: number): Promise<TongoBalance> {
     const sdkAccount = await this.getSdkAccount(userId);
     const state = await sdkAccount.state();
@@ -79,7 +97,7 @@ export class TongoService {
     return this.withUserLock(userId, async () => {
       return this.withNonceLock(async () => {
         const sdkAccount = await this.getSdkAccount(userId);
-        const operator = this.starknetService.getProtocolOperatorAccount();
+        const operator = this.starknetService.getOperatorAccount();
 
         const tongoAmount = await sdkAccount.erc20ToTongo(amount);
         const op = await sdkAccount.fund({
@@ -113,7 +131,7 @@ export class TongoService {
         });
 
         const toPubKey = JSON.parse(toRecord.tongoPublicKey);
-        const operator = this.starknetService.getProtocolOperatorAccount();
+        const operator = this.starknetService.getOperatorAccount();
 
         const tongoAmount = await fromSdk.erc20ToTongo(amount);
         const op = await fromSdk.transfer({
@@ -135,7 +153,7 @@ export class TongoService {
     return this.withUserLock(userId, async () => {
       return this.withNonceLock(async () => {
         const sdkAccount = await this.getSdkAccount(userId);
-        const operator = this.starknetService.getProtocolOperatorAccount();
+        const operator = this.starknetService.getOperatorAccount();
 
         const op = await sdkAccount.rollover({
           sender: operator.address,
@@ -158,7 +176,7 @@ export class TongoService {
     return this.withUserLock(userId, async () => {
       return this.withNonceLock(async () => {
         const sdkAccount = await this.getSdkAccount(userId);
-        const operator = this.starknetService.getProtocolOperatorAccount();
+        const operator = this.starknetService.getOperatorAccount();
 
         const tongoAmount = await sdkAccount.erc20ToTongo(amount);
         const op = await sdkAccount.withdraw({
@@ -225,7 +243,7 @@ export class TongoService {
     );
     return new TongoSdkAccount(
       BigInt(privateKey),
-      TONGO_CONTRACT,
+      TONGO_CONTRACT_STRK,
       this.starknetService.getProvider() as any,
     );
   }
