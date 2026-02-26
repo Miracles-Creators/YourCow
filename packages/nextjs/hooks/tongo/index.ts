@@ -3,14 +3,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getTongoBalance, getTongoConfig, confirmDeposit, withdrawTongo } from "~~/lib/api/tongo";
 
 
-//TODO:compare this pattern with the one used in producers
 export function useTongoBalance() {
-  const { isPending, data, error, refetch } = useQuery({
+  return useQuery({
     queryKey: ["tongo-balance"],
     queryFn: getTongoBalance,
     staleTime: 15_000,
   });
-  return { isPending, data, error, refetch };
 }
 
 export function useTongoConfig() {

@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { RpcProvider, Account, Contract, Abi } from "starknet";
 import deployedContracts from "../config/deployed-contracts";
 
@@ -11,6 +11,7 @@ export interface TransactionResult {
 
 @Injectable()
 export class StarknetService implements OnModuleInit {
+  private readonly logger = new Logger(StarknetService.name);
   private provider!: RpcProvider;
   private operatorAccount!: Account;
   private attestorAccount: Account | null = null;
@@ -38,8 +39,8 @@ export class StarknetService implements OnModuleInit {
         signer: operatorKey,
       });
     } else {
-      console.warn(
-        `WARNING: Operator keys not set for ${this.network}. Contract write operations will fail.`
+      this.logger.warn(
+        `Operator keys not set for ${this.network}. Contract write operations will fail.`,
       );
     }
 
@@ -54,7 +55,7 @@ export class StarknetService implements OnModuleInit {
       });
     }
 
-    console.log(`Starknet service initialized on ${this.network} (${rpcUrl})`);
+    this.logger.log(`Initialized on ${this.network} (${rpcUrl})`);
   }
 
   getProvider(): RpcProvider {

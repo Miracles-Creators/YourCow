@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "~~/components/ui/Card"
 import { Badge } from "~~/components/ui/Badge";
 import { Button } from "~~/components/ui/Button";
 import { useTongoBalance } from "~~/hooks/tongo";
+import { formatStrkWei } from "~~/utils/scaffold-stark/common";
 
 export interface TongoBalanceCardProps {
   onFund?: () => void;
@@ -22,14 +23,6 @@ const itemVariants = {
     transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] as const },
   },
 };
-
-function formatStrk(wei: string): string {
-  const value = BigInt(wei);
-  const whole = value / BigInt(10 ** 18);
-  const fraction = value % BigInt(10 ** 18);
-  const fractionStr = fraction.toString().padStart(18, "0").slice(0, 4);
-  return `${whole.toLocaleString()}.${fractionStr}`;
-}
 
 export function TongoBalanceCard({
   onFund,
@@ -78,12 +71,12 @@ export function TongoBalanceCard({
                   </span>
                 </div>
                 <p className="text-2xl font-bold text-vaca-neutral-gray-900">
-                  {formatStrk(current)} STRK
+                  {formatStrkWei(current)} STRK
                 </p>
                 {hasPending && (
                   <div className="flex items-center gap-1 mt-2 text-xs text-vaca-neutral-gray-500">
                     <Clock className="h-3 w-3" />
-                    <span>{formatStrk(pending)} STRK pending rollover</span>
+                    <span>{formatStrkWei(pending)} STRK pending rollover</span>
                   </div>
                 )}
               </div>

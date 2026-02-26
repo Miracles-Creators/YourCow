@@ -73,6 +73,15 @@ export function formatStrk(value: any): string {
   return "0 STRK";
 }
 
+// Format STRK wei string to human-readable number (no " STRK" suffix)
+export function formatStrkWei(wei: string): string {
+  const value = BigInt(wei);
+  const whole = value / BigInt(10 ** 18);
+  const fraction = value % BigInt(10 ** 18);
+  const fractionStr = fraction.toString().padStart(18, "0").slice(0, 4);
+  return `${whole.toLocaleString()}.${fractionStr}`;
+}
+
 // Safely stringify objects that might contain bigint or complex values
 export function safeStringify(value: unknown): string {
   try {

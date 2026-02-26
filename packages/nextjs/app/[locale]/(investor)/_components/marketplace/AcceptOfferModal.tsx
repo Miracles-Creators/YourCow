@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -11,6 +11,8 @@ import {
   Calculator,
   Shield,
   CheckCircle2,
+  ExternalLink,
+  Loader2,
 } from "lucide-react";
 
 import { Button } from "~~/components/ui/Button";
@@ -19,15 +21,9 @@ import { Card } from "~~/components/ui/Card";
 import { Badge } from "~~/components/ui/Badge";
 import { useAcceptOffer } from "~~/hooks/marketplace";
 import { useTongoBalance } from "~~/hooks/tongo";
-import type { OfferDto, PortfolioDto } from "~~/lib/api/schemas";
-
-function formatStrk(wei: string): string {
-  const value = BigInt(wei);
-  const whole = value / BigInt(10 ** 18);
-  const fraction = value % BigInt(10 ** 18);
-  const fractionStr = fraction.toString().padStart(18, "0").slice(0, 4);
-  return `${whole.toLocaleString()}.${fractionStr}`;
-}
+import { getTradeStatus } from "~~/lib/api/marketplace";
+import type { OfferDto, PortfolioDto, TradeStatusResponse } from "~~/lib/api/schemas";
+import { formatStrkWei } from "~~/utils/scaffold-stark/common";
 
 export interface AcceptOfferModalProps {
   isOpen: boolean;
@@ -86,6 +82,8 @@ export function AcceptOfferModal({
   const [sharesAmount, setSharesAmount] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [tradeSubmitted, setTradeSubmitted] = useState(false);
+  const [tradeStatus, setTradeStatus] = useState<TradeStatusResponse | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const acceptOffer = useAcceptOffer();
   const { data: tongoBalance } = useTongoBalance();
@@ -119,13 +117,35 @@ export function AcceptOfferModal({
     ? parsedShares > 0 && strkTotal > tongoAvailable
     : parsedShares > 0 && totalCents > availableFiatCents;
 
+  const startPolling = useCallback((tradeId: number) => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    pollRef.current = setInterval(async () => {
+      try {
+        const status = await getTradeStatus(tradeId);
+        setTradeStatus(status);
+        if (status.status === "COMPLETED" || status.status === "FAILED") {
+          if (pollRef.current) clearInterval(pollRef.current);
+          pollRef.current = null;
+        }
+      } catch {
+        // keep polling on transient errors
+      }
+    }, 3000);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
+
   const handleSubmit = useCallback(async () => {
     if (!isValidForm || !offer) return;
 
     setErrorMessage(null);
 
     try {
-      await acceptOffer.mutateAsync({
+      const trade = await acceptOffer.mutateAsync({
         offerId: offer.id,
         input: {
           sharesAmount: parsedShares,
@@ -135,6 +155,7 @@ export function AcceptOfferModal({
 
       if (isStrk) {
         setTradeSubmitted(true);
+        startPolling(trade.id);
       } else {
         onSuccess?.();
         onClose();
@@ -145,7 +166,7 @@ export function AcceptOfferModal({
         error instanceof Error ? error.message : "Failed to purchase shares"
       );
     }
-  }, [isValidForm, offer, acceptOffer, parsedShares, isStrk, onSuccess, onClose]);
+  }, [isValidForm, offer, acceptOffer, parsedShares, isStrk, onSuccess, onClose, startPolling]);
 
   if (!offer) return null;
 
@@ -153,6 +174,11 @@ export function AcceptOfferModal({
     setSharesAmount("");
     setErrorMessage(null);
     setTradeSubmitted(false);
+    setTradeStatus(null);
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
   };
 
   const handleClose = () => {
@@ -236,7 +262,7 @@ export function AcceptOfferModal({
                       </span>
                       <span className="text-lg font-semibold text-vaca-green">
                         {isStrk && offer.strkPricePerShare
-                          ? `${formatStrk(offer.strkPricePerShare)} STRK`
+                          ? `${formatStrkWei(offer.strkPricePerShare)} STRK`
                           : formatCurrency(offer.pricePerShare / 100)}
                       </span>
                     </div>
@@ -257,7 +283,7 @@ export function AcceptOfferModal({
                     </span>
                     <Badge tone={hasInsufficientFunds ? "error" : "success"} size="md">
                       {isStrk
-                        ? `${formatStrk(tongoAvailable.toString())} STRK`
+                        ? `${formatStrkWei(tongoAvailable.toString())} STRK`
                         : formatCurrency(availableFiatCents / 100)}
                     </Badge>
                   </div>
@@ -310,10 +336,10 @@ export function AcceptOfferModal({
                           <>
                             <div className="flex justify-between text-sm">
                               <span className="text-vaca-neutral-gray-600">
-                                Total ({parsedShares} × {offer.strkPricePerShare ? formatStrk(offer.strkPricePerShare) : "0"} STRK)
+                                Total ({parsedShares} × {offer.strkPricePerShare ? formatStrkWei(offer.strkPricePerShare) : "0"} STRK)
                               </span>
                               <span className="text-lg font-bold text-vaca-green">
-                                {formatStrk(strkTotalStr)} STRK
+                                {formatStrkWei(strkTotalStr)} STRK
                               </span>
                             </div>
                             <div className="flex items-center gap-1.5 text-xs text-vaca-green pt-1">
@@ -385,24 +411,75 @@ export function AcceptOfferModal({
                   )}
                 </div>
 
-                {/* Trade submitted success for STRK */}
+                {/* Trade submitted — polling status + tx link */}
                 {tradeSubmitted && (
-                  <div className="p-6 pt-0">
+                  <div className="p-6 pt-0 space-y-4">
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 mb-4"
+                      className={`flex items-start gap-3 rounded-xl border px-4 py-3 ${
+                        tradeStatus?.status === "FAILED"
+                          ? "border-red-200 bg-red-50"
+                          : tradeStatus?.status === "COMPLETED"
+                            ? "border-green-200 bg-green-50"
+                            : "border-blue-200 bg-blue-50"
+                      }`}
                     >
-                      <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      {tradeStatus?.status === "COMPLETED" ? (
+                        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      ) : tradeStatus?.status === "FAILED" ? (
+                        <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                      ) : (
+                        <Loader2 className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5 animate-spin" />
+                      )}
                       <div>
-                        <p className="text-sm text-green-700 font-medium">
-                          Trade submitted
+                        <p className={`text-sm font-medium ${
+                          tradeStatus?.status === "FAILED"
+                            ? "text-red-700"
+                            : tradeStatus?.status === "COMPLETED"
+                              ? "text-green-700"
+                              : "text-blue-700"
+                        }`}>
+                          {tradeStatus?.status === "COMPLETED"
+                            ? "Trade completed"
+                            : tradeStatus?.status === "TONGO_SETTLED"
+                              ? "Payment confirmed — transferring shares..."
+                              : tradeStatus?.status === "FAILED"
+                                ? "Trade failed"
+                                : "Processing private transfer..."}
                         </p>
-                        <p className="text-xs text-green-600 mt-1">
-                          Your private transfer is being processed. Shares will appear in your portfolio once confirmed.
+                        <p className={`text-xs mt-1 ${
+                          tradeStatus?.status === "FAILED"
+                            ? "text-red-600"
+                            : tradeStatus?.status === "COMPLETED"
+                              ? "text-green-600"
+                              : "text-blue-600"
+                        }`}>
+                          {tradeStatus?.status === "COMPLETED"
+                            ? "Shares are now in your portfolio."
+                            : tradeStatus?.status === "FAILED"
+                              ? "The payment could not be processed. Your balance was not charged."
+                              : "The encrypted payment is being settled on Starknet..."}
                         </p>
                       </div>
                     </motion.div>
+
+                    {/* Starkscan link */}
+                    {tradeStatus?.tongoTxHash && (
+                      <motion.a
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        href={`https://sepolia.voyager.online/tx/${tradeStatus.tongoTxHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 rounded-xl border border-vaca-neutral-gray-200 bg-vaca-neutral-gray-50 px-4 py-3 text-sm font-medium text-vaca-neutral-gray-700 hover:bg-vaca-neutral-gray-100 transition-colors"
+                      >
+                        <Shield className="h-4 w-4 text-vaca-green" />
+                        View encrypted transaction on Voyager
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </motion.a>
+                    )}
+
                     <Button
                       variant="primary"
                       colorScheme="green"
@@ -410,7 +487,7 @@ export function AcceptOfferModal({
                       fullWidth
                       onClick={handleClose}
                     >
-                      Done
+                      {tradeStatus?.status === "COMPLETED" || tradeStatus?.status === "FAILED" ? "Done" : "Close"}
                     </Button>
                   </div>
                 )}

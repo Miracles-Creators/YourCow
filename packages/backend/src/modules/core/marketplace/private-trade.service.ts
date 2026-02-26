@@ -3,7 +3,6 @@ import {
   AssetType,
   Offer,
   OfferStatus,
-  Prisma,
   Trade,
   TradeStatus,
 } from "@prisma/client";
@@ -48,35 +47,29 @@ export class PrivateTradeService {
     }
     const strkTotalPrice = (BigInt(strkPrice) * BigInt(dto.sharesAmount)).toString();
 
+    // Ensure both users have Tongo accounts before transfer
+    await this.tongoService.createTongoAccount(buyerId);
+    await this.tongoService.createTongoAccount(offer.sellerId);
+
     const buyerBalance = await this.tongoService.getBalance(buyerId);
     if (buyerBalance.current < BigInt(strkTotalPrice)) {
       throw new BadRequestException("Insufficient Tongo balance");
     }
 
-    // Step 1: Create pending trade + lock seller shares
-    const trade = await this.prisma.$transaction(async (tx) => {
-      const sellerAccount = await this.custodyService.getOrCreateAccountTx(tx, offer.sellerId);
-      await this.custodyService.lockShares(
-        tx,
-        sellerAccount.id,
-        offer.lotId,
-        new Decimal(dto.sharesAmount),
-      );
-
-      return tx.trade.create({
-        data: {
-          offerId: offer.id,
-          buyerId,
-          sharesAmount: dto.sharesAmount,
-          totalPrice: 0,
-          strkTotalPrice,
-          feeAmount: 0,
-          currency: "STRK",
-          status: TradeStatus.PENDING,
-          idempotencyKey: dto.idempotencyKey,
-        },
-      });
-    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    // Step 1: Create pending trade (shares already locked by createOffer)
+    const trade = await this.prisma.trade.create({
+      data: {
+        offerId: offer.id,
+        buyerId,
+        sharesAmount: dto.sharesAmount,
+        totalPrice: 0,
+        strkTotalPrice,
+        feeAmount: 0,
+        currency: "STRK",
+        status: TradeStatus.PENDING,
+        idempotencyKey: dto.idempotencyKey,
+      },
+    });
 
     // Step 2+3: Process async — don't block HTTP request (M4)
     this.processTradeAsync(trade.id, buyerId, offer, strkTotalPrice).catch(
@@ -205,28 +198,9 @@ export class PrivateTradeService {
   }
 
   private async failTrade(tradeId: number) {
-    await this.prisma.$transaction(async (tx) => {
-      const trade = await tx.trade.findUniqueOrThrow({
-        where: { id: tradeId },
-        include: { offer: true },
-      });
-
-      if (trade.status !== TradeStatus.PENDING) {
-        this.logger.warn(`failTrade called on trade ${tradeId} in status ${trade.status}, skipping`);
-        return;
-      }
-
-      const sellerAccount = await this.custodyService.getOrCreateAccountTx(tx, trade.offer.sellerId);
-      await this.custodyService.unlockShares(
-        tx,
-        sellerAccount.id,
-        trade.offer.lotId,
-        new Decimal(trade.sharesAmount),
-      );
-      await tx.trade.update({
-        where: { id: tradeId },
-        data: { status: TradeStatus.FAILED },
-      });
+    await this.prisma.trade.update({
+      where: { id: tradeId },
+      data: { status: TradeStatus.FAILED },
     });
   }
 }

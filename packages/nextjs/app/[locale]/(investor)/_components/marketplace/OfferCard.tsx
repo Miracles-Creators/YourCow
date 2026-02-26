@@ -8,14 +8,7 @@ import { Badge } from "~~/components/ui/Badge";
 import { Button } from "~~/components/ui/Button";
 import { ProgressBar } from "~~/components/ui/ProgressBar";
 import type { OfferDto } from "~~/lib/api/schemas";
-
-function formatStrk(wei: string): string {
-  const value = BigInt(wei);
-  const whole = value / BigInt(10 ** 18);
-  const fraction = value % BigInt(10 ** 18);
-  const fractionStr = fraction.toString().padStart(18, "0").slice(0, 4);
-  return `${whole.toLocaleString()}.${fractionStr}`;
-}
+import { formatStrkWei } from "~~/utils/scaffold-stark/common";
 
 export interface OfferCardProps {
   offer: OfferDto;
@@ -73,11 +66,11 @@ export function OfferCard({
   };
 
   const displayPrice = isStrk && offer.strkPricePerShare
-    ? `${formatStrk(offer.strkPricePerShare)} STRK`
+    ? `${formatStrkWei(offer.strkPricePerShare)} STRK`
     : formatCurrency(offer.pricePerShare);
 
   const displayTotalValue = isStrk && offer.strkPricePerShare
-    ? `${formatStrk((BigInt(offer.strkPricePerShare) * BigInt(remainingShares)).toString())} STRK`
+    ? `${formatStrkWei((BigInt(offer.strkPricePerShare) * BigInt(remainingShares)).toString())} STRK`
     : formatCurrency(totalValue);
 
   // Format date

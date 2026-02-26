@@ -8,6 +8,7 @@ import { Button } from "~~/components/ui/Button";
 import { Input } from "~~/components/ui/Input";
 import { Card } from "~~/components/ui/Card";
 import { useWithdrawTongo, useTongoBalance } from "~~/hooks/tongo";
+import { formatStrkWei } from "~~/utils/scaffold-stark/common";
 
 export interface WithdrawModalProps {
   isOpen: boolean;
@@ -30,14 +31,6 @@ const modalVariants = {
   },
   exit: { opacity: 0, scale: 0.95, y: 20, transition: { duration: 0.2 } },
 };
-
-function formatStrk(wei: string): string {
-  const value = BigInt(wei);
-  const whole = value / BigInt(10 ** 18);
-  const fraction = value % BigInt(10 ** 18);
-  const fractionStr = fraction.toString().padStart(18, "0").slice(0, 4);
-  return `${whole.toLocaleString()}.${fractionStr}`;
-}
 
 export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps) {
   const [toAddress, setToAddress] = useState("");
@@ -132,7 +125,7 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
                           Available balance
                         </span>
                         <span className="font-semibold text-vaca-neutral-gray-900">
-                          {formatStrk(balance.current)} STRK
+                          {formatStrkWei(balance.current)} STRK
                         </span>
                       </div>
                     </div>

@@ -5,8 +5,10 @@ import {
   Body,
   Req,
   BadRequestException,
+  ForbiddenException,
   UseGuards,
 } from "@nestjs/common";
+import { UserRole } from "@prisma/client";
 import { AuthGuard } from "../../core/auth/auth.guard";
 import type { AuthenticatedRequest } from "../../core/auth/types";
 import { TongoService } from "./tongo.service";
@@ -53,6 +55,9 @@ export class TongoController {
 
   @Post("prefund")
   async prefund(@Req() req: AuthenticatedRequest, @Body() dto: PrefundDto) {
+    if (!req.user || req.user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException("Admin role required");
+    }
     if (!dto.userId || !dto.amount) {
       throw new BadRequestException("userId and amount are required");
     }

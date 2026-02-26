@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, Logger } from "@nestjs/common";
 import { Account as TongoSdkAccount } from "@fatsolutions/tongo-sdk";
-import { createCipheriv, createDecipheriv, randomBytes, createHmac } from "crypto";
+import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
 import { hkdf } from "crypto";
 import { promisify } from "util";
 import { PrismaService } from "../../../database/prisma.service";
@@ -10,6 +10,7 @@ const hkdfAsync = promisify(hkdf);
 
 const TONGO_CONTRACT_STRK =
   "0x408163bfcfc2d76f34b444cb55e09dace5905cf84c0884e4637c2c0f06ab6ed";
+
 
 interface TongoBalance {
   current: bigint;
@@ -39,7 +40,6 @@ export class TongoService {
     });
     if (existing) return existing;
 
-  //todo:refactor thhis to do it in another way
     // StarkNet curve order — random key must be in [1, n)
     const STARK_CURVE_ORDER = BigInt(
       "3618502788666131213697322783095070105526743751716087489154079457884512865583",
@@ -56,10 +56,7 @@ export class TongoService {
         this.starknetService.getProvider() as any,
       );
     } catch (error) {
-      this.logger.error(
-        `Failed to create TongoSdkAccount for user ${userId}: key=${safeKey.toString()}, curveOrder=${STARK_CURVE_ORDER.toString()}`,
-        error,
-      );
+      this.logger.error(`Failed to create TongoSdkAccount for user ${userId}`, error);
       throw new BadRequestException("Failed to initialize Tongo account");
     }
 
@@ -90,7 +87,9 @@ export class TongoService {
   async getBalance(userId: number): Promise<TongoBalance> {
     const sdkAccount = await this.getSdkAccount(userId);
     const state = await sdkAccount.state();
-    return { current: state.balance, pending: state.pending };
+    const current = await sdkAccount.tongoToErc20(state.balance);
+    const pending = await sdkAccount.tongoToErc20(state.pending);
+    return { current, pending };
   }
 
   async fund(userId: number, amount: bigint): Promise<string> {
@@ -207,18 +206,19 @@ export class TongoService {
       if (existing.userId !== userId) {
         throw new BadRequestException("Transaction already used by another user");
       }
-      return existing.id;
+      this.logger.log(`Deposit already confirmed for txHash=${txHash}, returning existing`);
+      return existing.txHash;
     }
 
-    // Verify tx on-chain
+    // Wait for tx confirmation on-chain
     const provider = this.starknetService.getProvider();
-    const receipt = await provider.getTransactionReceipt(txHash);
+    const receipt = await provider.waitForTransaction(txHash);
     if (!receipt || receipt.statusReceipt !== "SUCCEEDED") {
       throw new BadRequestException("Transaction not confirmed on-chain");
     }
 
     // Record deposit
-    const deposit = await this.prisma.tongoDeposit.create({
+    await this.prisma.tongoDeposit.create({
       data: { userId, txHash, amount: claimedAmount },
     });
 
