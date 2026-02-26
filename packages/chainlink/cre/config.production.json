@@ -1,0 +1,8 @@
+{
+  "schedule": "*/30 * * * * *",
+  "cornApiUrl": "https://www.magyp.gob.ar/sitio/areas/ss_mercados_agropecuarios/ws/ssma/precios_fob.php",
+  "beefApiUrl": "https://siocarnes.magyp.gob.ar/api/Reportes/GetDatosMonitor?categoria=1&subcatergoria=-1&zona=-1&raza=-1",
+  "usdApiUrl": "https://api.bcra.gob.ar/estadisticascambiarias/v1.0/Cotizaciones",
+  "backendLotsUrl": "http://localhost:3001/api/lots/oracle",
+  "navContractAddress": "0x0000000000000000000000000000000000000000"
+}
