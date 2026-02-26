@@ -1,0 +1,65 @@
+diff --git a/dist/provers/audit.js b/dist/provers/audit.js
+index bc6a5ede6888b5428b60b60676d6d1588b9e4599..251e1b32b48975e0f864aa4039c41163db4c43fc 100644
+--- a/dist/provers/audit.js
++++ b/dist/provers/audit.js
+@@ -7,7 +7,7 @@ const she_1 = require("@fatsolutions/she");
+ const protocols_1 = require("@fatsolutions/she/protocols");
+ const constants_1 = require("../constants");
+ const types_1 = require("../types");
+-const utils_1 = require("../../src/utils");
++const utils_1 = require("../utils");
+ // cairo string 'audit'
+ exports.AUDIT_CAIRO_STRING = 418581342580n;
+ /**
+diff --git a/dist/provers/fund.js b/dist/provers/fund.js
+index 15dc698dc1c798e94434b1a1c5e96c1bc3eb9734..d3099a790eba829a6ea6c31cfd55204ef2e9349c 100644
+--- a/dist/provers/fund.js
++++ b/dist/provers/fund.js
+@@ -6,7 +6,7 @@ exports.verifyFund = verifyFund;
+ const she_1 = require("@fatsolutions/she");
+ const protocols_1 = require("@fatsolutions/she/protocols");
+ const constants_1 = require("../constants");
+-const utils_1 = require("../../src/utils");
++const utils_1 = require("../utils");
+ const types_1 = require("../types");
+ // cairo string 'fund'
+ exports.FUND_CAIRO_STRING = 1718972004n;
+diff --git a/dist/provers/ragequit.js b/dist/provers/ragequit.js
+index 297282d42399d2995ce380b077cc6bbb9de59d45..34cba829e67ff412c1391d5fd53b6120094bd9aa 100644
+--- a/dist/provers/ragequit.js
++++ b/dist/provers/ragequit.js
+@@ -6,7 +6,7 @@ exports.verifyRagequit = verifyRagequit;
+ const protocols_1 = require("@fatsolutions/she/protocols");
+ const constants_1 = require("../constants");
+ const types_1 = require("../types");
+-const utils_1 = require("../../src/utils");
++const utils_1 = require("../utils");
+ const she_1 = require("@fatsolutions/she");
+ // cairo string 'ragequit'
+ exports.RAGEQUIT_CAIRO_STRING = 8241982478457596276n;
+diff --git a/dist/provers/transfer.js b/dist/provers/transfer.js
+index 90a0ed7b955eaa21f45732d144c0598666bd00ac..799e6e9171cc21e25aba59c26a1e43b4fd2f5835 100644
+--- a/dist/provers/transfer.js
++++ b/dist/provers/transfer.js
+@@ -9,7 +9,7 @@ const protocols_2 = require("@fatsolutions/she/protocols");
+ const constants_1 = require("../constants");
+ const range_1 = require("../provers/range");
+ const types_1 = require("../types");
+-const utils_1 = require("../../src/utils");
++const utils_1 = require("../utils");
+ // cairo string 'transfer'
+ exports.TRANSFER_CAIRO_STRING = 8390876182755042674n;
+ /**
+diff --git a/dist/provers/withdraw.js b/dist/provers/withdraw.js
+index 127ee861b43926b25028f038a59fafa8b6e5e9d3..f7ee1f21320348dff183832405293680849279a6 100644
+--- a/dist/provers/withdraw.js
++++ b/dist/provers/withdraw.js
+@@ -9,7 +9,7 @@ const protocols_2 = require("@fatsolutions/she/protocols");
+ const constants_1 = require("../constants");
+ const range_1 = require("../provers/range");
+ const types_1 = require("../types");
+-const utils_1 = require("../../src/utils");
++const utils_1 = require("../utils");
+ // cairo string 'withdraw'
+ exports.WITHDRAW_CAIRO_STRING = 8604536554778681719n;
+ /**

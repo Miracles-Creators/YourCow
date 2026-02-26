@@ -6,6 +6,7 @@ import {
   BuyPrimaryResultSchema,
   OfferSchema,
   TradeSchema,
+  TradeStatusResponseSchema,
   PortfolioSchema,
   PortfolioLotItemSchema,
   type CreateOfferInput,
@@ -14,6 +15,7 @@ import {
   type BuyPrimaryResult,
   type OfferDto,
   type TradeDto,
+  type TradeStatusResponse,
   type PortfolioDto,
   type PortfolioLotItemDto,
   type OfferFilters,
@@ -100,6 +102,14 @@ export async function cancelOffer(offerId: number): Promise<OfferDto> {
     method: "POST",
   });
   return OfferSchema.parse(offer);
+}
+
+/**
+ * Get trade status (for polling async STRK trades)
+ */
+export async function getTradeStatus(tradeId: number): Promise<TradeStatusResponse> {
+  const result = await apiFetch<TradeStatusResponse>(`/offers/trades/${tradeId}/status`);
+  return TradeStatusResponseSchema.parse(result);
 }
 
 // ============================================

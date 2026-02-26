@@ -16,6 +16,11 @@ export { BottomNav } from "./ui/BottomNav";
 // Layouts
 export { InvestorLayout } from "./layouts/InvestorLayout";
 
+// Tongo Components
+export { TongoBalanceCard } from "./tongo/TongoBalanceCard";
+export { FundModal } from "./tongo/FundModal";
+export { WithdrawModal } from "./tongo/WithdrawModal";
+
 // Screens
 export { WelcomeScreen } from "./screens/WelcomeScreen";
 export { LoginScreen } from "./screens/LoginScreen";

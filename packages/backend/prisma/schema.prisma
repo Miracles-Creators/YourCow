@@ -37,6 +37,9 @@ model User {
   accounts          Account[]
   offers            Offer[] // Offers created by this user (as seller)
   trades            Trade[] // Trades where this user is buyer
+  // Tongo confidential payments
+  tongoAccount      TongoAccount?
+  tongoDeposits     TongoDeposit[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   primaryPurchases  PrimaryPurchase[]
@@ -411,6 +414,16 @@ enum LedgerEventType {
   TRADE_SHARES // Shares transfer in a trade
   TRADE_FIAT // Fiat transfer in a trade
   FEE_CHARGE // Fee charge (1%)
+  TONGO_DEPOSIT // STRK funded into Tongo balance
+  TONGO_WITHDRAWAL // STRK withdrawn from Tongo
+  TONGO_TRANSFER // Tongo confidential transfer (trade settlement)
+}
+
+enum TradeStatus {
+  PENDING // Trade initiated, shares locked
+  TONGO_SETTLED // Tongo transfer confirmed on-chain
+  COMPLETED // Shares transferred, ledger written
+  FAILED // Tongo transfer failed, shares unlocked
 }
 
 enum PrimaryPurchaseStatus {
@@ -485,7 +498,8 @@ model Offer {
   lot            Lot           @relation(fields: [lotId], references: [id])
   sharesAmount   Int // Total shares to sell
   pricePerShare  Int // Price per share in smallest fiat unit
-  currency       String        @default("ARS")
+  strkPricePerShare String? // Price per share in STRK wei (for STRK offers)
+  currency       String        @default("STRK")
   sharesFilled   Int           @default(0) // How many already sold - TODO: For mvp not permit partially sale
   status         OfferStatus   @default(OPEN)
   idempotencyKey String        @unique
@@ -506,15 +520,19 @@ model Trade {
   buyerId        Int
   buyer          User          @relation(fields: [buyerId], references: [id])
   sharesAmount   Int
-  totalPrice     Int // shares * pricePerShare in smallest fiat unit
-  feeAmount      Int // 1% fee in smallest fiat unit
-  currency       String
+  totalPrice     Int // Fiat total in smallest unit
+  strkTotalPrice String? // STRK wei total (for STRK trades)
+  feeAmount      Int           @default(0) // 0% for hackathon
+  currency       String        @default("STRK")
+  status         TradeStatus   @default(PENDING)
+  tongoTxHash    String? // Tongo transfer tx hash
   idempotencyKey String        @unique
   ledgerEntries  LedgerEntry[]
   settledAt      DateTime      @default(now())
 
   @@index([offerId])
   @@index([buyerId])
+  @@index([status])
 }
 
 //TODO:Explain better this
@@ -543,6 +561,32 @@ model LedgerEntry {
   @@index([tradeId])
   @@index([offerId])
   @@index([lotId])
+}
+
+// ============================================
+// TONGO CONFIDENTIAL PAYMENTS
+// ============================================
+
+model TongoAccount {
+  id                  String   @id @default(uuid())
+  userId              Int      @unique
+  user                User     @relation(fields: [userId], references: [id])
+  tongoPublicKey      String // Tongo public key as hex (used as recipient in transfers)
+  encryptedPrivateKey String // AES-256-GCM encrypted with per-user derived key
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model TongoDeposit {
+  id        String   @id @default(uuid())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  txHash    String   @unique // Idempotency: same STRK transfer can't credit twice
+  amount    String // STRK wei as string
+  status    String   @default("CONFIRMED")
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model AuditBatch {

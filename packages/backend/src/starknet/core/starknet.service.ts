@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { RpcProvider, Account, Contract, Abi } from "starknet";
 import deployedContracts from "../config/deployed-contracts";
 
@@ -11,38 +11,39 @@ export interface TransactionResult {
 
 @Injectable()
 export class StarknetService implements OnModuleInit {
+  private readonly logger = new Logger(StarknetService.name);
   private provider!: RpcProvider;
-  private protocolOperatorAccount!: Account;
+  private operatorAccount!: Account;
   private attestorAccount: Account | null = null;
   private network: NetworkName = "devnet";
 
   async onModuleInit() {
-    this.network = (process.env.STARKNET_NETWORK as NetworkName) || "devnet";
+    this.network = (process.env.ENVIRONMENT as NetworkName) || "devnet";
 
-    //process.env.STARKNET_RPC_URL 
-    const rpcUrl =
-       "http://127.0.0.1:5050/rpc";
-
+    const rpcUrl = this.network === "sepolia"
+      ? (process.env.STARKNET_RPC_SEPOLIA || "https://api.cartridge.gg/x/starknet/sepolia")
+      : (process.env.STARKNET_RPC_DEVNET || "http://127.0.0.1:5050/rpc");
     this.provider = new RpcProvider({ nodeUrl: rpcUrl });
 
-    // Protocol Operator Account - main signer for most operations
-    const operatorPrivateKey = process.env.PROTOCOL_OPERATOR_PRIVATE_KEY;
-    const operatorAddress = process.env.PROTOCOL_OPERATOR_ADDRESS;
+    const operatorKey = this.network === "sepolia"
+      ? process.env.SEPOLIA_OPERATOR_PRIVATE_KEY
+      : process.env.PROTOCOL_OPERATOR_PRIVATE_KEY;
+    const operatorAddr = this.network === "sepolia"
+      ? process.env.SEPOLIA_OPERATOR_ADDRESS
+      : process.env.PROTOCOL_OPERATOR_ADDRESS;
 
-    if (!operatorPrivateKey || !operatorAddress) {
-      console.warn(
-        "WARNING: PROTOCOL_OPERATOR_PRIVATE_KEY or PROTOCOL_OPERATOR_ADDRESS not set. " +
-          "Contract write operations will fail."
-      );
-    } else {
-      this.protocolOperatorAccount = new Account({
+    if (operatorKey && operatorAddr) {
+      this.operatorAccount = new Account({
         provider: this.provider,
-        address: operatorAddress,
-        signer: operatorPrivateKey,
+        address: operatorAddr,
+        signer: operatorKey,
       });
+    } else {
+      this.logger.warn(
+        `Operator keys not set for ${this.network}. Contract write operations will fail.`,
+      );
     }
 
-    // Attestor Account - for TraceabilityOracle operations (optional)
     const attestorPrivateKey = process.env.ATTESTOR_PRIVATE_KEY;
     const attestorAddress = process.env.ATTESTOR_ADDRESS;
 
@@ -54,18 +55,18 @@ export class StarknetService implements OnModuleInit {
       });
     }
 
-    console.log(`Starknet service initialized on ${this.network}`);
+    this.logger.log(`Initialized on ${this.network} (${rpcUrl})`);
   }
 
   getProvider(): RpcProvider {
     return this.provider;
   }
 
-  getProtocolOperatorAccount(): Account {
-    if (!this.protocolOperatorAccount) {
-      throw new Error("Protocol Operator account not configured");
+  getOperatorAccount(): Account {
+    if (!this.operatorAccount) {
+      throw new Error(`Operator account not configured for ${this.network}`);
     }
-    return this.protocolOperatorAccount;
+    return this.operatorAccount;
   }
 
   getAttestorAccount(): Account {
@@ -94,7 +95,7 @@ export class StarknetService implements OnModuleInit {
 
   getContract(contractName: ContractName, account?: Account): Contract {
     const config = this.getContractConfig(contractName);
-    const signer = account || this.protocolOperatorAccount;
+    const signer = account || this.operatorAccount;
 
     return new Contract({
       abi: config.abi as Abi,
@@ -114,7 +115,7 @@ export class StarknetService implements OnModuleInit {
 
   // Create a contract instance for a dynamic address (e.g., LotSharesToken per lot)
   getContractAtAddress(abi: Abi, address: string, account?: Account): Contract {
-    const signer = account || this.protocolOperatorAccount;
+    const signer = account || this.operatorAccount;
     return new Contract({
       abi,
       address,

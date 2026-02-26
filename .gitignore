@@ -4,6 +4,7 @@ package-lock.json
 .idea
 dist
 **/dist
+yarn.lock
 
 # yarn / eslint
 .yarn/*

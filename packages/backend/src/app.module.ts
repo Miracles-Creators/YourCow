@@ -24,6 +24,7 @@ import { AnimalRegistryModule } from "./modules/onchain/animal-registry/animal-r
 import { LotSharesTokenModule } from "./modules/onchain/lot-shares-token/lot-shares-token.module";
 import { TraceabilityOracleModule } from "./modules/onchain/traceability-oracle/traceability-oracle.module";
 import { SettlementRegistryModule } from "./modules/onchain/settlement-registry/settlement-registry.module";
+import { TongoModule } from "./modules/onchain/tongo/tongo.module";
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { SettlementRegistryModule } from "./modules/onchain/settlement-registry/
     LotSharesTokenModule,
     TraceabilityOracleModule,
     SettlementRegistryModule,
+    TongoModule,
   ],
   controllers: [HealthController],
 })
