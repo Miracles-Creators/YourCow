@@ -139,7 +139,7 @@ export function PositionDetailScreen({
               <div className="h-px bg-vaca-neutral-gray-200" />
 
               {/* Gain - Highlighted */}
-              <div className="rounded-2xl bg-gradient-to-br from-green-50 to-vaca-green/5 p-6">
+              <div className="rounded-2xl bg-gradient-to-br from-vaca-success-light to-vaca-green/5 p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="mb-1 font-inter text-sm text-vaca-neutral-gray-600">
@@ -148,7 +148,7 @@ export function PositionDetailScreen({
                     <p
                       className={cn(
                         "font-playfair text-4xl font-bold",
-                        isProfit ? "text-green-600" : "text-red-600",
+                        isProfit ? "text-vaca-success" : "text-vaca-error",
                       )}
                     >
                       {isProfit ? "+" : ""}${position.gain.toLocaleString()}
@@ -156,7 +156,7 @@ export function PositionDetailScreen({
                     <p
                       className={cn(
                         "mt-2 flex items-center gap-2 font-inter text-lg font-semibold",
-                        isProfit ? "text-green-600" : "text-red-600",
+                        isProfit ? "text-vaca-success" : "text-vaca-error",
                       )}
                     >
                       <TrendingUp className="h-5 w-5" />

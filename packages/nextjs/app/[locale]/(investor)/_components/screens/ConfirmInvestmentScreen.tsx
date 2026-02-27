@@ -289,7 +289,7 @@ export function ConfirmInvestmentScreen({
       {/* Action Buttons */}
       <motion.div variants={itemVariants} className="flex flex-col gap-3 pt-2">
         {errorMessage && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <div className="rounded-xl border border-vaca-error/20 bg-vaca-error-light px-4 py-3 text-sm text-vaca-error">
             {errorMessage}
           </div>
         )}

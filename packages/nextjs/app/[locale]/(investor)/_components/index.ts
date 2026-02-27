@@ -9,7 +9,6 @@ export { PrimaryButton } from "./ui/PrimaryButton";
 export { TrustBadge } from "./ui/TrustBadge";
 export { StatCard } from "./ui/StatCard";
 export { InvestmentCard } from "./ui/InvestmentCard";
-export { ProgressBar } from "./ui/ProgressBar";
 export { InfoSection } from "./ui/InfoSection";
 export { BottomNav } from "./ui/BottomNav";
 

@@ -84,7 +84,7 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
       case "Breeding":
         return "bg-vaca-green/10 text-vaca-green";
       case "Fattening":
-        return "bg-amber-50 text-amber-700";
+        return "bg-vaca-warning-light text-vaca-warning-dark";
       case "Dairy":
         return "bg-vaca-blue/10 text-vaca-blue";
       default:
@@ -221,7 +221,7 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                 {t("expectedReturn")}
               </p>
               <p className="flex items-center gap-2 font-playfair text-3xl font-semibold text-vaca-green">
-                <TrendingUp className="h-6 w-6 text-amber-600" />
+                <TrendingUp className="h-6 w-6 text-vaca-warning" />
                 {expectedReturn || fallbackText}
               </p>
             </div>
@@ -284,7 +284,7 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                   initial={{ width: 0 }}
                   animate={{ width: `${fundingProgress}%` }}
                   transition={{ duration: 1, delay: 0.5 }}
-                  className="h-full rounded-full bg-gradient-to-r from-vaca-green to-green-600"
+                  className="h-full rounded-full bg-gradient-to-r from-vaca-green to-vaca-green-dark"
                 />
               </div>
             )}
@@ -446,7 +446,7 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="rounded-2xl bg-vaca-green px-8 py-4 font-inter font-semibold text-vaca-neutral-white shadow-lg transition-colors hover:bg-green-700"
+                className="rounded-2xl bg-vaca-green px-8 py-4 font-inter font-semibold text-vaca-neutral-white shadow-lg transition-colors hover:bg-vaca-green-dark"
               >
                 {t("investButton")}
               </motion.button>

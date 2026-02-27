@@ -353,7 +353,7 @@ function SummaryCard({ label, value, variant = "neutral" }: SummaryCardProps) {
     neutral: "bg-vaca-neutral-gray-50 text-vaca-neutral-gray-900",
     primary: "bg-vaca-green/5 text-vaca-green",
     success: "bg-vaca-green/5 text-vaca-green",
-    danger: "bg-red-50 text-red-700",
+    danger: "bg-vaca-error-light text-vaca-error-dark",
   };
 
   return (
@@ -462,7 +462,7 @@ function PositionCard({ position, index }: PositionCardProps) {
             <div
               className={cn(
                 "font-inter text-xs font-medium",
-                gain >= 0 ? "text-vaca-green" : "text-red-600",
+                gain >= 0 ? "text-vaca-green" : "text-vaca-error",
               )}
             >
               {gain >= 0 ? "+" : ""}${gain.toLocaleString("en-US")} (

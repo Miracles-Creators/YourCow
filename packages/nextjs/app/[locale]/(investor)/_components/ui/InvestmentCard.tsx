@@ -59,7 +59,7 @@ export function InvestmentCard({
       case "Breeding":
         return "bg-vaca-green/10 text-vaca-green";
       case "Fattening":
-        return "bg-amber-50 text-amber-700";
+        return "bg-vaca-warning-light text-vaca-warning-dark";
       case "Dairy":
         return "bg-vaca-blue/10 text-vaca-blue";
     }
@@ -111,7 +111,7 @@ export function InvestmentCard({
               {t("expectedReturn")}
             </span>
             <span className="flex items-center gap-1 font-inter text-sm font-semibold text-vaca-green">
-              <TrendingUp className="h-3 w-3 text-amber-600" />
+              <TrendingUp className="h-3 w-3 text-vaca-warning" />
               {expectedReturn}
             </span>
           </div>
@@ -144,7 +144,7 @@ export function InvestmentCard({
                 initial={{ width: 0 }}
                 animate={{ width: `${fundingProgress}%` }}
                 transition={{ duration: 1, delay: 0.3 }}
-                className="h-full rounded-full bg-gradient-to-r from-vaca-green to-green-600"
+                className="h-full rounded-full bg-gradient-to-r from-vaca-green to-vaca-green-dark"
               />
             </div>
           )}

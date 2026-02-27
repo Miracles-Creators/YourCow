@@ -177,7 +177,7 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
           />
         </div>
         {exceedsAvailable && (
-          <p className="mt-3 font-inter text-sm text-red-600">
+          <p className="mt-3 font-inter text-sm text-vaca-error">
             {`Monto maximo disponible: $${maxAmount.toLocaleString()}`}
           </p>
         )}

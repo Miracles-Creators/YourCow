@@ -59,6 +59,9 @@ module.exports = {
             dark: "#5D4037",
           },
           // Neutrals
+          error: { DEFAULT: "#DC2626", light: "#FEF2F2", dark: "#991B1B" },
+          warning: { DEFAULT: "#D97706", light: "#FFFBEB", dark: "#92400E" },
+          success: { DEFAULT: "#059669", light: "#ECFDF5", dark: "#065F46" },
           neutral: {
             bg: "#FAFAF8",
             white: "#FFFFFF",

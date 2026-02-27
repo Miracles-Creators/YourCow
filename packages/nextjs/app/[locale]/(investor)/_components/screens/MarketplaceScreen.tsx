@@ -160,12 +160,12 @@ export function MarketplaceScreen() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-red-100 bg-red-50 p-8 text-center"
+          className="rounded-2xl border border-vaca-error/10 bg-vaca-error-light p-8 text-center"
         >
-          <h3 className="mb-2 font-playfair text-xl font-semibold text-red-700">
+          <h3 className="mb-2 font-playfair text-xl font-semibold text-vaca-error-dark">
             Something went wrong
           </h3>
-          <p className="font-inter text-sm text-red-600">
+          <p className="font-inter text-sm text-vaca-error">
             {error.message || tErrors("generic")}
           </p>
         </motion.div>
