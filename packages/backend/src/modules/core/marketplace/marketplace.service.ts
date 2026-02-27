@@ -593,6 +593,7 @@ export class MarketplaceService {
 
     return this.prisma.offer.findMany({
       where,
+      include: { lot: { select: { id: true, name: true, pricePerShare: true, status: true } } },
       orderBy: { createdAt: "desc" },
     });
   }
@@ -614,6 +615,32 @@ export class MarketplaceService {
     };
   }
 
+  async getMyTrades(userId: number) {
+    const trades = await this.prisma.trade.findMany({
+      where: {
+        OR: [
+          { buyerId: userId },
+          { offer: { sellerId: userId } },
+        ],
+      },
+      include: {
+        offer: { include: { lot: { select: { name: true } } } },
+      },
+      orderBy: { settledAt: "desc" },
+    });
+
+    return trades.map((trade) => ({
+      id: trade.id,
+      type: trade.buyerId === userId ? ("BUY" as const) : ("SELL" as const),
+      lotName: trade.offer.lot.name,
+      sharesAmount: trade.sharesAmount,
+      totalPrice: trade.strkTotalPrice ?? String(trade.totalPrice),
+      currency: trade.currency,
+      status: trade.status,
+      settledAt: trade.settledAt,
+    }));
+  }
+
   async getOfferById(id: number): Promise<Offer> {
     this.assertPositiveInt(id, "id");
     const offer = await this.prisma.offer.findUnique({ where: { id } });
@@ -623,7 +650,64 @@ export class MarketplaceService {
     return offer;
   }
 
-  //TODO:REVIEW THIS IS 
+  async getPortfolioSummary(userId: number) {
+    const account = await this.custodyService.getOrCreateAccount(userId);
+
+    const balances = await this.prisma.balance.findMany({
+      where: { accountId: account.id, assetType: AssetType.LOT_SHARES, lotId: { not: null } },
+      include: { lot: true },
+    });
+
+    const purchases = await this.prisma.primaryPurchase.findMany({
+      where: { userId, status: PrimaryPurchaseStatus.COMPLETED },
+    });
+
+    const investedByLot = new Map<number, number>();
+    for (const p of purchases) {
+      investedByLot.set(p.lotId, (investedByLot.get(p.lotId) ?? 0) + p.totalCost);
+    }
+
+    let totalInvested = 0;
+    let currentValue = 0;
+    let activePositions = 0;
+    let settledPositions = 0;
+
+    const lots = balances
+      .filter((b) => b.lot && b.available.plus(b.locked).greaterThan(0))
+      .map((b) => {
+        const lot = b.lot!;
+        const totalShares = Number(b.available.plus(b.locked));
+        const invested = investedByLot.get(lot.id) ?? 0;
+        const value = lot.pricePerShare * totalShares;
+
+        totalInvested += invested;
+        currentValue += value;
+        if (lot.status === LotStatus.ACTIVE || lot.status === LotStatus.FUNDING) activePositions++;
+        if (lot.status === LotStatus.COMPLETED) settledPositions++;
+
+        const estimatedEndDate = lot.startDate
+          ? new Date(lot.startDate.getTime() + lot.durationWeeks * 7 * 24 * 60 * 60 * 1000).toISOString()
+          : null;
+
+        return {
+          lotId: lot.id,
+          lotName: lot.name,
+          invested,
+          currentValue: value,
+          returnPercent: invested > 0 ? Number((((value - invested) / invested) * 100).toFixed(2)) : 0,
+          status: lot.status,
+          estimatedEndDate,
+          productionType: lot.productionType,
+        };
+      });
+
+    const totalGain = currentValue - totalInvested;
+    const returnPercent = totalInvested > 0 ? Number(((totalGain / totalInvested) * 100).toFixed(2)) : 0;
+
+    return { totalInvested, currentValue, totalGain, returnPercent, activePositions, settledPositions, lots };
+  }
+
+  //TODO:REVIEW THIS IS
   async getPortfolio(userId: number): Promise<PortfolioSummary> {
     const account = await this.custodyService.getOrCreateAccount(userId);
 

@@ -99,6 +99,7 @@ export class LotsService {
       return {
         ...lot,
         fundedPercent,
+        ...this.computeLotFields(lot),
       };
     });
   }
@@ -142,6 +143,7 @@ export class LotsService {
     return {
       ...lot,
       fundedPercent,
+      ...this.computeLotFields(lot),
     };
   }
 
@@ -274,6 +276,25 @@ export class LotsService {
       include: { producer: { include: { user: true } } },
     });
     
+  }
+
+  computeLotFields(lot: { startDate: Date | null; durationWeeks: number; initialTotalWeightGrams: number | null; currentTotalWeightGrams: number | null }) {
+    const estimatedEndDate = lot.startDate
+      ? new Date(lot.startDate.getTime() + lot.durationWeeks * 7 * 24 * 60 * 60 * 1000)
+      : null;
+
+    const daysRemaining = estimatedEndDate
+      ? Math.max(0, Math.ceil((estimatedEndDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000)))
+      : null;
+
+    const weightGainPercent =
+      lot.initialTotalWeightGrams && lot.currentTotalWeightGrams
+        ? Number(
+            (((lot.currentTotalWeightGrams - lot.initialTotalWeightGrams) / lot.initialTotalWeightGrams) * 100).toFixed(2),
+          )
+        : null;
+
+    return { estimatedEndDate: estimatedEndDate?.toISOString() ?? null, daysRemaining, weightGainPercent };
   }
 
   async updateLotStatus(id: number, status: LotStatus): Promise<Lot> {
