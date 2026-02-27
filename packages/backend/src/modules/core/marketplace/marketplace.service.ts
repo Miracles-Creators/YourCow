@@ -16,6 +16,7 @@ import { PrismaService } from "../../../database/prisma.service";
 import { LotSharesTokenService } from "../../onchain/lot-shares-token/lot-shares-token.service";
 import { CustodyService } from "../custody/custody.service";
 import { LedgerService } from "../ledger/ledger.service";
+import { computeLotFields } from "../lots/lots.service";
 import { AcceptOfferDto, BuySharesFromLotDto, CreateOfferDto } from "./dto/dto";
 import { PrivateTradeService } from "./private-trade.service";
 
@@ -685,10 +686,6 @@ export class MarketplaceService {
         if (lot.status === LotStatus.ACTIVE || lot.status === LotStatus.FUNDING) activePositions++;
         if (lot.status === LotStatus.COMPLETED) settledPositions++;
 
-        const estimatedEndDate = lot.startDate
-          ? new Date(lot.startDate.getTime() + lot.durationWeeks * 7 * 24 * 60 * 60 * 1000).toISOString()
-          : null;
-
         return {
           lotId: lot.id,
           lotName: lot.name,
@@ -696,8 +693,8 @@ export class MarketplaceService {
           currentValue: value,
           returnPercent: invested > 0 ? Number((((value - invested) / invested) * 100).toFixed(2)) : 0,
           status: lot.status,
-          estimatedEndDate,
           productionType: lot.productionType,
+          ...computeLotFields(lot),
         };
       });
 
