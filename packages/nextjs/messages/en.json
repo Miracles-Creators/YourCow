@@ -32,6 +32,8 @@
       "portfolio": "Portfolio",
       "marketplace": "Marketplace",
       "p2p": "P2P",
+      "invest": "Invest",
+      "trade": "Trade",
       "position": "Position",
       "profile": "Profile",
       "oracle": "Oracle"
