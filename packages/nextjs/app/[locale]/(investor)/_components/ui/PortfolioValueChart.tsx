@@ -42,7 +42,7 @@ export function PortfolioValueChart({ lots, totalValue }: PortfolioValueChartPro
   ].join(" ");
 
   return (
-    <div className="relative h-40 w-full overflow-hidden rounded-3xl">
+    <div className="relative h-40 w-full overflow-hidden rounded-3xl lg:h-full lg:min-h-[10rem]">
       <svg
         className="h-full w-full"
         viewBox="0 0 416 160"

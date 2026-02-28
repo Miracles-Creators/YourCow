@@ -18,7 +18,9 @@ export { TrustBadge } from "./ui/TrustBadge";
 export { InvestmentCard } from "./ui/InvestmentCard";
 export { PortfolioValueChart } from "./ui/PortfolioValueChart";
 export { BottomNav } from "./ui/BottomNav";
+export { SideNav } from "./ui/SideNav";
 export { TopBar } from "./ui/TopBar";
+export { WalletBar } from "./ui/WalletBar";
 export { PositionCard } from "./ui/PositionCard";
 
 // Layouts

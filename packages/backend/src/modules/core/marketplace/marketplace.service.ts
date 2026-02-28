@@ -594,7 +594,20 @@ export class MarketplaceService {
 
     return this.prisma.offer.findMany({
       where,
-      include: { lot: { select: { id: true, name: true, pricePerShare: true, status: true } } },
+      include: {
+        lot: {
+          select: {
+            id: true,
+            name: true,
+            pricePerShare: true,
+            status: true,
+            productionType: true,
+            location: true,
+            durationWeeks: true,
+            fundingDeadline: true,
+          },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
   }

@@ -6,7 +6,6 @@ import { AddressInfoDropdown } from "./AddressInfoDropdown";
 import { WrongNetworkDropdown } from "./WrongNetworkDropdown";
 import ConnectModal from "./ConnectModal";
 import { AddressQRCodeModal } from "./AddressQRCodeModal";
-import { useAutoConnect } from "~~/hooks/scaffold-stark";
 import { useTargetNetwork } from "~~/hooks/scaffold-stark/useTargetNetwork";
 import { useAccount } from "~~/hooks/useAccount";
 import { useMe } from "~~/hooks/auth/useMe";
@@ -15,7 +14,6 @@ import { getBlockExplorerAddressLink } from "~~/utils/scaffold-stark";
 import { useReadLocalStorage } from "usehooks-ts";
 
 export const CustomConnectButton = () => {
-  useAutoConnect();
   const { connector } = useConnect();
   const { targetNetwork } = useTargetNetwork();
   const { chain } = useNetwork();

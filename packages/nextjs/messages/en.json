@@ -23,7 +23,9 @@
       "save": "Save",
       "cancel": "Cancel",
       "confirm": "Confirm",
-      "filter": "Filter"
+      "filter": "Filter",
+    "fund": "Fund",
+    "withdraw": "Withdraw"
     },
     "nav": {
       "home": "Home",
@@ -40,7 +42,10 @@
       "active": "Active",
       "inactive": "Inactive",
       "pending": "Pending",
+      "funded": "Funded",
       "completed": "Completed",
+      "settling": "Settling",
+      "draft": "Draft",
       "liquidated": "Liquidated",
       "pendingSale": "Pending Sale"
     },
@@ -153,7 +158,7 @@
       "card": {
         "location": "Location",
         "duration": "Duration",
-        "expectedReturn": "Expected Return",
+        "expectedReturn": "Est. Return",
         "fundingProgress": "Funding Progress",
         "herdSize": "Herd Size",
         "pricePerShare": "Price per Share",
@@ -338,7 +343,24 @@
         "herdSize": "Herd Size"
       },
       "status": "Status",
-      "backButton": "Back to Portfolio"
+      "backButton": "Back to Portfolio",
+      "backToDashboard": "Back to Dashboard",
+      "positionValue": "Position Value",
+      "yourShares": "Your Shares",
+      "lockedInOffers": "In Offers",
+      "tradeP2P": "Trade on P2P",
+      "navTrend": "NAV Trend",
+      "chartStart": "Start",
+      "chartNow": "Now",
+      "daysRemaining": "Days Left",
+      "weightGain": "Weight Gain",
+      "estimatedEnd": "Est. End",
+      "details": "Details",
+      "expectedReturn": "Expected Return",
+      "duration": "Duration",
+      "noPosition": "No Position Found",
+      "noPositionDesc": "You don't have shares in this lot yet.",
+      "viewLot": "View Lot Details"
     }
   },
   "errors": {

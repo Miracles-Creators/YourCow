@@ -43,10 +43,7 @@ export function OfferCard({
   const status = statusConfig[offer.status];
   const lotName = offer.lot?.name || `Lot #${offer.lotId}`;
   const lotLocation = offer.lot?.location || fallbackText;
-  const investorPercentLabel =
-    offer.lot?.investorPercent != null
-      ? `${offer.lot.investorPercent}% returns`
-      : fallbackText;
+  const investorPercentLabel = fallbackText;
   const durationLabel =
     offer.lot?.durationWeeks != null
       ? `${offer.lot.durationWeeks} weeks`

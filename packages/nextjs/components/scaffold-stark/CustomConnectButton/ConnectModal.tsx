@@ -1,5 +1,6 @@
 import { Connector, useConnect } from "@starknet-react/core";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useLocalStorage } from "usehooks-ts";
 import { BurnerConnector, burnerAccounts } from "@scaffold-stark/stark-burner";
 import { BlockieAvatar } from "../BlockieAvatar";
@@ -12,6 +13,7 @@ const loader = ({ src }: { src: string }) => src;
 const ConnectModal = () => {
   const modalRef = useRef<HTMLInputElement>(null);
   const [isBurnerWallet, setIsBurnerWallet] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { connectors, connect } = useConnect();
   const [, setLastConnector] = useLocalStorage<{ id: string; ix?: number }>(
     "lastUsedConnector",
@@ -25,6 +27,10 @@ const ConnectModal = () => {
     "wasDisconnectedManually",
     false,
   );
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleCloseModal = () => {
     if (modalRef.current) modalRef.current.checked = false;
@@ -60,15 +66,8 @@ const ConnectModal = () => {
     }
   }
 
-  return (
-    <div>
-      <label
-        htmlFor="connect-modal"
-        className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-slate-100 bg-white shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vaca-green/30"
-        aria-label="Connect wallet"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
-      </label>
+  const modalContent = (
+    <>
       <input
         ref={modalRef}
         type="checkbox"
@@ -131,6 +130,19 @@ const ConnectModal = () => {
           </div>
         </>
       </GenericModal>
+    </>
+  );
+
+  return (
+    <div>
+      <label
+        htmlFor="connect-modal"
+        className="inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-slate-100 bg-white shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vaca-green/30"
+        aria-label="Connect wallet"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+      </label>
+      {mounted && createPortal(modalContent, document.body)}
     </div>
   );
 };

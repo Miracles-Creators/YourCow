@@ -23,7 +23,9 @@
       "save": "Guardar",
       "cancel": "Cancelar",
       "confirm": "Confirmar",
-      "filter": "Filtrar"
+      "filter": "Filtrar",
+    "fund": "Fondear",
+    "withdraw": "Retirar"
     },
     "nav": {
       "home": "Inicio",
@@ -40,7 +42,10 @@
       "active": "Activo",
       "inactive": "Inactivo",
       "pending": "Pendiente",
+      "funded": "Fondeado",
       "completed": "Completado",
+      "settling": "Liquidando",
+      "draft": "Borrador",
       "liquidated": "Liquidado",
       "pendingSale": "Venta Pendiente"
     },
@@ -153,7 +158,7 @@
       "card": {
         "location": "Ubicación",
         "duration": "Duración",
-        "expectedReturn": "Retorno Esperado",
+        "expectedReturn": "Ret. Est.",
         "fundingProgress": "Progreso de Financiamiento",
         "herdSize": "Tamaño del Rebaño",
         "pricePerShare": "Precio por Acción",
@@ -338,7 +343,24 @@
         "herdSize": "Tamaño del Rebaño"
       },
       "status": "Estado",
-      "backButton": "Volver al Portafolio"
+      "backButton": "Volver al Portafolio",
+      "backToDashboard": "Volver al Dashboard",
+      "positionValue": "Valor de Posición",
+      "yourShares": "Tus Acciones",
+      "lockedInOffers": "En Ofertas",
+      "tradeP2P": "Operar en P2P",
+      "navTrend": "Tendencia del NAV",
+      "chartStart": "Inicio",
+      "chartNow": "Ahora",
+      "daysRemaining": "Días Restantes",
+      "weightGain": "Ganancia de Peso",
+      "estimatedEnd": "Fin Estimado",
+      "details": "Detalles",
+      "expectedReturn": "Retorno Esperado",
+      "duration": "Duración",
+      "noPosition": "Posición No Encontrada",
+      "noPositionDesc": "Aún no tienes acciones en este lote.",
+      "viewLot": "Ver Detalles del Lote"
     }
   },
   "errors": {
