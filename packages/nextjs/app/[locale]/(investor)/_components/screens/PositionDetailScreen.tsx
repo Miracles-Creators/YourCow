@@ -38,7 +38,7 @@ export function PositionDetailScreen({
             Position not found
           </h2>
           <Link
-            href="/portfolio"
+            href="/dashboard"
             className="font-inter text-sm text-vaca-blue hover:underline"
           >
             ← {t("backButton")}
@@ -56,7 +56,7 @@ export function PositionDetailScreen({
       <div className="sticky top-0 z-10 border-b border-vaca-neutral-gray-200 bg-vaca-neutral-white/90 backdrop-blur-lg">
         <div className="mx-auto max-w-5xl px-6 py-4">
           <Link
-            href="/portfolio"
+            href="/dashboard"
             className="inline-flex items-center gap-2 font-inter text-sm text-vaca-neutral-gray-600 transition-colors hover:text-vaca-green"
           >
             <ArrowLeft className="h-5 w-5" />

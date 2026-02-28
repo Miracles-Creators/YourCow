@@ -3,14 +3,23 @@
  * All investor-specific components in one place
  */
 
+// Animations
+export {
+  containerVariants,
+  itemVariants,
+  slowContainerVariants,
+  slowItemVariants,
+} from "./animations";
+
 // UI Components
-export { Logo } from "./ui/Logo";
+export { Logo, CowLogo } from "./ui/Logo";
 export { PrimaryButton } from "./ui/PrimaryButton";
 export { TrustBadge } from "./ui/TrustBadge";
-export { StatCard } from "./ui/StatCard";
 export { InvestmentCard } from "./ui/InvestmentCard";
-export { InfoSection } from "./ui/InfoSection";
+export { PortfolioValueChart } from "./ui/PortfolioValueChart";
 export { BottomNav } from "./ui/BottomNav";
+export { TopBar } from "./ui/TopBar";
+export { PositionCard } from "./ui/PositionCard";
 
 // Layouts
 export { InvestorLayout } from "./layouts/InvestorLayout";
@@ -31,4 +40,3 @@ export { InvestAmountScreen } from "./screens/InvestAmountScreen";
 export { PositionDetailScreen } from "./screens/PositionDetailScreen";
 export { ConfirmInvestmentScreen } from "./screens/ConfirmInvestmentScreen";
 export { InvestmentSuccessScreen } from "./screens/InvestmentSuccessScreen";
-export { PortfolioScreen } from "./screens/PortfolioScreen";

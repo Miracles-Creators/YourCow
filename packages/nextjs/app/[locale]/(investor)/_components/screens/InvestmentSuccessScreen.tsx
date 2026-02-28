@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useLot } from "~~/hooks/lots/useLot";
 import { cn } from "~~/lib/utils/cn";
 import { PrimaryButton } from "../ui/PrimaryButton";
+import { slowContainerVariants, slowItemVariants } from "../animations";
 
 interface InvestmentSuccessScreenProps {
   lotId: number;
@@ -39,38 +40,13 @@ export function InvestmentSuccessScreen({
   const fallbackText = "sin back-end";
 
   const handleViewPortfolio = () => {
-    router.push("/portfolio");
+    router.push("/dashboard");
   };
 
   const handleViewLot = () => {
     router.push(`/lot/${lotId}`);
   };
 
-  // Staggered animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: [0.4, 0, 0.2, 1] as const,
-      },
-    },
-  };
-
-  // Success checkmark animation
   const checkmarkVariants = {
     hidden: {
       pathLength: 0,
@@ -130,14 +106,14 @@ export function InvestmentSuccessScreen({
 
   return (
     <motion.div
-      variants={containerVariants}
+      variants={slowContainerVariants}
       initial="hidden"
       animate="visible"
       className="flex w-full flex-col items-center"
     >
       {/* Success Icon */}
       <motion.div
-        variants={itemVariants}
+        variants={slowItemVariants}
         className="mb-6 flex h-24 w-24 items-center justify-center"
       >
         <svg
@@ -178,7 +154,7 @@ export function InvestmentSuccessScreen({
       </motion.div>
 
       {/* Success Message */}
-      <motion.div variants={itemVariants} className="mb-8 text-center">
+      <motion.div variants={slowItemVariants} className="mb-8 text-center">
         <h1 className="mb-2 font-playfair text-3xl font-semibold tracking-tight text-vaca-green">
           {t("title")}
         </h1>
@@ -189,7 +165,7 @@ export function InvestmentSuccessScreen({
 
       {/* Investment Details Card */}
       <motion.div
-        variants={itemVariants}
+        variants={slowItemVariants}
         className={cn(
           "mb-8 w-full rounded-2xl border-2 border-vaca-green/20 bg-vaca-green/5",
           "p-6",
@@ -243,14 +219,14 @@ export function InvestmentSuccessScreen({
               <span className="relative inline-flex h-2 w-2 rounded-full bg-vaca-green"></span>
             </div>
             <span className="font-inter text-sm font-semibold text-vaca-green">
-              Investment Active
+              {tCommon("status.active")}
             </span>
           </div>
         </div>
       </motion.div>
 
       {/* Next Steps */}
-      <motion.div variants={itemVariants} className="mb-8 w-full text-center">
+      <motion.div variants={slowItemVariants} className="mb-8 w-full text-center">
         <h3 className="mb-3 font-inter text-sm font-semibold text-vaca-neutral-gray-900">
           {t("nextSteps.title")}
         </h3>
@@ -305,7 +281,7 @@ export function InvestmentSuccessScreen({
 
       {/* Action Buttons */}
       <motion.div
-        variants={itemVariants}
+        variants={slowItemVariants}
         className="flex w-full flex-col gap-3"
       >
         <PrimaryButton onClick={handleViewPortfolio} className="w-full">
@@ -322,7 +298,7 @@ export function InvestmentSuccessScreen({
             "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-vaca-neutral-gray-200",
           )}
         >
-          View Lot Details
+          {t("actions.viewPosition")}
         </button>
       </motion.div>
     </motion.div>

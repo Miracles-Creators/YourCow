@@ -422,7 +422,7 @@ export function AcceptOfferModal({
                           ? "border-vaca-error/20 bg-vaca-error-light"
                           : tradeStatus?.status === "COMPLETED"
                             ? "border-vaca-success/20 bg-vaca-success-light"
-                            : "border-blue-200 bg-blue-50"
+                            : "border-vaca-blue/20 bg-vaca-blue/5"
                       }`}
                     >
                       {tradeStatus?.status === "COMPLETED" ? (
@@ -430,7 +430,7 @@ export function AcceptOfferModal({
                       ) : tradeStatus?.status === "FAILED" ? (
                         <AlertCircle className="h-5 w-5 text-vaca-error flex-shrink-0 mt-0.5" />
                       ) : (
-                        <Loader2 className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5 animate-spin" />
+                        <Loader2 className="h-5 w-5 text-vaca-blue-dark flex-shrink-0 mt-0.5 animate-spin" />
                       )}
                       <div>
                         <p className={`text-sm font-medium ${
@@ -438,7 +438,7 @@ export function AcceptOfferModal({
                             ? "text-vaca-error-dark"
                             : tradeStatus?.status === "COMPLETED"
                               ? "text-vaca-success-dark"
-                              : "text-blue-700"
+                              : "text-vaca-blue-dark"
                         }`}>
                           {tradeStatus?.status === "COMPLETED"
                             ? "Trade completed"
@@ -453,7 +453,7 @@ export function AcceptOfferModal({
                             ? "text-vaca-error"
                             : tradeStatus?.status === "COMPLETED"
                               ? "text-vaca-success"
-                              : "text-blue-600"
+                              : "text-vaca-blue-dark"
                         }`}>
                           {tradeStatus?.status === "COMPLETED"
                             ? "Shares are now in your portfolio."

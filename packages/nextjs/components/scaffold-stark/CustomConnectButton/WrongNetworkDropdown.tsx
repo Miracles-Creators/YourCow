@@ -27,28 +27,26 @@ export const WrongNetworkDropdown = () => {
   };
 
   return (
-    <div className="dropdown dropdown-end mr-2">
+    <div className="dropdown dropdown-end">
       <label
         tabIndex={0}
-        className="btn btn-error btn-sm dropdown-toggle gap-1"
+        className="btn btn-sm gap-1 rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
       >
-        <span>Wrong network</span>
-        <ChevronDownIcon className="h-6 w-4 ml-2 sm:ml-0" />
+        <span className="text-sm font-medium">Wrong network</span>
+        <ChevronDownIcon className="h-4 w-4" />
       </label>
 
       <ul
         tabIndex={0}
-        className="dropdown-content menu p-2 mt-1 shadow-center shadow-accent bg-base-200 rounded-box gap-1"
+        className="dropdown-content menu p-2 mt-2 rounded-xl border border-vaca-neutral-gray-200 bg-vaca-neutral-white shadow-lg gap-1"
       >
-        {/* TODO: reinstate if needed */}
-        {/* <NetworkOptions /> */}
         <li>
           <button
-            className="menu-item text-error btn-sm rounded-xl! flex gap-3 py-3"
+            className="menu-item btn-sm !rounded-xl flex gap-3 py-3 text-red-500 hover:text-red-600"
             type="button"
             onClick={handleDisconnect}
           >
-            <ArrowLeftEndOnRectangleIcon className="h-6 w-4 ml-2 sm:ml-0" />
+            <ArrowLeftEndOnRectangleIcon className="h-5 w-5" />
             <span>Disconnect</span>
           </button>
         </li>

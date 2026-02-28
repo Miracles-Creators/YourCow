@@ -404,6 +404,42 @@ export const PortfolioSchema = z.object({
   lots: z.array(PortfolioLotPositionSchema),
 });
 
+// Portfolio summary (dashboard)
+export const PortfolioSummaryLotSchema = z.object({
+  lotId: z.number(),
+  lotName: z.string(),
+  invested: z.number(),
+  currentValue: z.number(),
+  returnPercent: z.number(),
+  status: LotStatusSchema,
+  estimatedEndDate: z.string().nullable(),
+  productionType: ProductionTypeSchema,
+  daysRemaining: z.number().nullable(),
+  weightGainPercent: z.number().nullable(),
+});
+
+export const PortfolioSummarySchema = z.object({
+  totalInvested: z.number(),
+  currentValue: z.number(),
+  totalGain: z.number(),
+  returnPercent: z.number(),
+  activePositions: z.number(),
+  settledPositions: z.number(),
+  lots: z.array(PortfolioSummaryLotSchema),
+});
+
+// My trades (trade screen)
+export const MyTradeSchema = z.object({
+  id: z.number(),
+  type: z.enum(["BUY", "SELL"]),
+  lotName: z.string(),
+  sharesAmount: z.number(),
+  totalPrice: z.string(),
+  currency: z.string(),
+  status: TradeStatusSchema,
+  settledAt: z.string(),
+});
+
 // Input schemas for mutations
 export const CreateOfferInputSchema = z.object({
   lotId: z.number(),
@@ -459,3 +495,6 @@ export type OfferFilters = z.infer<typeof OfferFiltersSchema>;
 export type TradeStatus = z.infer<typeof TradeStatusSchema>;
 export type TradeStatusResponse = z.infer<typeof TradeStatusResponseSchema>;
 export type TongoBalanceDto = z.infer<typeof TongoBalanceSchema>;
+export type PortfolioSummaryLotDto = z.infer<typeof PortfolioSummaryLotSchema>;
+export type PortfolioSummaryDto = z.infer<typeof PortfolioSummarySchema>;
+export type MyTradeDto = z.infer<typeof MyTradeSchema>;

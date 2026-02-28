@@ -46,6 +46,12 @@ module.exports = {
             light: "#2E7D32",
             lighter: "#4CAF50",
           },
+          // Accent - Golden Olive (active states, CTAs)
+          gold: {
+            DEFAULT: "#9d9858",
+            light: "rgba(157,152,88,0.1)",
+            border: "rgba(157,152,88,0.2)",
+          },
           // Secondary - Sky Blue (liquidity, clarity)
           blue: {
             DEFAULT: "#4FC3F7",

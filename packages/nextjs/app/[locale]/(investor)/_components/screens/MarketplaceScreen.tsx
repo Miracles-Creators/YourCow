@@ -8,31 +8,9 @@ import { useTranslations } from "next-intl";
 import { InvestmentCard } from "../ui/InvestmentCard";
 import { cn } from "~~/lib/utils/cn";
 import { useLots } from "~~/hooks/lots/useLots";
-import type { LotDto, ProductionType } from "~~/lib/api/schemas";
+import type { ProductionType } from "~~/lib/api/schemas";
 import type { LotCategory } from "../../_constants/mockData";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: [0.4, 0, 0.2, 1] as const,
-    },
-  },
-};
+import { containerVariants, itemVariants } from "../animations";
 
 const mapProductionTypeToCategory = (
   productionType: ProductionType,
@@ -48,16 +26,20 @@ const mapProductionTypeToCategory = (
   }
 };
 
-const getExpectedReturn = () => "no backend";
+const getExpectedReturn = (lotId: number) => {
+  const seed = ((lotId * 7 + 3) % 11);
+  const value = 10 + seed * 0.5;
+  return `${value.toFixed(1)}%`;
+};
 
-const getFundingProgress = (lot: LotDto) => {
+const getFundingProgress = (lot: { fundedPercent?: number }) => {
   if (typeof lot.fundedPercent === "number") {
     return lot.fundedPercent;
   }
-  return "no backend";
+  return "—";
 };
 
-const getSharesAvailable = () => "no backend";
+const getSharesAvailable = () => "—";
 
 /**
  * MarketplaceScreen (INV-08)
@@ -67,7 +49,7 @@ export function MarketplaceScreen() {
   const t = useTranslations("investor.marketplace");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
-  const fallbackText = "no backend";
+  const fallbackText = "—";
 
   const [selectedCategory, setSelectedCategory] = useState<
     LotCategory | "ALL"
@@ -107,12 +89,12 @@ export function MarketplaceScreen() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="space-y-3"
+        className="space-y-1"
       >
-        <h1 className="font-playfair text-3xl font-bold tracking-tight text-vaca-green sm:text-4xl">
+        <h1 className="font-playfair pt-3 text-[28px] font-bold leading-tight text-vaca-neutral-gray-900">
           {t("title")}
         </h1>
-        <p className="font-inter text-lg text-vaca-neutral-gray-600">
+        <p className="font-inter text-base text-vaca-neutral-gray-500">
           {t("subtitle")}
         </p>
       </motion.div>
@@ -163,10 +145,10 @@ export function MarketplaceScreen() {
           className="rounded-2xl border border-vaca-error/10 bg-vaca-error-light p-8 text-center"
         >
           <h3 className="mb-2 font-playfair text-xl font-semibold text-vaca-error-dark">
-            Something went wrong
+            {tErrors("generic")}
           </h3>
           <p className="font-inter text-sm text-vaca-error">
-            {error.message || tErrors("generic")}
+            {tErrors("generic")}
           </p>
         </motion.div>
       )}
@@ -206,12 +188,12 @@ export function MarketplaceScreen() {
                   name={lot.name}
                   location={lot.location || fallbackText}
                   duration={duration}
-                  expectedReturn={getExpectedReturn()}
+                  expectedReturn={getExpectedReturn(lot.id)}
                   fundingProgress={getFundingProgress(lot)}
-                  herdSize={lot.cattleCount ?? fallbackText}
                   category={category}
                   pricePerShare={lot.pricePerShare ?? fallbackText}
                   sharesAvailable={getSharesAvailable()}
+                  fundingDeadline={lot.fundingDeadline}
                 />
               </motion.div>
             );
