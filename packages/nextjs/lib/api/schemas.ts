@@ -284,6 +284,18 @@ export const AccountTypeSchema = z.enum([
   "PROTOCOL_VAULT",
 ]);
 
+// Partial lot shape returned by the offers endpoint (subset select)
+const OfferLotSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  pricePerShare: z.number(),
+  status: LotStatusSchema,
+  productionType: ProductionTypeSchema,
+  location: z.string(),
+  durationWeeks: z.number(),
+  fundingDeadline: z.string().nullable().optional(),
+});
+
 // Offer schema (sell offers in the marketplace)
 export const OfferSchema = z.object({
   id: z.number(),
@@ -300,7 +312,7 @@ export const OfferSchema = z.object({
   updatedAt: z.string(),
   // Optional relations
   seller: UserSchema.optional(),
-  lot: LotSchema.optional(),
+  lot: OfferLotSchema.optional(),
 });
 
 export const TradeStatusSchema = z.enum([

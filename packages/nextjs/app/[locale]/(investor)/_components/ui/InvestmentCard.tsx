@@ -84,7 +84,7 @@ export function InvestmentCard({
       ? formattedShares
       : "—";
 
-  const wrapperClassName = cn("group relative flex flex-col", className);
+  const wrapperClassName = cn("group relative flex w-full flex-col", className);
   const resolvedHref = href ?? `/lot/${lotId}`;
 
   const content = (

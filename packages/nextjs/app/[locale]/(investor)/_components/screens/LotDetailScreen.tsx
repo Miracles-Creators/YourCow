@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import {
@@ -9,13 +10,17 @@ import {
   TrendingUp,
   ShieldCheck,
   MapPin,
+  ShoppingCart,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLot } from "~~/hooks/lots/useLot";
+import { useOffers, usePortfolio } from "~~/hooks/marketplace";
 import { cn } from "~~/lib/utils/cn";
-import type { ProductionType } from "~~/lib/api/schemas";
+import type { OfferDto, ProductionType } from "~~/lib/api/schemas";
+import { formatStrkWei } from "~~/utils/scaffold-stark/common";
 import { containerVariants, itemVariants } from "../animations";
+import { AcceptOfferModal } from "../marketplace/AcceptOfferModal";
 
 const LOT_IMAGES = [
   "/images/cattle-angus.jpg",
@@ -154,6 +159,38 @@ function FundingProgressBar({
   );
 }
 
+function P2POfferRow({ offer, onBuy }: { offer: OfferDto; onBuy: () => void }) {
+  const remainingShares = offer.sharesAmount - offer.sharesFilled;
+  const isStrk = offer.currency === "STRK";
+  const price =
+    isStrk && offer.strkPricePerShare
+      ? `${formatStrkWei(offer.strkPricePerShare)} STRK`
+      : `$${offer.pricePerShare}`;
+
+  return (
+    <div className="flex items-center justify-between rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white p-4">
+      <div>
+        <p className="font-inter text-sm font-semibold text-vaca-neutral-gray-900">
+          {price}{" "}
+          <span className="text-xs font-normal text-vaca-neutral-gray-400">/ share</span>
+        </p>
+        <p className="mt-0.5 font-inter text-xs text-vaca-neutral-gray-400">
+          {remainingShares} {remainingShares === 1 ? "share" : "shares"} available
+        </p>
+      </div>
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.97 }}
+        onClick={onBuy}
+        className="flex items-center gap-1.5 rounded-xl bg-vaca-green px-4 py-2 font-inter text-sm font-bold text-white"
+      >
+        <ShoppingCart className="h-3.5 w-3.5" />
+        Buy
+      </motion.button>
+    </div>
+  );
+}
+
 // --------------- Main Component ---------------
 
 interface LotDetailScreenProps {
@@ -164,7 +201,13 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
   const t = useTranslations("investor.lotDetail");
   const tCommon = useTranslations("common");
 
+  const router = useRouter();
   const { data: lot, isPending } = useLot(lotId);
+  const { data: p2pOffers } = useOffers({ lotId });
+  const { data: portfolio } = usePortfolio();
+  const [selectedOffer, setSelectedOffer] = useState<OfferDto | null>(null);
+
+  const openOffers = p2pOffers ?? [];
 
   const chart = useMemo(() => {
     if (!lot) return null;
@@ -194,6 +237,8 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
       </div>
     );
   }
+
+  const isPrimaryMarket = lot.status === "FUNDING";
 
   const metadata =
     lot.metadata && typeof lot.metadata === "object"
@@ -246,13 +291,13 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 
         <header className="absolute top-0 z-10 flex w-full items-center justify-between p-5">
-          <Link
-            href="/marketplace"
+          <button
+            onClick={() => router.back()}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-colors hover:bg-white/30"
             aria-label={tCommon("actions.back")}
           >
             <ArrowLeft className="h-5 w-5" />
-          </Link>
+          </button>
           <button
             className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-colors hover:bg-white/30"
             aria-label="Share"
@@ -280,13 +325,13 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
           <div className="lg:col-span-3">
             {/* Desktop Title Row — thumbnail + title + back/share */}
             <motion.div variants={itemVariants} className="mb-8 hidden lg:block">
-              <Link
-                href="/marketplace"
+              <button
+                onClick={() => router.back()}
                 className="mb-4 inline-flex items-center gap-1.5 font-inter text-sm font-medium text-vaca-neutral-gray-400 transition-colors hover:text-vaca-neutral-gray-900"
               >
                 <ArrowLeft className="h-4 w-4" />
                 {tCommon("actions.back")}
-              </Link>
+              </button>
 
               <div className="flex items-start gap-5">
                 <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl">
@@ -494,6 +539,38 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
               </div>
             </motion.div>
 
+            {/* P2P Offers — shown when lot is not accepting primary investment */}
+            {!isPrimaryMarket && (
+              <motion.div
+                variants={itemVariants}
+                className="mt-6 lg:mt-6 lg:rounded-2xl lg:border lg:border-vaca-neutral-gray-100 lg:bg-vaca-neutral-white lg:p-6"
+              >
+                <h3 className="mb-4 font-inter text-base font-bold text-vaca-neutral-gray-900">
+                  Available P2P Offers
+                </h3>
+                {openOffers.length > 0 ? (
+                  <div className="space-y-3">
+                    {openOffers.map((offer) => (
+                      <P2POfferRow
+                        key={offer.id}
+                        offer={offer}
+                        onBuy={() => setSelectedOffer(offer)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-vaca-neutral-gray-100">
+                      <ShoppingCart className="h-5 w-5 text-vaca-neutral-gray-400" />
+                    </div>
+                    <p className="font-inter text-sm text-vaca-neutral-gray-500">
+                      No P2P offers available for this lot right now.
+                    </p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
             {/* Lot Value — mobile only */}
             <motion.div
               variants={itemVariants}
@@ -596,16 +673,32 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                 </div>
 
                 <div className="border-t border-vaca-neutral-gray-50 p-6">
-                  <Link href={`/invest/${lotId}`}>
+                  {isPrimaryMarket ? (
+                    <Link href={`/invest/${lotId}`}>
+                      <motion.button
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.97 }}
+                        className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-vaca-green to-vaca-green-light font-inter text-base font-bold text-white shadow-xl shadow-vaca-green/30 transition-all"
+                      >
+                        {t("investButton")}
+                        <TrendingUp className="h-4 w-4" />
+                      </motion.button>
+                    </Link>
+                  ) : openOffers.length > 0 ? (
                     <motion.button
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.97 }}
+                      onClick={() => setSelectedOffer(openOffers[0])}
                       className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-vaca-green to-vaca-green-light font-inter text-base font-bold text-white shadow-xl shadow-vaca-green/30 transition-all"
                     >
-                      {t("investButton")}
-                      <TrendingUp className="h-4 w-4" />
+                      Buy Best Offer
+                      <ShoppingCart className="h-4 w-4" />
                     </motion.button>
-                  </Link>
+                  ) : (
+                    <div className="flex h-14 items-center justify-center rounded-2xl border border-vaca-neutral-gray-100 bg-vaca-neutral-gray-50">
+                      <p className="font-inter text-sm text-vaca-neutral-gray-400">No P2P offers available</p>
+                    </div>
+                  )}
                 </div>
               </motion.div>
 
@@ -628,19 +721,38 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
         </div>
       </motion.div>
 
+      <AcceptOfferModal
+        isOpen={!!selectedOffer}
+        offer={selectedOffer}
+        portfolio={portfolio}
+        onClose={() => setSelectedOffer(null)}
+      />
+
       {/* ── Fixed Bottom CTA — mobile only ── */}
       <div className="fixed bottom-[4.5rem] left-1/2 z-40 w-full max-w-[430px] -translate-x-1/2 lg:hidden">
         <div className="bg-gradient-to-t from-vaca-neutral-white via-vaca-neutral-white to-vaca-neutral-white/0 px-7 pb-4 pt-4">
-          <Link href={`/invest/${lotId}`}>
+          {isPrimaryMarket ? (
+            <Link href={`/invest/${lotId}`}>
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.97 }}
+                className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-vaca-green to-vaca-green-light font-inter text-base font-bold text-white shadow-xl shadow-vaca-green/30 transition-all active:scale-[0.97]"
+              >
+                {t("investButton")}
+                <TrendingUp className="h-4 w-4" />
+              </motion.button>
+            </Link>
+          ) : openOffers.length > 0 ? (
             <motion.button
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.97 }}
+              onClick={() => setSelectedOffer(openOffers[0])}
               className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-vaca-green to-vaca-green-light font-inter text-base font-bold text-white shadow-xl shadow-vaca-green/30 transition-all active:scale-[0.97]"
             >
-              {t("investButton")}
-              <TrendingUp className="h-4 w-4" />
+              Buy Best Offer
+              <ShoppingCart className="h-4 w-4" />
             </motion.button>
-          </Link>
+          ) : null}
         </div>
       </div>
     </div>

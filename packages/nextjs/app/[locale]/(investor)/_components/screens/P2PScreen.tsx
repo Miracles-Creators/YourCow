@@ -7,14 +7,12 @@ import { useTranslations } from "next-intl";
 
 import { InvestmentCard } from "../ui/InvestmentCard";
 import { WalletBar } from "../ui/WalletBar";
-import { AcceptOfferModal } from "../marketplace/AcceptOfferModal";
 import { CreateOfferModal } from "../marketplace/CreateOfferModal";
 import { FundModal } from "../tongo/FundModal";
 import { WithdrawModal } from "../tongo/WithdrawModal";
 import { cn } from "~~/lib/utils/cn";
-import { useMe } from "~~/hooks/auth/useMe";
-import { useOffers, usePortfolio } from "~~/hooks/marketplace";
-import type { OfferDto, OfferStatus, ProductionType, PortfolioLotPositionDto } from "~~/lib/api/schemas";
+import { useOffers } from "~~/hooks/marketplace";
+import type { OfferStatus, ProductionType, PortfolioLotPositionDto } from "~~/lib/api/schemas";
 import type { LotCategory } from "../../_constants/mockData";
 import { containerVariants, itemVariants } from "../animations";
 import { formatStrkWei } from "~~/utils/scaffold-stark/common";
@@ -45,9 +43,7 @@ export function P2PScreen() {
   const tErrors = useTranslations("errors");
   const fallbackText = "—";
 
-  const { data: me } = useMe();
   const [selectedStatus, setSelectedStatus] = useState<OfferStatus | "ALL">("OPEN");
-  const [selectedOffer, setSelectedOffer] = useState<OfferDto | null>(null);
   const [createOfferPosition, setCreateOfferPosition] = useState<PortfolioLotPositionDto | null>(null);
   const [isFundOpen, setIsFundOpen] = useState(false);
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
@@ -67,10 +63,7 @@ export function P2PScreen() {
   }, [selectedStatus]);
 
   const { data: offers, isPending, error } = useOffers(offerFilters);
-  const { data: portfolio } = usePortfolio();
 
-  const handleAccept = (offer: OfferDto) => setSelectedOffer(offer);
-  const closeAcceptModal = () => setSelectedOffer(null);
   const closeCreateModal = () => setCreateOfferPosition(null);
 
   return (
@@ -194,7 +187,6 @@ export function P2PScreen() {
             const price = offer.strkPricePerShare
               ? `${formatStrkWei(offer.strkPricePerShare)} STRK`
               : `$${offer.pricePerShare}`;
-            const isMine = me?.id === offer.sellerId;
 
             return (
               <motion.div key={offer.id} variants={itemVariants}>
@@ -208,20 +200,12 @@ export function P2PScreen() {
                   category={category}
                   pricePerShare={price}
                   sharesAvailable={`${sharesAvailable} shares`}
-                  onClick={isMine ? undefined : () => handleAccept(offer)}
                 />
               </motion.div>
             );
           })}
         </motion.div>
       )}
-
-      <AcceptOfferModal
-        isOpen={Boolean(selectedOffer)}
-        onClose={closeAcceptModal}
-        offer={selectedOffer}
-        portfolio={portfolio}
-      />
 
       {createOfferPosition && (
         <CreateOfferModal
