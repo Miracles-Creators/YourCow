@@ -5,10 +5,12 @@ import {
   buyPrimary,
   cancelOffer,
   createOffer,
+  getMyTrades,
   getOffer,
   getOffers,
   getPortfolio,
   getPortfolioByLot,
+  getPortfolioSummary,
 } from "~~/lib/api/marketplace";
 import type { AcceptOfferInput, BuyPrimaryInput, OfferFilters } from "~~/lib/api/schemas";
 
@@ -109,4 +111,20 @@ export function usePortfolioByLot(lotId: number) {
   return { isPending, data, error, refetch };
 }
 
-// NOTE: admin fiat deposit endpoint was removed. Use payments flow instead.
+export function usePortfolioSummary() {
+  const { isPending, data, error, refetch } = useQuery({
+    queryKey: ["portfolio", "summary"],
+    queryFn: getPortfolioSummary,
+    staleTime: 60_000,
+  });
+  return { isPending, data, error, refetch };
+}
+
+export function useMyTrades() {
+  const { isPending, data, error, refetch } = useQuery({
+    queryKey: ["trades", "mine"],
+    queryFn: getMyTrades,
+    staleTime: 30_000,
+  });
+  return { isPending, data, error, refetch };
+}

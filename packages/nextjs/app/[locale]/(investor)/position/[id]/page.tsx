@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PositionDetailScreen } from "../../_components/screens/PositionDetailScreen";
-import { getPositionById } from "../../_constants/mockData";
 
 export const metadata: Metadata = {
   title: "Position Detail",
@@ -16,13 +15,11 @@ interface Props {
 
 export default async function PositionDetailPage({ params }: Props) {
   const { id } = await params;
+  const lotId = Number(id);
 
-  // Find the position
-  const position = getPositionById(id);
-
-  if (!position) {
+  if (isNaN(lotId) || lotId <= 0) {
     notFound();
   }
 
-  return <PositionDetailScreen positionId={id} />;
+  return <PositionDetailScreen lotId={lotId} />;
 }

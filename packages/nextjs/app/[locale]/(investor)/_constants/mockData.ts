@@ -295,5 +295,8 @@ export const mockPositions: Position[] = [
 ];
 
 export function getPositionById(id: string): Position | undefined {
-  return mockPositions.find((position) => position.id === id);
+  return (
+    mockPositions.find((position) => position.id === id) ??
+    mockPositions.find((position) => position.lotId === id)
+  );
 }

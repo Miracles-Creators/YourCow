@@ -70,6 +70,15 @@ export class MarketplaceController {
   }
 
   @UseGuards(AuthGuard)
+  @Get("trades/mine")
+  async getMyTrades(@Req() req: AuthenticatedRequest) {
+    if (!req.user) {
+      throw new UnauthorizedException("Not authenticated");
+    }
+    return this.marketplaceService.getMyTrades(req.user.id);
+  }
+
+  @UseGuards(AuthGuard)
   @Get("trades/:tradeId/status")
   async getTradeStatus(
     @Req() req: AuthenticatedRequest,

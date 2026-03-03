@@ -403,10 +403,10 @@ export function AcceptOfferModal({
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3"
+                      className="flex items-start gap-2 rounded-xl border border-vaca-error/20 bg-vaca-error-light px-4 py-3"
                     >
-                      <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-red-700">{errorMessage}</p>
+                      <AlertCircle className="h-5 w-5 text-vaca-error flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-vaca-error-dark">{errorMessage}</p>
                     </motion.div>
                   )}
                 </div>
@@ -419,26 +419,26 @@ export function AcceptOfferModal({
                       animate={{ opacity: 1, y: 0 }}
                       className={`flex items-start gap-3 rounded-xl border px-4 py-3 ${
                         tradeStatus?.status === "FAILED"
-                          ? "border-red-200 bg-red-50"
+                          ? "border-vaca-error/20 bg-vaca-error-light"
                           : tradeStatus?.status === "COMPLETED"
-                            ? "border-green-200 bg-green-50"
-                            : "border-blue-200 bg-blue-50"
+                            ? "border-vaca-success/20 bg-vaca-success-light"
+                            : "border-vaca-blue/20 bg-vaca-blue/5"
                       }`}
                     >
                       {tradeStatus?.status === "COMPLETED" ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <CheckCircle2 className="h-5 w-5 text-vaca-success flex-shrink-0 mt-0.5" />
                       ) : tradeStatus?.status === "FAILED" ? (
-                        <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                        <AlertCircle className="h-5 w-5 text-vaca-error flex-shrink-0 mt-0.5" />
                       ) : (
-                        <Loader2 className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5 animate-spin" />
+                        <Loader2 className="h-5 w-5 text-vaca-blue-dark flex-shrink-0 mt-0.5 animate-spin" />
                       )}
                       <div>
                         <p className={`text-sm font-medium ${
                           tradeStatus?.status === "FAILED"
-                            ? "text-red-700"
+                            ? "text-vaca-error-dark"
                             : tradeStatus?.status === "COMPLETED"
-                              ? "text-green-700"
-                              : "text-blue-700"
+                              ? "text-vaca-success-dark"
+                              : "text-vaca-blue-dark"
                         }`}>
                           {tradeStatus?.status === "COMPLETED"
                             ? "Trade completed"
@@ -450,10 +450,10 @@ export function AcceptOfferModal({
                         </p>
                         <p className={`text-xs mt-1 ${
                           tradeStatus?.status === "FAILED"
-                            ? "text-red-600"
+                            ? "text-vaca-error"
                             : tradeStatus?.status === "COMPLETED"
-                              ? "text-green-600"
-                              : "text-blue-600"
+                              ? "text-vaca-success"
+                              : "text-vaca-blue-dark"
                         }`}>
                           {tradeStatus?.status === "COMPLETED"
                             ? "Shares are now in your portfolio."

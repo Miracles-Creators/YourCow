@@ -56,7 +56,7 @@ export function TongoBalanceCard({
               <div className="h-4 bg-vaca-neutral-gray-100 rounded w-1/3" />
             </div>
           ) : error ? (
-            <p className="text-sm text-red-500 mt-4">
+            <p className="text-sm text-vaca-error mt-4">
               Failed to load balance
             </p>
           ) : (

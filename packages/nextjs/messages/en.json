@@ -4,7 +4,6 @@
       "home": "Home",
       "marketplace": "Marketplace",
       "p2p": "P2P",
-      "portfolio": "Portfolio",
       "dashboard": "Dashboard",
       "producerDashboard": "Producer Dashboard",
       "createLot": "Create Lot",
@@ -24,14 +23,17 @@
       "save": "Save",
       "cancel": "Cancel",
       "confirm": "Confirm",
-      "filter": "Filter"
+      "filter": "Filter",
+    "fund": "Fund",
+    "withdraw": "Withdraw"
     },
     "nav": {
       "home": "Home",
       "dashboard": "Dashboard",
-      "portfolio": "Portfolio",
       "marketplace": "Marketplace",
       "p2p": "P2P",
+      "invest": "Invest",
+      "trade": "Trade",
       "position": "Position",
       "profile": "Profile",
       "oracle": "Oracle"
@@ -40,7 +42,10 @@
       "active": "Active",
       "inactive": "Inactive",
       "pending": "Pending",
+      "funded": "Funded",
       "completed": "Completed",
+      "settling": "Settling",
+      "draft": "Draft",
       "liquidated": "Liquidated",
       "pendingSale": "Pending Sale"
     },
@@ -79,8 +84,10 @@
       "title": "Welcome to YourCow",
       "tagline": "Invest in real cattle assets",
       "description": "Structured liquidity aligned with real production cycles",
-      "ctaRegister": "Create account",
-      "ctaLogin": "I have an account"
+      "ctaRegister": "Continue",
+      "ctaLogin": "Log In",
+      "loginPrompt": "Already have an account?",
+      "footer": "Regulated Asset Platform"
     },
     "login": {
       "title": "Log In",
@@ -91,40 +98,52 @@
       "helperText": "Secure access. No passwords."
     },
     "dashboard": {
-      "pill": "Executive Summary",
       "title": "Your Portfolio",
-      "subtitle": "Executive snapshot of your portfolio, cash balance, and lot ownership.",
+      "subtitle": "Investment overview",
+      "greeting": "Good morning, {name}",
+      "notifications": "Notifications",
       "stats": {
         "totalInvested": "Total Invested",
-        "currentValue": "Current Value (NAV-based)",
+        "currentValue": "Current Value",
+        "activePositions": "Active Lots",
+        "settledPositions": "Settled",
         "gain": "Gain",
+        "returnLabel": "+{value}%",
+        "daysLeft": "Days Left",
+        "invested": "inv",
+        "left": "left",
+        "weightGain": "wt"
+      },
+      "performance": {
+        "title": "Your Lots",
+        "name": "Name",
+        "invested": "Invested",
+        "return": "Return",
         "status": "Status",
-        "returnLabel": "Return {value}"
+        "empty": "No positions yet. Start investing to see your lots here.",
+        "viewPortfolio": "View Full Portfolio",
+        "viewAll": "See All"
       },
-      "cash": {
-        "title": "Cash Balance",
-        "available": "Available",
-        "ars": "Pesos (ARS)",
-        "usd": "Dollars (USD)"
+      "chart": {
+        "title": "Portfolio Value",
+        "noData": "Chart data available after first investment"
       },
-      "lots": {
-        "title": "Lot ownership",
-        "shares": "Shares",
-        "shareOfLot": "% of lot",
-        "empty": "No active positions yet."
+      "events": {
+        "title": "Upcoming",
+        "payout": "Payout",
+        "estimated": "Estimated",
+        "daysLeft": "{count} days left",
+        "noEvents": "No upcoming events"
       },
-      "status": {
-        "productionOngoing": "Production ongoing"
-      },
-      "cta": "Invest in Cattle",
-      "actions": {
-        "marketplace": "View Marketplace",
-        "portfolio": "Go to Portfolio"
+      "empty": {
+        "title": "Start Your Investment Journey",
+        "description": "Browse available cattle lots and make your first investment.",
+        "cta": "Explore Investments"
       }
     },
     "marketplace": {
-      "title": "Available Cattle Lots",
-      "subtitle": "Invest in shares of real cattle herds. Each lot represents ownership in active agricultural assets.",
+      "title": "Invest",
+      "subtitle": "Discover cattle investment opportunities",
       "filters": {
         "label": "Filter:",
         "all": "All Lots",
@@ -139,12 +158,15 @@
       "card": {
         "location": "Location",
         "duration": "Duration",
-        "expectedReturn": "Expected Return",
+        "expectedReturn": "Est. Return",
         "fundingProgress": "Funding Progress",
         "herdSize": "Herd Size",
         "pricePerShare": "Price per Share",
         "sharesAvailable": "Shares Available",
-        "investButton": "Invest Now"
+        "investButton": "Invest Now",
+        "funded": "funded",
+        "closesIn": "Closes in {days} days",
+        "youOwn": "You own {count} shares"
       }
     },
     "p2p": {
@@ -321,7 +343,24 @@
         "herdSize": "Herd Size"
       },
       "status": "Status",
-      "backButton": "Back to Portfolio"
+      "backButton": "Back to Portfolio",
+      "backToDashboard": "Back to Dashboard",
+      "positionValue": "Position Value",
+      "yourShares": "Your Shares",
+      "lockedInOffers": "In Offers",
+      "tradeP2P": "Trade on P2P",
+      "navTrend": "NAV Trend",
+      "chartStart": "Start",
+      "chartNow": "Now",
+      "daysRemaining": "Days Left",
+      "weightGain": "Weight Gain",
+      "estimatedEnd": "Est. End",
+      "details": "Details",
+      "expectedReturn": "Expected Return",
+      "duration": "Duration",
+      "noPosition": "No Position Found",
+      "noPositionDesc": "You don't have shares in this lot yet.",
+      "viewLot": "View Lot Details"
     }
   },
   "errors": {

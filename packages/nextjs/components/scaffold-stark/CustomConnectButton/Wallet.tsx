@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Connector } from "@starknet-react/core";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 
 const Wallet = ({
   handleConnectWallet,
@@ -17,44 +16,35 @@ const Wallet = ({
 }) => {
   const [clicked, setClicked] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const { resolvedTheme } = useTheme();
-  const isDarkMode = resolvedTheme === "dark";
 
-  // connector has two : dark and light icon
   const icon = useMemo(() => {
     return typeof connector.icon === "object"
-      ? resolvedTheme === "dark"
-        ? (connector.icon.dark as string)
-        : (connector.icon.light as string)
+      ? (connector.icon.light as string)
       : (connector.icon as string);
-  }, [connector, resolvedTheme]);
+  }, [connector]);
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   return isMounted ? (
     <button
-      className={`flex gap-4 items-center text-neutral  rounded-[4px] p-3 transition-all ${
-        isDarkMode
-          ? "hover:bg-[#385183] border-[#4f4ab7]"
-          : "hover:bg-slate-200 border-[#5c4fe5]"
-      } border ${clicked ? "bg-ligth" : ""}`}
+      className={`flex gap-4 items-center rounded-xl border border-vaca-neutral-gray-200 px-4 py-3 text-vaca-neutral-gray-700 transition hover:border-vaca-green hover:bg-vaca-green/5 ${clicked ? "border-vaca-green bg-vaca-green/5" : ""}`}
       onClick={(e) => {
         setClicked(true);
         handleConnectWallet(e, connector);
       }}
     >
-      <div className="h-6 w-6 rounded-[5px]">
+      <div className="h-8 w-8 rounded-lg overflow-hidden">
         <Image
           alt={connector.name}
           loader={loader}
           src={icon}
           width={70}
           height={70}
-          className="h-full w-full object-cover rounded-[5px]"
+          className="h-full w-full object-cover"
         />
       </div>
-      <span className=" text-start m-0">{connector.name}</span>
+      <span className="text-sm font-medium">{connector.name}</span>
     </button>
   ) : null;
 };

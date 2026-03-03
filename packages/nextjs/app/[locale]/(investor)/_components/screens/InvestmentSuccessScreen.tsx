@@ -3,9 +3,10 @@
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { CheckCircle } from "lucide-react";
 import { useLot } from "~~/hooks/lots/useLot";
 import { cn } from "~~/lib/utils/cn";
-import { PrimaryButton } from "../ui/PrimaryButton";
+import { slowContainerVariants, slowItemVariants } from "../animations";
 
 interface InvestmentSuccessScreenProps {
   lotId: number;
@@ -13,18 +14,6 @@ interface InvestmentSuccessScreenProps {
   shares: number;
 }
 
-/**
- * InvestmentSuccessScreen (INV-12)
- * Success confirmation after investment is processed
- *
- * Shows:
- * - Confirmation message
- * - Lot name
- * - Status: Active
- * - Button: View Portfolio
- *
- * Style: Green success tone, subtle animation
- */
 export function InvestmentSuccessScreen({
   lotId,
   investmentAmount,
@@ -32,297 +21,174 @@ export function InvestmentSuccessScreen({
 }: InvestmentSuccessScreenProps) {
   const t = useTranslations("investor.investmentSuccess");
   const tCommon = useTranslations("common");
-
   const router = useRouter();
-  const { data: lotData, isPending } = useLot(lotId);
-  const lot = lotData ?? null;
-  const fallbackText = "sin back-end";
 
-  const handleViewPortfolio = () => {
-    router.push("/portfolio");
-  };
+  const { data: lot, isPending } = useLot(lotId);
 
-  const handleViewLot = () => {
-    router.push(`/lot/${lotId}`);
-  };
-
-  // Staggered animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: [0.4, 0, 0.2, 1] as const,
-      },
-    },
-  };
-
-  // Success checkmark animation
-  const checkmarkVariants = {
-    hidden: {
-      pathLength: 0,
-      opacity: 0,
-    },
-    visible: {
-      pathLength: 1,
-      opacity: 1,
-      transition: {
-        pathLength: {
-          duration: 0.8,
-          ease: [0.4, 0, 0.2, 1] as const,
-        },
-        opacity: {
-          duration: 0.2,
-        },
-      },
-    },
-  };
-
-  const circleVariants = {
-    hidden: {
-      scale: 0,
-      opacity: 0,
-    },
-    visible: {
-      scale: 1,
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-        ease: [0.34, 1.56, 0.64, 1] as const, // Spring-like easing
-      },
-    },
-  };
-
-  if (isPending && !lot) {
+  if (isPending) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-center font-inter text-sm text-vaca-neutral-gray-500">
-          {tCommon("loading.default")}
-        </div>
+        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-vaca-green/20 border-t-vaca-green" />
       </div>
     );
   }
 
-  if (!lot && !isPending) {
+  if (!lot) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-center">
-          <h2 className="mb-2 font-playfair text-2xl font-semibold text-vaca-neutral-gray-900">
-            {tCommon("errors.notFound")}
-          </h2>
-        </div>
+        <h2 className="font-playfair text-2xl font-semibold text-vaca-neutral-gray-900">
+          {tCommon("errors.notFound")}
+        </h2>
       </div>
     );
   }
+
+  const investorPercent = lot.investorPercent ?? 0;
+  const estimatedReturn = Math.round(investmentAmount * (investorPercent / 100));
 
   return (
     <motion.div
-      variants={containerVariants}
+      variants={slowContainerVariants}
       initial="hidden"
       animate="visible"
-      className="flex w-full flex-col items-center"
+      className="mx-auto flex max-w-[430px] flex-col items-center px-7 pt-12 lg:max-w-2xl lg:px-10"
     >
-      {/* Success Icon */}
-      <motion.div
-        variants={itemVariants}
-        className="mb-6 flex h-24 w-24 items-center justify-center"
-      >
-        <svg
-          className="h-full w-full"
-          viewBox="0 0 100 100"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+      {/* Animated checkmark */}
+      <motion.div variants={slowItemVariants} className="mb-6">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+          className="flex h-20 w-20 items-center justify-center rounded-full bg-vaca-green/10"
         >
-          {/* Background Circle */}
-          <motion.circle
-            variants={circleVariants}
-            cx="50"
-            cy="50"
-            r="45"
-            fill="#1B5E20"
-            fillOpacity="0.1"
-          />
-          <motion.circle
-            variants={circleVariants}
-            cx="50"
-            cy="50"
-            r="40"
-            stroke="#1B5E20"
-            strokeWidth="3"
+          <svg
+            className="h-12 w-12"
+            viewBox="0 0 48 48"
             fill="none"
-          />
-          {/* Checkmark */}
-          <motion.path
-            variants={checkmarkVariants}
-            d="M30 50 L42 62 L70 38"
-            stroke="#1B5E20"
-            strokeWidth="5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-          />
-        </svg>
+          >
+            <motion.path
+              d="M12 24 L20 32 L36 16"
+              stroke="#1B5E20"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{
+                pathLength: { duration: 0.6, delay: 0.3, ease: [0.4, 0, 0.2, 1] },
+                opacity: { duration: 0.2, delay: 0.3 },
+              }}
+            />
+          </svg>
+        </motion.div>
       </motion.div>
 
-      {/* Success Message */}
-      <motion.div variants={itemVariants} className="mb-8 text-center">
-        <h1 className="mb-2 font-playfair text-3xl font-semibold tracking-tight text-vaca-green">
+      {/* Title */}
+      <motion.div variants={slowItemVariants} className="mb-8 text-center">
+        <h1 className="font-playfair text-3xl leading-tight text-vaca-green">
           {t("title")}
         </h1>
-        <p className="font-inter text-base text-vaca-neutral-gray-600">
-          {t("message", { lotName: lot?.name || fallbackText })}
+        <p className="mt-2 font-inter text-sm text-vaca-neutral-gray-500">
+          {t("message", { lotName: lot.name })}
         </p>
       </motion.div>
 
-      {/* Investment Details Card */}
+      {/* Investment card */}
       <motion.div
-        variants={itemVariants}
-        className={cn(
-          "mb-8 w-full rounded-2xl border-2 border-vaca-green/20 bg-vaca-green/5",
-          "p-6",
-        )}
+        variants={slowItemVariants}
+        className="mb-8 w-full rounded-2xl border border-vaca-green/10 bg-vaca-green/5 p-5"
       >
-        <div className="space-y-4">
-          {/* Lot Name */}
+        {/* Lot info */}
+        <div className="mb-4 text-center">
+          <h2 className="font-playfair text-lg font-semibold text-vaca-neutral-gray-900">
+            {lot.name}
+          </h2>
+          <p className="mt-0.5 font-inter text-xs text-vaca-neutral-gray-400">
+            {lot.location} · {lot.durationWeeks ? `${lot.durationWeeks} ${tCommon("time.weeks")}` : ""}
+          </p>
+        </div>
+
+        <div className="border-t border-vaca-green/10" />
+
+        {/* Metrics grid */}
+        <div className="mt-4 grid grid-cols-2 gap-4">
           <div className="text-center">
-            <div className="mb-1 font-inter text-xs font-medium uppercase tracking-wide text-vaca-green/70">
-              {t("details.lot")}
-            </div>
-            <h2 className="font-playfair text-xl font-semibold text-vaca-neutral-gray-900">
-              {lot?.name || fallbackText}
-            </h2>
-            <div className="mt-1 font-inter text-sm text-vaca-neutral-gray-600">
-              {lot?.location || fallbackText} ·{" "}
-              {lot?.durationWeeks
-                ? `${lot.durationWeeks} weeks`
-                : fallbackText}
-            </div>
+            <p className="font-inter text-[9px] font-bold uppercase tracking-[0.2em] text-vaca-neutral-gray-400">
+              {t("details.invested")}
+            </p>
+            <p className="mt-1 font-inter text-2xl font-bold text-vaca-neutral-gray-900">
+              ${investmentAmount.toLocaleString()}
+            </p>
           </div>
-
-          <div className="border-t border-vaca-green/10" />
-
-          {/* Investment Summary */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <div className="mb-1 font-inter text-xs text-vaca-neutral-gray-500">
-                {t("details.invested")}
-              </div>
-              <div className="font-playfair text-2xl font-semibold text-vaca-green">
-                ${investmentAmount.toLocaleString("en-US")}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="mb-1 font-inter text-xs text-vaca-neutral-gray-500">
-                {t("details.shares")}
-              </div>
-              <div className="font-playfair text-2xl font-semibold text-vaca-green">
-                {shares.toLocaleString("en-US")}
-              </div>
-            </div>
+          <div className="text-center">
+            <p className="font-inter text-[9px] font-bold uppercase tracking-[0.2em] text-vaca-neutral-gray-400">
+              {t("details.shares")}
+            </p>
+            <p className="mt-1 font-inter text-2xl font-bold text-vaca-neutral-gray-900">
+              {shares.toLocaleString()}
+            </p>
           </div>
+        </div>
 
-          <div className="border-t border-vaca-green/10" />
-
-          {/* Status Badge */}
-          <div className="flex items-center justify-center gap-2 rounded-xl bg-vaca-green/10 px-4 py-3">
-            <div className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-vaca-green opacity-75"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-vaca-green"></span>
+        {investorPercent > 0 && (
+          <>
+            <div className="mt-4 border-t border-vaca-green/10" />
+            <div className="mt-4 text-center">
+              <p className="font-inter text-[9px] font-bold uppercase tracking-[0.2em] text-vaca-neutral-gray-400">
+                Est. Return ({investorPercent}%)
+              </p>
+              <p className="mt-1 font-inter text-xl font-bold text-vaca-green">
+                +${estimatedReturn.toLocaleString()}
+              </p>
             </div>
-            <span className="font-inter text-sm font-semibold text-vaca-green">
-              Investment Active
-            </span>
-          </div>
+          </>
+        )}
+
+        {/* Active badge */}
+        <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-vaca-green/10 py-2.5">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-vaca-green opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-vaca-green" />
+          </span>
+          <span className="font-inter text-xs font-bold text-vaca-green">
+            {tCommon("status.active")}
+          </span>
         </div>
       </motion.div>
 
-      {/* Next Steps */}
-      <motion.div variants={itemVariants} className="mb-8 w-full text-center">
-        <h3 className="mb-3 font-inter text-sm font-semibold text-vaca-neutral-gray-900">
+      {/* Next steps */}
+      <motion.div variants={slowItemVariants} className="mb-8 w-full">
+        <h3 className="mb-3 text-center font-inter text-xs font-bold uppercase tracking-[0.15em] text-vaca-neutral-gray-400">
           {t("nextSteps.title")}
         </h3>
-        <ul className="space-y-2 font-inter text-sm text-vaca-neutral-gray-600">
-          <li className="flex items-start gap-2">
-            <svg
-              className="mt-0.5 h-4 w-4 flex-shrink-0 text-vaca-green"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              aria-hidden="true"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="text-left">{t("nextSteps.step1")}</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <svg
-              className="mt-0.5 h-4 w-4 flex-shrink-0 text-vaca-green"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              aria-hidden="true"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="text-left">{t("nextSteps.step2")}</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <svg
-              className="mt-0.5 h-4 w-4 flex-shrink-0 text-vaca-green"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              aria-hidden="true"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="text-left">{t("nextSteps.step3")}</span>
-          </li>
-        </ul>
+        <div className="space-y-2">
+          {["step1", "step2", "step3"].map((step) => (
+            <div key={step} className="flex items-start gap-2.5">
+              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-vaca-green" />
+              <span className="font-inter text-sm text-vaca-neutral-gray-600">
+                {t(`nextSteps.${step}`)}
+              </span>
+            </div>
+          ))}
+        </div>
       </motion.div>
 
-      {/* Action Buttons */}
-      <motion.div
-        variants={itemVariants}
-        className="flex w-full flex-col gap-3"
-      >
-        <PrimaryButton onClick={handleViewPortfolio} className="w-full">
-          {t("actions.viewPortfolio")}
-        </PrimaryButton>
-
-        <button
-          onClick={handleViewLot}
-          className={cn(
-            "w-full rounded-xl border-2 border-vaca-neutral-gray-200 bg-vaca-neutral-white",
-            "px-6 py-4 font-inter text-base font-medium text-vaca-neutral-gray-700",
-            "transition-all duration-200",
-            "hover:border-vaca-neutral-gray-300 hover:bg-vaca-neutral-gray-50",
-            "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-vaca-neutral-gray-200",
-          )}
+      {/* CTAs */}
+      <motion.div variants={slowItemVariants} className="w-full space-y-3 pb-8">
+        <motion.button
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => router.push("/dashboard")}
+          className="flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-vaca-green to-vaca-green-light font-inter text-base font-bold text-white shadow-xl shadow-vaca-green/30 transition-all"
         >
-          View Lot Details
+          {t("actions.viewPortfolio")}
+        </motion.button>
+        <button
+          onClick={() => router.push(`/lot/${lotId}`)}
+          className="w-full py-3 font-inter text-sm font-medium text-vaca-neutral-gray-500 transition-colors hover:text-vaca-neutral-gray-700"
+        >
+          {t("actions.viewPosition")}
         </button>
       </motion.div>
     </motion.div>

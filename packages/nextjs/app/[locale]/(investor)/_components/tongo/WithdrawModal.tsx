@@ -158,10 +158,10 @@ export function WithdrawModal({ isOpen, onClose, onSuccess }: WithdrawModalProps
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3"
+                      className="flex items-start gap-2 rounded-xl border border-vaca-error/20 bg-vaca-error-light px-4 py-3"
                     >
-                      <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-red-700">{errorMessage}</p>
+                      <AlertCircle className="h-5 w-5 text-vaca-error flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-vaca-error-dark">{errorMessage}</p>
                     </motion.div>
                   )}
                 </div>

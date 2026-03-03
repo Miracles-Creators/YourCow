@@ -11,21 +11,17 @@ interface NavItem {
   icon: (isActive: boolean) => React.ReactNode;
 }
 
-/**
- * BottomNav - Mobile-first bottom navigation bar
- * Shows on authenticated investor screens (dashboard, marketplace, etc.)
- */
 export function BottomNav() {
   const pathname = usePathname();
   const t = useTranslations("common.nav");
 
   const navItems: NavItem[] = [
     {
-      label: t("dashboard"),
+      label: t("home"),
       href: "/dashboard",
       icon: (isActive) => (
         <svg
-          className={cn("h-6 w-6", isActive ? "fill-current" : "fill-none")}
+          className={cn("h-[18px] w-4", isActive ? "fill-current" : "fill-none")}
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth={2}
@@ -39,11 +35,11 @@ export function BottomNav() {
       ),
     },
     {
-      label: t("marketplace"),
+      label: t("invest"),
       href: "/marketplace",
       icon: (isActive) => (
         <svg
-          className={cn("h-6 w-6", isActive ? "fill-current" : "fill-none")}
+          className={cn("h-5 w-[18px]", isActive ? "fill-current" : "fill-none")}
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth={2}
@@ -51,17 +47,17 @@ export function BottomNav() {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+            d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 4l-5 5"
           />
         </svg>
       ),
     },
     {
-      label: t("p2p"),
+      label: t("trade"),
       href: "/p2p",
       icon: (isActive) => (
         <svg
-          className={cn("h-6 w-6", isActive ? "fill-current" : "fill-none")}
+          className={cn("h-4 w-5", isActive ? "fill-current" : "fill-none")}
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth={2}
@@ -74,30 +70,10 @@ export function BottomNav() {
         </svg>
       ),
     },
-    {
-      label: t("portfolio"),
-      href: "/portfolio",
-      icon: (isActive) => (
-        <svg
-          className={cn("h-6 w-6", isActive ? "fill-current" : "fill-none")}
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-          />
-        </svg>
-      ),
-    },
   ];
 
-  // Remove locale prefix from pathname (e.g., /en/dashboard -> /dashboard)
   const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, "") || "/";
 
-  // Check if current path matches nav item
   const isActive = (href: string) => {
     if (href === "/dashboard") {
       return pathWithoutLocale === href;
@@ -107,10 +83,10 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-vaca-neutral-gray-200 bg-vaca-neutral-white shadow-lg"
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-vaca-neutral-gray-100 bg-vaca-neutral-white/80 backdrop-blur-md lg:hidden"
       aria-label="Bottom navigation"
     >
-      <div className="mx-auto flex max-w-lg items-center justify-around">
+      <div className="mx-auto flex max-w-md items-center justify-between px-6 pb-6 pt-2">
         {navItems.map((item) => {
           const active = isActive(item.href);
 
@@ -119,34 +95,24 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "relative flex flex-1 flex-col items-center gap-1 px-3 py-3 transition-colors",
-                "hover:bg-vaca-green/5",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-vaca-green",
+                "flex flex-col items-center gap-1 transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vaca-gold",
                 active
-                  ? "text-vaca-green"
-                  : "text-vaca-neutral-gray-500 hover:text-vaca-green",
+                  ? "text-vaca-gold"
+                  : "text-vaca-neutral-gray-400 hover:text-vaca-neutral-gray-600",
               )}
               aria-current={active ? "page" : undefined}
             >
-              {/* Icon */}
-              <div className="flex h-6 w-6 items-center justify-center">
+              <div className="flex items-center justify-center">
                 {item.icon(active)}
               </div>
-
-              {/* Label */}
               <span
                 className={cn(
-                  "font-inter text-xs font-medium",
-                  active ? "font-semibold" : "font-normal",
+                  "font-inter text-[10px] font-bold uppercase tracking-widest",
                 )}
               >
                 {item.label}
               </span>
-
-              {/* Active Indicator */}
-              {active && (
-                <div className="absolute bottom-0 left-1/2 h-1 w-12 -translate-x-1/2 rounded-t-full bg-vaca-green" />
-              )}
             </Link>
           );
         })}

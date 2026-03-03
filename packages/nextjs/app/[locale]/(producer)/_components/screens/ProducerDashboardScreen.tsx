@@ -72,9 +72,9 @@ const mockLots: ProducerLot[] = [
 const mapLotStatus = (status?: string): { label: string; tone: StatusTone } => {
   switch (status) {
     case "ACTIVE":
-    case "FUNDING":
-    case "FUNDED":
       return { label: "Active", tone: "success" };
+    case "FUNDING":
+      return { label: "Funding", tone: "warning" };
     case "COMPLETED":
       return { label: "Completed", tone: "neutral" };
     case "SETTLING":

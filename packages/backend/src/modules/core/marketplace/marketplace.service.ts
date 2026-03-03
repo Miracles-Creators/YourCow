@@ -16,6 +16,7 @@ import { PrismaService } from "../../../database/prisma.service";
 import { LotSharesTokenService } from "../../onchain/lot-shares-token/lot-shares-token.service";
 import { CustodyService } from "../custody/custody.service";
 import { LedgerService } from "../ledger/ledger.service";
+import { computeLotFields } from "../lots/lots.service";
 import { AcceptOfferDto, BuySharesFromLotDto, CreateOfferDto } from "./dto/dto";
 import { PrivateTradeService } from "./private-trade.service";
 
@@ -108,6 +109,11 @@ export class MarketplaceService {
     const lot = await this.prisma.lot.findUnique({ where: { id: dto.lotId } });
     if (!lot) {
       throw new NotFoundException(`Lot with id ${dto.lotId} not found`);
+    }
+    if (lot.status !== LotStatus.ACTIVE) {
+      throw new BadRequestException(
+        `Lot must be ACTIVE to sell shares (current: ${lot.status})`,
+      );
     }
 
     const existing = await this.prisma.offer.findUnique({
@@ -593,6 +599,20 @@ export class MarketplaceService {
 
     return this.prisma.offer.findMany({
       where,
+      include: {
+        lot: {
+          select: {
+            id: true,
+            name: true,
+            pricePerShare: true,
+            status: true,
+            productionType: true,
+            location: true,
+            durationWeeks: true,
+            fundingDeadline: true,
+          },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
   }
@@ -614,6 +634,32 @@ export class MarketplaceService {
     };
   }
 
+  async getMyTrades(userId: number) {
+    const trades = await this.prisma.trade.findMany({
+      where: {
+        OR: [
+          { buyerId: userId },
+          { offer: { sellerId: userId } },
+        ],
+      },
+      include: {
+        offer: { include: { lot: { select: { name: true } } } },
+      },
+      orderBy: { settledAt: "desc" },
+    });
+
+    return trades.map((trade) => ({
+      id: trade.id,
+      type: trade.buyerId === userId ? ("BUY" as const) : ("SELL" as const),
+      lotName: trade.offer.lot.name,
+      sharesAmount: trade.sharesAmount,
+      totalPrice: trade.strkTotalPrice ?? String(trade.totalPrice),
+      currency: trade.currency,
+      status: trade.status,
+      settledAt: trade.settledAt,
+    }));
+  }
+
   async getOfferById(id: number): Promise<Offer> {
     this.assertPositiveInt(id, "id");
     const offer = await this.prisma.offer.findUnique({ where: { id } });
@@ -623,7 +669,60 @@ export class MarketplaceService {
     return offer;
   }
 
-  //TODO:REVIEW THIS IS 
+  async getPortfolioSummary(userId: number) {
+    const account = await this.custodyService.getOrCreateAccount(userId);
+
+    const balances = await this.prisma.balance.findMany({
+      where: { accountId: account.id, assetType: AssetType.LOT_SHARES, lotId: { not: null } },
+      include: { lot: true },
+    });
+
+    const purchases = await this.prisma.primaryPurchase.findMany({
+      where: { userId, status: PrimaryPurchaseStatus.COMPLETED },
+    });
+
+    const investedByLot = new Map<number, number>();
+    for (const p of purchases) {
+      investedByLot.set(p.lotId, (investedByLot.get(p.lotId) ?? 0) + p.totalCost);
+    }
+
+    let totalInvested = 0;
+    let currentValue = 0;
+    let activePositions = 0;
+    let settledPositions = 0;
+
+    const lots = balances
+      .filter((b) => b.lot && b.available.plus(b.locked).greaterThan(0))
+      .map((b) => {
+        const lot = b.lot!;
+        const totalShares = Number(b.available.plus(b.locked));
+        const invested = investedByLot.get(lot.id) ?? 0;
+        const value = lot.pricePerShare * totalShares;
+
+        totalInvested += invested;
+        currentValue += value;
+        if (lot.status === LotStatus.ACTIVE || lot.status === LotStatus.FUNDING) activePositions++;
+        if (lot.status === LotStatus.COMPLETED) settledPositions++;
+
+        return {
+          lotId: lot.id,
+          lotName: lot.name,
+          invested,
+          currentValue: value,
+          returnPercent: invested > 0 ? Number((((value - invested) / invested) * 100).toFixed(2)) : 0,
+          status: lot.status,
+          productionType: lot.productionType,
+          ...computeLotFields(lot),
+        };
+      });
+
+    const totalGain = currentValue - totalInvested;
+    const returnPercent = totalInvested > 0 ? Number(((totalGain / totalInvested) * 100).toFixed(2)) : 0;
+
+    return { totalInvested, currentValue, totalGain, returnPercent, activePositions, settledPositions, lots };
+  }
+
+  //TODO:REVIEW THIS IS
   async getPortfolio(userId: number): Promise<PortfolioSummary> {
     const account = await this.custodyService.getOrCreateAccount(userId);
 
@@ -912,6 +1011,23 @@ export class MarketplaceService {
         where: { id: purchase.id },
         data: { status: PrimaryPurchaseStatus.COMPLETED },
       });
+
+      // Auto-transition FUNDING → ACTIVE when 100% shares are sold
+      const lot = await tx.lot.findUnique({ where: { id: purchase.lotId } });
+      if (lot && lot.status === LotStatus.FUNDING) {
+        const totals = await tx.balance.aggregate({
+          where: { assetType: AssetType.LOT_SHARES, lotId: purchase.lotId },
+          _sum: { available: true, locked: true },
+        });
+        const totalSold = (totals._sum.available ?? new Decimal(0))
+          .plus(totals._sum.locked ?? new Decimal(0));
+        if (totalSold.greaterThanOrEqualTo(lot.totalShares)) {
+          await tx.lot.update({
+            where: { id: purchase.lotId },
+            data: { status: LotStatus.ACTIVE },
+          });
+        }
+      }
 
       return {
         txHash: purchase.txHash ?? "",

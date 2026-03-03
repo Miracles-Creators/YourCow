@@ -4,7 +4,6 @@
       "home": "Inicio",
       "marketplace": "Mercado",
       "p2p": "P2P",
-      "portfolio": "Portafolio",
       "dashboard": "Panel",
       "producerDashboard": "Panel del Productor",
       "createLot": "Crear Lote",
@@ -24,14 +23,17 @@
       "save": "Guardar",
       "cancel": "Cancelar",
       "confirm": "Confirmar",
-      "filter": "Filtrar"
+      "filter": "Filtrar",
+    "fund": "Fondear",
+    "withdraw": "Retirar"
     },
     "nav": {
       "home": "Inicio",
       "dashboard": "Panel",
-      "portfolio": "Portafolio",
       "marketplace": "Mercado",
       "p2p": "P2P",
+      "invest": "Invertir",
+      "trade": "Intercambio",
       "position": "Posición",
       "profile": "Perfil",
       "oracle": "Oráculo"
@@ -40,7 +42,10 @@
       "active": "Activo",
       "inactive": "Inactivo",
       "pending": "Pendiente",
+      "funded": "Fondeado",
       "completed": "Completado",
+      "settling": "Liquidando",
+      "draft": "Borrador",
       "liquidated": "Liquidado",
       "pendingSale": "Venta Pendiente"
     },
@@ -79,8 +84,10 @@
       "title": "Bienvenido a YourCow",
       "tagline": "Invierte en activos ganaderos reales",
       "description": "Liquidez estructurada alineada con ciclos de producción reales",
-      "ctaRegister": "Crear cuenta",
-      "ctaLogin": "Ya tengo cuenta"
+      "ctaRegister": "Continuar",
+      "ctaLogin": "Iniciar Sesión",
+      "loginPrompt": "¿Ya tenés cuenta?",
+      "footer": "Plataforma de Activos Regulados"
     },
     "login": {
       "title": "Iniciar Sesión",
@@ -91,40 +98,52 @@
       "helperText": "Acceso seguro. Sin contraseñas."
     },
     "dashboard": {
-      "pill": "Resumen Ejecutivo",
       "title": "Tu Portafolio",
-      "subtitle": "Resumen ejecutivo de tu cartera, efectivo disponible y relación por lote.",
+      "subtitle": "Resumen de inversiones",
+      "greeting": "Buenos días, {name}",
+      "notifications": "Notificaciones",
       "stats": {
         "totalInvested": "Total Invertido",
-        "currentValue": "Valor Actual (basado en NAV)",
+        "currentValue": "Valor Actual",
+        "activePositions": "Lotes Activos",
+        "settledPositions": "Liquidados",
         "gain": "Ganancia",
+        "returnLabel": "+{value}%",
+        "daysLeft": "Dias Restantes",
+        "invested": "inv",
+        "left": "rest",
+        "weightGain": "peso"
+      },
+      "performance": {
+        "title": "Tus Lotes",
+        "name": "Nombre",
+        "invested": "Invertido",
+        "return": "Retorno",
         "status": "Estado",
-        "returnLabel": "Retorno {value}"
+        "empty": "Sin posiciones aún. Empezá a invertir para ver tus lotes acá.",
+        "viewPortfolio": "Ver Portafolio Completo",
+        "viewAll": "Ver Todos"
       },
-      "cash": {
-        "title": "Cash Balance",
-        "available": "Disponible",
-        "ars": "Pesos (ARS)",
-        "usd": "Dólares (USD)"
+      "chart": {
+        "title": "Valor del Portafolio",
+        "noData": "Datos del gráfico disponibles después de tu primera inversión"
       },
-      "lots": {
-        "title": "Relación por lote",
-        "shares": "Acciones",
-        "shareOfLot": "% del lote",
-        "empty": "Aún no tienes posiciones activas."
+      "events": {
+        "title": "Próximos",
+        "payout": "Cobro",
+        "estimated": "Estimado",
+        "daysLeft": "{count} días restantes",
+        "noEvents": "Sin eventos próximos"
       },
-      "status": {
-        "productionOngoing": "Producción en curso"
-      },
-      "cta": "Invertir en Ganado",
-      "actions": {
-        "marketplace": "Ver Mercado",
-        "portfolio": "Ir a Portafolio"
+      "empty": {
+        "title": "Comenzá tu Viaje de Inversión",
+        "description": "Explorá los lotes de ganado disponibles y hacé tu primera inversión.",
+        "cta": "Explorar Inversiones"
       }
     },
     "marketplace": {
-      "title": "Lotes de Ganado Disponibles",
-      "subtitle": "Invierte en acciones de rebaños de ganado reales. Cada lote representa propiedad en activos agrícolas activos.",
+      "title": "Invertir",
+      "subtitle": "Descubrí oportunidades de inversión ganadera",
       "filters": {
         "label": "Filtrar:",
         "all": "Todos los Lotes",
@@ -139,12 +158,15 @@
       "card": {
         "location": "Ubicación",
         "duration": "Duración",
-        "expectedReturn": "Retorno Esperado",
+        "expectedReturn": "Ret. Est.",
         "fundingProgress": "Progreso de Financiamiento",
         "herdSize": "Tamaño del Rebaño",
         "pricePerShare": "Precio por Acción",
         "sharesAvailable": "Acciones Disponibles",
-        "investButton": "Invertir Ahora"
+        "investButton": "Invertir Ahora",
+        "funded": "financiado",
+        "closesIn": "Cierra en {days} días",
+        "youOwn": "Tienes {count} acciones"
       }
     },
     "p2p": {
@@ -321,7 +343,24 @@
         "herdSize": "Tamaño del Rebaño"
       },
       "status": "Estado",
-      "backButton": "Volver al Portafolio"
+      "backButton": "Volver al Portafolio",
+      "backToDashboard": "Volver al Dashboard",
+      "positionValue": "Valor de Posición",
+      "yourShares": "Tus Acciones",
+      "lockedInOffers": "En Ofertas",
+      "tradeP2P": "Operar en P2P",
+      "navTrend": "Tendencia del NAV",
+      "chartStart": "Inicio",
+      "chartNow": "Ahora",
+      "daysRemaining": "Días Restantes",
+      "weightGain": "Ganancia de Peso",
+      "estimatedEnd": "Fin Estimado",
+      "details": "Detalles",
+      "expectedReturn": "Retorno Esperado",
+      "duration": "Duración",
+      "noPosition": "Posición No Encontrada",
+      "noPositionDesc": "Aún no tienes acciones en este lote.",
+      "viewLot": "Ver Detalles del Lote"
     }
   },
   "errors": {

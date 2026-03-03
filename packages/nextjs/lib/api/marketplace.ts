@@ -9,6 +9,8 @@ import {
   TradeStatusResponseSchema,
   PortfolioSchema,
   PortfolioLotItemSchema,
+  PortfolioSummarySchema,
+  MyTradeSchema,
   type CreateOfferInput,
   type AcceptOfferInput,
   type BuyPrimaryInput,
@@ -18,6 +20,8 @@ import {
   type TradeStatusResponse,
   type PortfolioDto,
   type PortfolioLotItemDto,
+  type PortfolioSummaryDto,
+  type MyTradeDto,
   type OfferFilters,
 } from "./schemas";
 
@@ -134,4 +138,14 @@ export async function getPortfolioByLot(
 ): Promise<PortfolioLotItemDto> {
   const position = await apiFetch<PortfolioLotItemDto>(`/portfolio/${lotId}`);
   return PortfolioLotItemSchema.parse(position);
+}
+
+export async function getPortfolioSummary(): Promise<PortfolioSummaryDto> {
+  const summary = await apiFetch<PortfolioSummaryDto>("/portfolio/summary");
+  return PortfolioSummarySchema.parse(summary);
+}
+
+export async function getMyTrades(): Promise<MyTradeDto[]> {
+  const trades = await apiFetch<MyTradeDto[]>("/offers/trades/mine");
+  return MyTradeSchema.array().parse(trades);
 }

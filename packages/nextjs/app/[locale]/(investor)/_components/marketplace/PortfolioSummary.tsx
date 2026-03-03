@@ -160,11 +160,11 @@ export function PortfolioSummary({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className={cn(
-          "flex flex-col items-center justify-center py-12 px-4 text-center bg-red-50 rounded-xl border border-red-100",
+          "flex flex-col items-center justify-center py-12 px-4 text-center bg-vaca-error-light rounded-xl border border-vaca-error/10",
           className
         )}
       >
-        <AlertCircle className="h-10 w-10 text-red-500 mb-4" />
+        <AlertCircle className="h-10 w-10 text-vaca-error mb-4" />
         <h3 className="font-playfair text-lg font-semibold text-vaca-neutral-gray-900 mb-2">
           Failed to load portfolio
         </h3>
@@ -372,7 +372,7 @@ export function PortfolioSummary({
                     />
 
                     {depositError && (
-                      <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                      <div className="rounded-lg border border-vaca-error/20 bg-vaca-error-light px-3 py-2 text-sm text-vaca-error-dark">
                         {depositError}
                       </div>
                     )}

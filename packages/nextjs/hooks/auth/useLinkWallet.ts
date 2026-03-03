@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import type { AccountInterface, TypedData } from "starknet";
 
 import { getWalletLinkChallenge, linkWallet } from "~~/lib/api/auth";
@@ -65,10 +65,12 @@ type AutoLinkParams = {
   me?: UserDto;
 };
 
+// Module-level state survives component remounts (e.g. TopBar minimal toggle)
+const attemptedAddresses = new Set<string>();
+const mismatchNotifiedAddresses = new Set<string>();
+
 export function useAutoLinkWallet() {
   const linkWalletMutation = useLinkWallet();
-  const lastAttemptRef = useRef<string | null>(null);
-  const mismatchNotifiedRef = useRef<string | null>(null);
 
   const tryLinkWallet = useCallback(
     ({ status, account, accountAddress, me }: AutoLinkParams) => {
@@ -86,15 +88,15 @@ export function useAutoLinkWallet() {
 
       // User has different wallet linked - warn once
       if (currentWallet && currentWallet !== normalizedAddress) {
-        if (mismatchNotifiedRef.current !== normalizedAddress) {
-          mismatchNotifiedRef.current = normalizedAddress;
+        if (!mismatchNotifiedAddresses.has(normalizedAddress)) {
+          mismatchNotifiedAddresses.add(normalizedAddress);
           notification.warning("La wallet conectada no coincide con la asociada a tu cuenta");
         }
         return;
       }
 
-      // Already attempted this address
-      if (lastAttemptRef.current === normalizedAddress) {
+      // Already attempted this address (survives component remounts)
+      if (attemptedAddresses.has(normalizedAddress)) {
         return;
       }
 
@@ -103,7 +105,7 @@ export function useAutoLinkWallet() {
         return;
       }
 
-      lastAttemptRef.current = normalizedAddress;
+      attemptedAddresses.add(normalizedAddress);
       linkWalletMutation.mutate({ account, address: normalizedAddress });
     },
     [linkWalletMutation],

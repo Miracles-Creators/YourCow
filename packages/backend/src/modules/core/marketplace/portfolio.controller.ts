@@ -19,6 +19,14 @@ import { MarketplaceService } from "./marketplace.service";
 export class PortfolioController {
   constructor(private readonly marketplaceService: MarketplaceService) {}
 
+  @Get("summary")
+  async getPortfolioSummary(@Req() req: AuthenticatedRequest) {
+    if (!req.user) {
+      throw new UnauthorizedException("Not authenticated");
+    }
+    return this.marketplaceService.getPortfolioSummary(req.user.id);
+  }
+
   @Get()
   async getPortfolio(@Req() req: AuthenticatedRequest) {
     if (!req.user) {

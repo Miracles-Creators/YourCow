@@ -4,83 +4,60 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { cn } from "~~/lib/utils/cn";
 import { BottomNav } from "../ui/BottomNav";
+import { SideNav } from "../ui/SideNav";
+import { TopBar } from "../ui/TopBar";
 
 interface InvestorLayoutProps {
   children: ReactNode;
   className?: string;
 }
 
-// Routes where BottomNav should NOT appear (public/onboarding screens)
 const PUBLIC_ROUTES = ["/welcome", "/login"];
 
-/**
- * InvestorLayout - Base layout for investor-facing screens
- * Provides:
- * - Off-white calm background
- * - Organic floating gradient orbs
- * - Subtle grain texture
- * - Mobile-first responsive design
- * - Bottom navigation (only on authenticated screens)
- */
+// Immersive routes: no TopBar, no padding, no max-w — the screen owns its own layout
+const IMMERSIVE_ROUTES = ["/lot/", "/invest/", "/confirm-investment/", "/investment-success/", "/position/"];
+
 export function InvestorLayout({ children, className }: InvestorLayoutProps) {
   const pathname = usePathname();
-  const showBottomNav = !PUBLIC_ROUTES.includes(pathname);
-  const isMarketplace = pathname.endsWith("/marketplace") || pathname.endsWith("/p2p");
+  const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, "") || "/";
+  const showBottomNav = !PUBLIC_ROUTES.some((r) => pathWithoutLocale === r || pathWithoutLocale.startsWith(r + "/"));
+  const isNarrowCentered = ["/welcome", "/login", "/register"].some(
+    (r) => pathWithoutLocale === r || pathWithoutLocale.startsWith(r + "/"),
+  );
+  const isImmersive = IMMERSIVE_ROUTES.some((r) => pathWithoutLocale.startsWith(r));
 
   return (
     <div
       className={cn(
-        "relative min-h-screen overflow-hidden bg-vaca-neutral-bg",
-        "flex justify-center",
-        isMarketplace ? "items-start" : "items-center",
-        "px-4 py-8 sm:px-6 lg:px-8",
-        showBottomNav && "pb-24", // Extra padding for bottom nav
+        "relative min-h-screen overflow-x-hidden bg-vaca-neutral-bg",
         className,
       )}
     >
-      {/* Floating Background Orbs - Nature-inspired ambient gradients */}
-      <div
-        className="pointer-events-none absolute -left-48 -top-48 h-96 w-96 animate-float rounded-full opacity-15 blur-3xl"
-        style={{
-          background:
-            "radial-gradient(circle, #1B5E20 0%, #2E7D32 50%, transparent 100%)",
-          animationDelay: "0s",
-        }}
-        aria-hidden="true"
-      />
+      {showBottomNav && <SideNav />}
 
       <div
-        className="pointer-events-none absolute -bottom-32 -right-32 h-80 w-80 animate-float rounded-full opacity-15 blur-3xl"
-        style={{
-          background:
-            "radial-gradient(circle, #4FC3F7 0%, #81D4FA 50%, transparent 100%)",
-          animationDelay: "-10s",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Subtle Grain Texture Overlay */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Content */}
-      <main
         className={cn(
-          "relative z-10 w-full",
-          isMarketplace
-            ? "max-w-6xl sm:max-w-6xl lg:max-w-7xl"
-            : "max-w-md",
+          "relative z-10 flex min-h-screen justify-center",
+          isNarrowCentered ? "items-center" : "items-start",
+          isImmersive
+            ? "px-0 pb-0"
+            : "px-4 pb-8 sm:px-6 lg:px-8",
+          showBottomNav && !isImmersive && "pb-24 lg:pb-8 lg:pl-64",
+          showBottomNav && isImmersive && "lg:pl-64",
         )}
       >
-        {children}
-      </main>
+        <main
+          className={cn(
+            "w-full",
+            isNarrowCentered && "max-w-md",
+            !isNarrowCentered && !isImmersive && "max-w-md lg:max-w-6xl",
+          )}
+        >
+          {showBottomNav && !isImmersive && <TopBar />}
+          {children}
+        </main>
+      </div>
 
-      {/* Bottom Navigation - Only on authenticated screens */}
       {showBottomNav && <BottomNav />}
     </div>
   );
