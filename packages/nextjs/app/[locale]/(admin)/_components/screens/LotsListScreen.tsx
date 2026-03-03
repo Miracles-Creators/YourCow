@@ -17,7 +17,7 @@ interface LotRecord {
   id: number;
   name: string;
   producer: string;
-  status: "Pending" | "Active" | "Sold" | "Settled" | "Paused";
+  status: "Pending" | "Funding" | "Active" | "Settled" | "Paused";
   fundedPercent: number;
   lastUpdate: string;
   needsAttention?: boolean;
@@ -72,8 +72,8 @@ const filters = [
 
 const statusTone: Record<LotRecord["status"], AdminStatusTone> = {
   Pending: "pending",
+  Funding: "asset",
   Active: "approved",
-  Sold: "asset",
   Settled: "info",
   Paused: "neutral",
 };
@@ -95,10 +95,10 @@ export function LotsListScreen() {
       status:
         lot.status === "DRAFT" || lot.status === "PENDING_DEPLOY"
           ? "Pending"
-          : lot.status === "FUNDING" || lot.status === "ACTIVE"
-            ? "Active"
-            : lot.status === "FUNDED"
-              ? "Sold"
+          : lot.status === "FUNDING"
+            ? "Funding"
+            : lot.status === "ACTIVE"
+              ? "Active"
               : lot.status === "SETTLING" || lot.status === "COMPLETED"
                 ? "Settled"
                 : "Paused",

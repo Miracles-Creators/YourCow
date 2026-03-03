@@ -35,9 +35,7 @@ export class SettlementsService {
       }
 
       const allowedStatuses = new Set<LotStatus>([
-        LotStatus.FUNDING,
         LotStatus.ACTIVE,
-        LotStatus.FUNDED,
       ]);
       if (!allowedStatuses.has(lot.status)) {
         throw new BadRequestException(

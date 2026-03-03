@@ -50,9 +50,9 @@ function getLotStatusDisplay(
 ): { label: string; tone: StatusTone } {
   switch (status) {
     case "ACTIVE":
-    case "FUNDING":
-    case "FUNDED":
       return { label: "Active", tone: "success" };
+    case "FUNDING":
+      return { label: "Funding", tone: "warning" };
     case "COMPLETED":
       return { label: "Completed", tone: "neutral" };
     case "SETTLING":
@@ -118,7 +118,7 @@ export function ProducerLotDashboardScreen() {
     if (!lotQuery.data?.updatedAt) return "—";
     return new Date(lotQuery.data.updatedAt).toLocaleDateString();
   }, [lotQuery.data?.updatedAt]);
-  const canRegisterSale = lotQuery.data?.status === "ACTIVE" || lotQuery.data?.status === "FUNDED";
+  const canRegisterSale = lotQuery.data?.status === "ACTIVE";
   const handleAnimalChange = (field: keyof typeof animalForm, value: string) => {
     setAnimalForm(prev => ({ ...prev, [field]: value }));
     setAnimalError("");

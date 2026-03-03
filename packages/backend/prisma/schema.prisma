@@ -199,11 +199,10 @@ enum LotDocumentType {
 enum LotStatus {
   DRAFT // Created in db, not on-chain
   PENDING_DEPLOY // Deploying on-chain
-  FUNDING // Active, accepting investments
-  FUNDED // Reached the goal
-  ACTIVE // In fattening
-  SETTLING
-  COMPLETED
+  FUNDING // Collecting investments, selling shares
+  ACTIVE // Fully funded, lot is running (fattening)
+  SETTLING // Lot finished, redistributing profits
+  COMPLETED // All done, profits distributed
 }
 
 model Animal {

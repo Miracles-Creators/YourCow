@@ -10,7 +10,6 @@ import type { LotStatus, PortfolioSummaryLotDto } from "~~/lib/api/schemas";
 const STATUS_CONFIG: Record<LotStatus, { dot: string; badge: string }> = {
   ACTIVE: { dot: "bg-vaca-green", badge: "bg-vaca-green/10 text-vaca-green border-vaca-green/20" },
   FUNDING: { dot: "bg-vaca-gold", badge: "bg-vaca-gold-light text-vaca-gold border-vaca-gold-border" },
-  FUNDED: { dot: "bg-vaca-green", badge: "bg-vaca-green/10 text-vaca-green border-vaca-green/20" },
   COMPLETED: { dot: "bg-vaca-blue", badge: "bg-vaca-blue/10 text-vaca-blue-dark border-vaca-blue/20" },
   SETTLING: { dot: "bg-vaca-warning", badge: "bg-vaca-warning-light text-vaca-warning border-vaca-warning/20" },
   DRAFT: { dot: "bg-vaca-neutral-gray-400", badge: "bg-vaca-neutral-gray-100 text-vaca-neutral-gray-500 border-vaca-neutral-gray-200" },

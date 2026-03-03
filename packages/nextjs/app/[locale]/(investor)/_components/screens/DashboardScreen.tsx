@@ -124,7 +124,7 @@ export function DashboardScreen() {
             {t("performance.title")}
           </h2>
           <div className="space-y-2 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0 xl:grid-cols-3">
-            {summary.lots.slice(0, 3).map((lot) => (
+            {summary.lots.map((lot) => (
               <PositionCard key={lot.lotId} lot={lot} />
             ))}
           </div>

@@ -120,7 +120,6 @@ export const LotStatusSchema = z.enum([
   "DRAFT",
   "PENDING_DEPLOY",
   "FUNDING",
-  "FUNDED",
   "ACTIVE",
   "SETTLING",
   "COMPLETED",

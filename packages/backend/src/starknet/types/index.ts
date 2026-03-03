@@ -3,7 +3,6 @@ export enum LotStatus {
   ACTIVE = 1,
   PAUSED = 2,
   SETTLED = 3,
-  FUNDED = 4,
 }
 
 export interface Lot {

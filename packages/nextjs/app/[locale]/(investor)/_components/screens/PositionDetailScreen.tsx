@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 import {
   ArrowLeft,
@@ -10,11 +10,13 @@ import {
   ShieldCheck,
   MapPin,
   ArrowRightLeft,
+  Check,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLot } from "~~/hooks/lots/useLot";
-import { usePortfolioSummary, usePortfolioByLot } from "~~/hooks/marketplace";
+import { usePortfolioSummary, usePortfolioByLot, useCreateOffer } from "~~/hooks/marketplace";
 import { cn } from "~~/lib/utils/cn";
 import type { ProductionType, LotStatus } from "~~/lib/api/schemas";
 import { containerVariants, itemVariants } from "../animations";
@@ -38,7 +40,6 @@ const CATEGORY_KEY: Record<ProductionType, string> = {
 const STATUS_CONFIG: Record<LotStatus, { dot: string; key: string }> = {
   ACTIVE: { dot: "bg-vaca-green", key: "active" },
   FUNDING: { dot: "bg-vaca-gold", key: "pending" },
-  FUNDED: { dot: "bg-vaca-green", key: "funded" },
   COMPLETED: { dot: "bg-vaca-blue", key: "completed" },
   SETTLING: { dot: "bg-vaca-warning", key: "settling" },
   DRAFT: { dot: "bg-vaca-neutral-gray-400", key: "draft" },
@@ -150,6 +151,186 @@ function ProducerCard({
         </div>
       </div>
     </div>
+  );
+}
+
+// ─── Sell Form ──────────────────────────────────────────────
+
+function SellForm({
+  lotId,
+  availableShares,
+  defaultPricePerShare,
+  lotStatus,
+  onSuccess,
+}: {
+  lotId: number;
+  availableShares: number;
+  defaultPricePerShare: number;
+  lotStatus?: LotStatus;
+  onSuccess?: () => void;
+}) {
+  const [shares, setShares] = useState("");
+  const [price, setPrice] = useState(defaultPricePerShare.toString());
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const createOffer = useCreateOffer();
+
+  const canSell = lotStatus === "ACTIVE";
+  const sharesNum = Number(shares) || 0;
+  const priceNum = Number(price) || 0;
+  const total = sharesNum * priceNum;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (sharesNum <= 0 || sharesNum > availableShares) {
+      setError(`Enter between 1 and ${availableShares} shares.`);
+      return;
+    }
+    if (priceNum <= 0) {
+      setError("Price must be greater than 0.");
+      return;
+    }
+
+    try {
+      await createOffer.mutateAsync({
+        lotId,
+        sharesAmount: sharesNum,
+        pricePerShare: priceNum,
+        currency: "ARS",
+        idempotencyKey: `sell_${lotId}_${Date.now()}`,
+      });
+      setSuccess(true);
+      setShares("");
+      setPrice(defaultPricePerShare.toString());
+      onSuccess?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create offer.");
+    }
+  };
+
+  if (!canSell) {
+    return (
+      <div className="rounded-xl bg-vaca-neutral-gray-50 p-4 text-center">
+        <p className="font-inter text-xs text-vaca-neutral-gray-500">
+          Selling is available when the lot is <span className="font-semibold">Active</span>.
+        </p>
+      </div>
+    );
+  }
+
+  if (availableShares <= 0) {
+    return (
+      <div className="rounded-xl bg-vaca-neutral-gray-50 p-4 text-center">
+        <p className="font-inter text-xs text-vaca-neutral-gray-500">
+          No available shares to sell. All shares are locked in existing offers.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label htmlFor="sell-shares" className="mb-1.5 block font-inter text-xs font-semibold text-vaca-neutral-gray-600">
+          Shares to sell
+        </label>
+        <div className="relative">
+          <input
+            id="sell-shares"
+            type="number"
+            min={1}
+            max={availableShares}
+            step={1}
+            value={shares}
+            onChange={(e) => { setShares(e.target.value); setError(""); setSuccess(false); }}
+            placeholder={`Max ${availableShares}`}
+            className="w-full rounded-xl border-2 border-vaca-neutral-gray-100 bg-vaca-neutral-white px-4 py-3 font-inter text-sm text-vaca-neutral-gray-900 transition-colors focus:border-vaca-green focus:outline-none"
+          />
+          <button
+            type="button"
+            onClick={() => setShares(availableShares.toString())}
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg bg-vaca-green/10 px-2 py-1 font-inter text-[10px] font-bold uppercase tracking-wider text-vaca-green transition-colors hover:bg-vaca-green/20"
+          >
+            Max
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <label htmlFor="sell-price" className="mb-1.5 block font-inter text-xs font-semibold text-vaca-neutral-gray-600">
+          Price per share (ARS)
+        </label>
+        <input
+          id="sell-price"
+          type="number"
+          min={0.01}
+          step={0.01}
+          value={price}
+          onChange={(e) => { setPrice(e.target.value); setError(""); setSuccess(false); }}
+          className="w-full rounded-xl border-2 border-vaca-neutral-gray-100 bg-vaca-neutral-white px-4 py-3 font-inter text-sm text-vaca-neutral-gray-900 transition-colors focus:border-vaca-green focus:outline-none"
+        />
+      </div>
+
+      {sharesNum > 0 && priceNum > 0 && (
+        <div className="flex items-center justify-between rounded-xl bg-vaca-neutral-gray-50 px-4 py-3">
+          <span className="font-inter text-xs text-vaca-neutral-gray-500">Total</span>
+          <span className="font-inter text-sm font-bold text-vaca-neutral-gray-900">
+            ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+        </div>
+      )}
+
+      <AnimatePresence mode="wait">
+        {error && (
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="font-inter text-xs text-vaca-error"
+          >
+            {error}
+          </motion.p>
+        )}
+        {success && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="flex items-center gap-2 rounded-xl bg-vaca-green/10 px-4 py-3"
+          >
+            <Check className="h-4 w-4 text-vaca-green" />
+            <p className="font-inter text-xs font-semibold text-vaca-green">
+              Offer created successfully!
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.button
+        type="submit"
+        disabled={createOffer.isPending || success}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.97 }}
+        className={cn(
+          "flex h-12 w-full items-center justify-center gap-2 rounded-xl font-inter text-sm font-bold transition-all",
+          success
+            ? "bg-vaca-green/10 text-vaca-green"
+            : "bg-vaca-green text-white hover:bg-vaca-green-dark",
+          createOffer.isPending && "pointer-events-none opacity-70",
+        )}
+      >
+        {createOffer.isPending ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : success ? (
+          <Check className="h-4 w-4" />
+        ) : (
+          <ArrowRightLeft className="h-4 w-4" />
+        )}
+        {createOffer.isPending ? "Creating offer..." : success ? "Offer created" : "Create sell offer"}
+      </motion.button>
+    </form>
   );
 }
 
@@ -558,18 +739,20 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
               </motion.div>
             )}
 
-            {/* Mobile action */}
-            <motion.div variants={itemVariants} className="mt-6 lg:hidden">
-              <Link href={`/p2p`}>
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-vaca-neutral-gray-200 bg-vaca-neutral-white font-inter text-sm font-semibold text-vaca-neutral-gray-700 transition-colors hover:bg-vaca-neutral-gray-50"
-                >
-                  <ArrowRightLeft className="h-4 w-4" />
-                  {t("tradeP2P")}
-                </motion.button>
-              </Link>
+            {/* Mobile sell form */}
+            <motion.div
+              variants={itemVariants}
+              className="mt-6 rounded-2xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white p-5 lg:hidden"
+            >
+              <h3 className="mb-4 font-inter text-sm font-bold text-vaca-neutral-gray-900">
+                Sell shares
+              </h3>
+              <SellForm
+                lotId={lotId}
+                availableShares={totalShares != null && lockedShares != null ? totalShares - lockedShares : 0}
+                defaultPricePerShare={lot?.pricePerShare ?? 0}
+                lotStatus={position.status}
+              />
             </motion.div>
 
             <div className="h-8 lg:hidden" />
@@ -651,16 +834,15 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
                 </div>
 
                 <div className="border-t border-vaca-neutral-gray-50 p-6">
-                  <Link href="/p2p">
-                    <motion.button
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.97 }}
-                      className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-vaca-neutral-gray-900 font-inter text-sm font-bold text-white transition-all hover:bg-vaca-neutral-gray-700"
-                    >
-                      <ArrowRightLeft className="h-4 w-4" />
-                      {t("tradeP2P")}
-                    </motion.button>
-                  </Link>
+                  <h3 className="mb-4 font-inter text-sm font-bold text-vaca-neutral-gray-900">
+                    Sell shares
+                  </h3>
+                  <SellForm
+                    lotId={lotId}
+                    availableShares={totalShares != null && lockedShares != null ? totalShares - lockedShares : 0}
+                    defaultPricePerShare={lot?.pricePerShare ?? 0}
+                    lotStatus={position.status}
+                  />
                 </div>
               </motion.div>
 

@@ -110,6 +110,11 @@ export class MarketplaceService {
     if (!lot) {
       throw new NotFoundException(`Lot with id ${dto.lotId} not found`);
     }
+    if (lot.status !== LotStatus.ACTIVE) {
+      throw new BadRequestException(
+        `Lot must be ACTIVE to sell shares (current: ${lot.status})`,
+      );
+    }
 
     const existing = await this.prisma.offer.findUnique({
       where: { idempotencyKey: dto.idempotencyKey },
@@ -1006,6 +1011,23 @@ export class MarketplaceService {
         where: { id: purchase.id },
         data: { status: PrimaryPurchaseStatus.COMPLETED },
       });
+
+      // Auto-transition FUNDING → ACTIVE when 100% shares are sold
+      const lot = await tx.lot.findUnique({ where: { id: purchase.lotId } });
+      if (lot && lot.status === LotStatus.FUNDING) {
+        const totals = await tx.balance.aggregate({
+          where: { assetType: AssetType.LOT_SHARES, lotId: purchase.lotId },
+          _sum: { available: true, locked: true },
+        });
+        const totalSold = (totals._sum.available ?? new Decimal(0))
+          .plus(totals._sum.locked ?? new Decimal(0));
+        if (totalSold.greaterThanOrEqualTo(lot.totalShares)) {
+          await tx.lot.update({
+            where: { id: purchase.lotId },
+            data: { status: LotStatus.ACTIVE },
+          });
+        }
+      }
 
       return {
         txHash: purchase.txHash ?? "",
