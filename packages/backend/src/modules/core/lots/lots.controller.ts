@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Req, UnauthorizedException } from "@nestjs/common";
+import { Request } from "express";
 
 import { ApproveLotDto, CreateLotDto, DeployLotDto } from "./dto/lots.dto";
 import { LotsService } from "./lots.service";
@@ -17,9 +18,13 @@ export class LotsController {
     return this.lotsService.listLots();
   }
 
-  // Public endpoint for Chainlink CRE oracle — no auth required
   @Get("oracle")
-  async getActiveLotsForOracle() {
+  async getActiveLotsForOracle(@Req() req: Request) {
+    const apiKey = req.headers["x-api-key"];
+    const expected = process.env.ORACLE_API_KEY;
+    if (!expected || apiKey !== expected) {
+      throw new UnauthorizedException("Invalid or missing API key");
+    }
     return this.lotsService.getActiveLotsForOracle();
   }
 

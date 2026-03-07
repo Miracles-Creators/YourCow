@@ -55,6 +55,8 @@ import { green, red, yellow } from "./helpers/colorize-log";
  * 3. AnimalRegistry - Registers animals (ERC721-like)
  * 4. TraceabilityOracle - Anchors traceability data
  * 5. SettlementRegistry - Handles lot settlement
+ * 6. AuditRegistry - Audit trail for lots
+ * 7. NavOracle - Stores relayed NAV data from Chainlink CRE
  *
  * Note: LotSharesToken instances are deployed per-lot by LotFactory.create_lot()
  */
@@ -71,7 +73,7 @@ const deployYourCowProtocol = async (): Promise<void> => {
   // 1. Declare LotSharesToken to get its class hash (needed by LotFactory)
   // We deploy a "dummy" instance just to declare it and get the class hash
   // This instance won't be used - LotFactory will deploy real instances via create_lot()
-  console.log(yellow("1/6 Declaring LotSharesToken (for class hash)..."));
+  console.log(yellow("1/7 Declaring LotSharesToken (for class hash)..."));
   const lotSharesToken = await declareContract({
     contract: "LotSharesToken",
     contractName: "LotSharesToken_ClassHash",
@@ -82,7 +84,7 @@ const deployYourCowProtocol = async (): Promise<void> => {
   console.log(yellow(`   LotSharesToken class hash: ${lotSharesTokenClassHash}`));
 
   // 2. Deploy LotFactory with the LotSharesToken class hash
-  console.log(yellow("2/6 Deploying LotFactory..."));
+  console.log(yellow("2/7 Deploying LotFactory..."));
   const lotFactory = await deployContract({
     contract: "LotFactory",
     constructorArgs: {
@@ -93,7 +95,7 @@ const deployYourCowProtocol = async (): Promise<void> => {
   });
 
   // 3. Deploy AnimalRegistry
-  console.log(yellow("3/6 Deploying AnimalRegistry..."));
+  console.log(yellow("3/7 Deploying AnimalRegistry..."));
   await deployContract({
     contract: "AnimalRegistry",
     constructorArgs: {
@@ -104,7 +106,7 @@ const deployYourCowProtocol = async (): Promise<void> => {
   });
 
   // 4. Deploy TraceabilityOracle
-  console.log(yellow("4/6 Deploying TraceabilityOracle..."));
+  console.log(yellow("4/7 Deploying TraceabilityOracle..."));
   await deployContract({
     contract: "TraceabilityOracle",
     constructorArgs: {
@@ -114,7 +116,7 @@ const deployYourCowProtocol = async (): Promise<void> => {
   });
 
   // 5. Deploy SettlementRegistry
-  console.log(yellow("5/6 Deploying SettlementRegistry..."));
+  console.log(yellow("5/7 Deploying SettlementRegistry..."));
   await deployContract({
     contract: "SettlementRegistry",
     constructorArgs: {
@@ -125,9 +127,19 @@ const deployYourCowProtocol = async (): Promise<void> => {
   });
 
   //6- Deploy Audit Registry
-  console.log(yellow("6/6 Deploying AuditRegistry..."));
+  console.log(yellow("6/7 Deploying AuditRegistry..."));
   await deployContract({
     contract: "AuditRegistry",
+    constructorArgs: {
+      owner: owner,
+      operator: protocolOperator,
+    },
+  });
+
+  // 7. Deploy NavOracle (receives relayed NAV data from Chainlink CRE via EVM)
+  console.log(yellow("7/7 Deploying NavOracle..."));
+  await deployContract({
+    contract: "NavOracle",
     constructorArgs: {
       owner: owner,
       operator: protocolOperator,
@@ -137,7 +149,8 @@ const deployYourCowProtocol = async (): Promise<void> => {
   console.log(green("\n✅ YourCow Protocol deployed successfully!\n"));
   console.log(yellow("Note: After deployment, you need to:"));
   console.log(yellow("  1. Call LotFactory.set_settlement_registry(settlement_registry_address)"));
-  console.log(yellow("  2. LotSharesToken will be deployed automatically when calling LotFactory.create_lot()\n"));
+  console.log(yellow("  2. LotSharesToken will be deployed automatically when calling LotFactory.create_lot()"));
+  console.log(yellow("  3. Update NAV_ORACLE_STARKNET_ADDRESS in backend .env with the NavOracle address\n"));
 };
 
 // Original example contract deployment

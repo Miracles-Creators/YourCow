@@ -133,6 +133,16 @@ pub fn deploy_animal_registry(lot_factory_address: ContractAddress) -> ContractA
     declare_and_deploy("AnimalRegistry", calldata)
 }
 
+/// Deploys the NavOracle contract.
+pub fn deploy_nav_oracle() -> ContractAddress {
+    start_cheat_block_timestamp_global(1000);
+
+    let mut calldata = array![];
+    calldata.append_serde(owner());
+    calldata.append_serde(operator());
+    declare_and_deploy("NavOracle", calldata)
+}
+
 /// Deploys the TraceabilityOracle contract.
 pub fn deploy_traceability_oracle() -> ContractAddress {
     start_cheat_block_timestamp_global(1000);

@@ -17,3 +17,6 @@ export * from "./settlement-registry/settlement-registry.module";
 export * from "./settlement-registry/settlement-registry.service";
 
 export * from "./audit-registry/audit-registry.service";
+
+export * from "./nav-relay/nav-relay.module";
+export * from "./nav-relay/nav-relay.service";

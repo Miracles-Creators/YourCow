@@ -3015,6 +3015,710 @@ const deployedContracts = {
       classHash:
         "0x73e64394744804c476eb7a4ad56902d49e77565ad413e6a34726b4914cc4d1b",
     },
+    NavOracle: {
+      address:
+        "0x01a193bce15845b140a446d778867e5a555c3a65aa5f9af269cb6598fa2ec2e1",
+      abi: [
+        {
+          type: "impl",
+          name: "NavOracleImpl",
+          interface_name: "contracts::nav_oracle::INavOracle",
+        },
+        {
+          type: "struct",
+          name: "core::integer::u256",
+          members: [
+            { name: "low", type: "core::integer::u128" },
+            { name: "high", type: "core::integer::u128" },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::array::Span::<core::integer::u256>",
+          members: [
+            {
+              name: "snapshot",
+              type: "@core::array::Array::<core::integer::u256>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::array::Span::<core::integer::u128>",
+          members: [
+            {
+              name: "snapshot",
+              type: "@core::array::Array::<core::integer::u128>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::array::Span::<core::integer::u32>",
+          members: [
+            {
+              name: "snapshot",
+              type: "@core::array::Array::<core::integer::u32>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "contracts::nav_oracle::MarketPrices",
+          members: [
+            { name: "beef_price", type: "core::integer::u128" },
+            { name: "corn_price", type: "core::integer::u128" },
+            { name: "ars_usd_rate", type: "core::integer::u128" },
+            { name: "updated_at", type: "core::integer::u64" },
+          ],
+        },
+        {
+          type: "struct",
+          name: "contracts::nav_oracle::NavDataPoint",
+          members: [
+            { name: "nav_value", type: "core::integer::u128" },
+            { name: "nav_per_share", type: "core::integer::u128" },
+            { name: "weight_grams", type: "core::integer::u32" },
+            { name: "updated_at", type: "core::integer::u64" },
+          ],
+        },
+        {
+          type: "interface",
+          name: "contracts::nav_oracle::INavOracle",
+          items: [
+            {
+              type: "function",
+              name: "update_market_prices",
+              inputs: [
+                { name: "beef_price", type: "core::integer::u128" },
+                { name: "corn_price", type: "core::integer::u128" },
+                { name: "ars_usd_rate", type: "core::integer::u128" },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "update_nav_batch",
+              inputs: [
+                {
+                  name: "lot_ids",
+                  type: "core::array::Span::<core::integer::u256>",
+                },
+                {
+                  name: "nav_values",
+                  type: "core::array::Span::<core::integer::u128>",
+                },
+                {
+                  name: "nav_per_shares",
+                  type: "core::array::Span::<core::integer::u128>",
+                },
+                {
+                  name: "weight_grams",
+                  type: "core::array::Span::<core::integer::u32>",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_operator",
+              inputs: [
+                {
+                  name: "new_operator",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "get_market_prices",
+              inputs: [],
+              outputs: [{ type: "contracts::nav_oracle::MarketPrices" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_nav",
+              inputs: [
+                { name: "lot_id", type: "core::integer::u256" },
+              ],
+              outputs: [{ type: "contracts::nav_oracle::NavDataPoint" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_operator",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+          ],
+        },
+        {
+          type: "impl",
+          name: "OwnableImpl",
+          interface_name: "openzeppelin_interfaces::access::ownable::IOwnable",
+        },
+        {
+          type: "interface",
+          name: "openzeppelin_interfaces::access::ownable::IOwnable",
+          items: [
+            {
+              type: "function",
+              name: "owner",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "transfer_ownership",
+              inputs: [
+                {
+                  name: "new_owner",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "renounce_ownership",
+              inputs: [],
+              outputs: [],
+              state_mutability: "external",
+            },
+          ],
+        },
+        {
+          type: "constructor",
+          name: "constructor",
+          inputs: [
+            {
+              name: "owner",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "operator",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnershipTransferred",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+              kind: "nested",
+            },
+            {
+              name: "OwnershipTransferStarted",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+              kind: "nested",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::nav_oracle::NavOracle::MarketPricesUpdated",
+          kind: "struct",
+          members: [
+            { name: "beef_price", type: "core::integer::u128", kind: "data" },
+            { name: "corn_price", type: "core::integer::u128", kind: "data" },
+            {
+              name: "ars_usd_rate",
+              type: "core::integer::u128",
+              kind: "data",
+            },
+            { name: "updated_at", type: "core::integer::u64", kind: "data" },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::nav_oracle::NavOracle::NavBatchUpdated",
+          kind: "struct",
+          members: [
+            { name: "count", type: "core::integer::u32", kind: "data" },
+            { name: "updated_at", type: "core::integer::u64", kind: "data" },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::nav_oracle::NavOracle::LotNavUpdated",
+          kind: "struct",
+          members: [
+            { name: "lot_id", type: "core::integer::u256", kind: "key" },
+            { name: "nav_value", type: "core::integer::u128", kind: "data" },
+            {
+              name: "nav_per_share",
+              type: "core::integer::u128",
+              kind: "data",
+            },
+            { name: "weight_grams", type: "core::integer::u32", kind: "data" },
+            { name: "updated_at", type: "core::integer::u64", kind: "data" },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::nav_oracle::NavOracle::OperatorChanged",
+          kind: "struct",
+          members: [
+            {
+              name: "old_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "new_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "changed_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::nav_oracle::NavOracle::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnableEvent",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+              kind: "flat",
+            },
+            {
+              name: "MarketPricesUpdated",
+              type: "contracts::nav_oracle::NavOracle::MarketPricesUpdated",
+              kind: "nested",
+            },
+            {
+              name: "NavBatchUpdated",
+              type: "contracts::nav_oracle::NavOracle::NavBatchUpdated",
+              kind: "nested",
+            },
+            {
+              name: "LotNavUpdated",
+              type: "contracts::nav_oracle::NavOracle::LotNavUpdated",
+              kind: "nested",
+            },
+            {
+              name: "OperatorChanged",
+              type: "contracts::nav_oracle::NavOracle::OperatorChanged",
+              kind: "nested",
+            },
+          ],
+        },
+      ],
+      classHash:
+        "0x2e5361ff88d6776cda3aac3fc21f566bb8d84286bd37fa439fbf9aefbfb8d48",
+    },
+  },
+  sepolia: {
+    NavOracle: {
+      address:
+        "0x01a193bce15845b140a446d778867e5a555c3a65aa5f9af269cb6598fa2ec2e1",
+      abi: [
+        {
+          type: "impl",
+          name: "NavOracleImpl",
+          interface_name: "contracts::nav_oracle::INavOracle",
+        },
+        {
+          type: "struct",
+          name: "core::integer::u256",
+          members: [
+            { name: "low", type: "core::integer::u128" },
+            { name: "high", type: "core::integer::u128" },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::array::Span::<core::integer::u256>",
+          members: [
+            {
+              name: "snapshot",
+              type: "@core::array::Array::<core::integer::u256>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::array::Span::<core::integer::u128>",
+          members: [
+            {
+              name: "snapshot",
+              type: "@core::array::Array::<core::integer::u128>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::array::Span::<core::integer::u32>",
+          members: [
+            {
+              name: "snapshot",
+              type: "@core::array::Array::<core::integer::u32>",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "contracts::nav_oracle::MarketPrices",
+          members: [
+            { name: "beef_price", type: "core::integer::u128" },
+            { name: "corn_price", type: "core::integer::u128" },
+            { name: "ars_usd_rate", type: "core::integer::u128" },
+            { name: "updated_at", type: "core::integer::u64" },
+          ],
+        },
+        {
+          type: "struct",
+          name: "contracts::nav_oracle::NavDataPoint",
+          members: [
+            { name: "nav_value", type: "core::integer::u128" },
+            { name: "nav_per_share", type: "core::integer::u128" },
+            { name: "weight_grams", type: "core::integer::u32" },
+            { name: "updated_at", type: "core::integer::u64" },
+          ],
+        },
+        {
+          type: "interface",
+          name: "contracts::nav_oracle::INavOracle",
+          items: [
+            {
+              type: "function",
+              name: "update_market_prices",
+              inputs: [
+                { name: "beef_price", type: "core::integer::u128" },
+                { name: "corn_price", type: "core::integer::u128" },
+                { name: "ars_usd_rate", type: "core::integer::u128" },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "update_nav_batch",
+              inputs: [
+                {
+                  name: "lot_ids",
+                  type: "core::array::Span::<core::integer::u256>",
+                },
+                {
+                  name: "nav_values",
+                  type: "core::array::Span::<core::integer::u128>",
+                },
+                {
+                  name: "nav_per_shares",
+                  type: "core::array::Span::<core::integer::u128>",
+                },
+                {
+                  name: "weight_grams",
+                  type: "core::array::Span::<core::integer::u32>",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "set_operator",
+              inputs: [
+                {
+                  name: "new_operator",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "get_market_prices",
+              inputs: [],
+              outputs: [{ type: "contracts::nav_oracle::MarketPrices" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_nav",
+              inputs: [
+                { name: "lot_id", type: "core::integer::u256" },
+              ],
+              outputs: [{ type: "contracts::nav_oracle::NavDataPoint" }],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_operator",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+          ],
+        },
+        {
+          type: "impl",
+          name: "OwnableImpl",
+          interface_name: "openzeppelin_interfaces::access::ownable::IOwnable",
+        },
+        {
+          type: "interface",
+          name: "openzeppelin_interfaces::access::ownable::IOwnable",
+          items: [
+            {
+              type: "function",
+              name: "owner",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "transfer_ownership",
+              inputs: [
+                {
+                  name: "new_owner",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "renounce_ownership",
+              inputs: [],
+              outputs: [],
+              state_mutability: "external",
+            },
+          ],
+        },
+        {
+          type: "constructor",
+          name: "constructor",
+          inputs: [
+            {
+              name: "owner",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "operator",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+          kind: "struct",
+          members: [
+            {
+              name: "previous_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "new_owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnershipTransferred",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+              kind: "nested",
+            },
+            {
+              name: "OwnershipTransferStarted",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+              kind: "nested",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::nav_oracle::NavOracle::MarketPricesUpdated",
+          kind: "struct",
+          members: [
+            { name: "beef_price", type: "core::integer::u128", kind: "data" },
+            { name: "corn_price", type: "core::integer::u128", kind: "data" },
+            {
+              name: "ars_usd_rate",
+              type: "core::integer::u128",
+              kind: "data",
+            },
+            { name: "updated_at", type: "core::integer::u64", kind: "data" },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::nav_oracle::NavOracle::NavBatchUpdated",
+          kind: "struct",
+          members: [
+            { name: "count", type: "core::integer::u32", kind: "data" },
+            { name: "updated_at", type: "core::integer::u64", kind: "data" },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::nav_oracle::NavOracle::LotNavUpdated",
+          kind: "struct",
+          members: [
+            { name: "lot_id", type: "core::integer::u256", kind: "key" },
+            { name: "nav_value", type: "core::integer::u128", kind: "data" },
+            {
+              name: "nav_per_share",
+              type: "core::integer::u128",
+              kind: "data",
+            },
+            { name: "weight_grams", type: "core::integer::u32", kind: "data" },
+            { name: "updated_at", type: "core::integer::u64", kind: "data" },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::nav_oracle::NavOracle::OperatorChanged",
+          kind: "struct",
+          members: [
+            {
+              name: "old_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "new_operator",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "changed_by",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::nav_oracle::NavOracle::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "OwnableEvent",
+              type: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+              kind: "flat",
+            },
+            {
+              name: "MarketPricesUpdated",
+              type: "contracts::nav_oracle::NavOracle::MarketPricesUpdated",
+              kind: "nested",
+            },
+            {
+              name: "NavBatchUpdated",
+              type: "contracts::nav_oracle::NavOracle::NavBatchUpdated",
+              kind: "nested",
+            },
+            {
+              name: "LotNavUpdated",
+              type: "contracts::nav_oracle::NavOracle::LotNavUpdated",
+              kind: "nested",
+            },
+            {
+              name: "OperatorChanged",
+              type: "contracts::nav_oracle::NavOracle::OperatorChanged",
+              kind: "nested",
+            },
+          ],
+        },
+      ],
+      classHash:
+        "0x2e5361ff88d6776cda3aac3fc21f566bb8d84286bd37fa439fbf9aefbfb8d48",
+    },
   },
 } as const;
 

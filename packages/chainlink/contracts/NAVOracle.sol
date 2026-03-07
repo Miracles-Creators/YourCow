@@ -11,6 +11,7 @@ pragma solidity ^0.8.19;
  */
 contract NAVOracle {
     address public operator;
+    address public keystoneForwarder;
 
     // --- Market prices (same for all lots, updated once per CRE run) ---
     struct MarketPrices {
@@ -60,16 +61,34 @@ contract NAVOracle {
 
     // --- Modifiers ---
     modifier onlyOperator() {
-        require(msg.sender == operator, "NAVOracle: not operator");
+        require(
+            msg.sender == operator || msg.sender == address(this),
+            "NAVOracle: not operator"
+        );
         _;
     }
 
-    constructor() {
+    modifier onlyForwarder() {
+        require(msg.sender == keystoneForwarder, "NAVOracle: not forwarder");
+        _;
+    }
+
+    constructor(address _keystoneForwarder) {
         operator = msg.sender;
+        keystoneForwarder = _keystoneForwarder;
     }
 
     function setOperator(address _operator) external onlyOperator {
         operator = _operator;
+    }
+
+    function setKeystoneForwarder(address _forwarder) external onlyOperator {
+        keystoneForwarder = _forwarder;
+    }
+
+    function onReport(bytes calldata metadata, bytes calldata report) external onlyForwarder {
+        (bool success, bytes memory result) = address(this).call(report);
+        require(success, string(result));
     }
 
     // --- Market prices ---

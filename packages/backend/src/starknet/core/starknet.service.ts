@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { RpcProvider, Account, Contract, Abi } from "starknet";
+import { RpcProvider, Account, Contract, Abi, constants } from "starknet";
 import deployedContracts from "../config/deployed-contracts";
 
 export type NetworkName = "devnet" | "sepolia" | "mainnet";
@@ -23,7 +23,12 @@ export class StarknetService implements OnModuleInit {
     const rpcUrl = this.network === "sepolia"
       ? (process.env.STARKNET_RPC_SEPOLIA || "https://api.cartridge.gg/x/starknet/sepolia")
       : (process.env.STARKNET_RPC_DEVNET || "http://127.0.0.1:5050/rpc");
-    this.provider = new RpcProvider({ nodeUrl: rpcUrl });
+    this.provider = new RpcProvider({
+      nodeUrl: rpcUrl,
+      chainId: this.network === "sepolia"
+        ? constants.StarknetChainId.SN_SEPOLIA
+        : undefined,
+    });
 
     const operatorKey = this.network === "sepolia"
       ? process.env.SEPOLIA_OPERATOR_PRIVATE_KEY

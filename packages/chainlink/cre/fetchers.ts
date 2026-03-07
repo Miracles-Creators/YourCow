@@ -14,7 +14,7 @@
  *   - Active lots: Tu Vaca backend
  */
 import { json, ok, type HTTPSendRequester } from "@chainlink/cre-sdk";
-import { type Config, type OracleLot, FALLBACK_ARS_USD_RATE, MS_PER_DAY } from "./types";
+import { type Config, FALLBACK_ARS_USD_RATE, MS_PER_DAY } from "./types";
 
 /** Parses Argentine number format: "3.142,39" (dots=thousands, comma=decimal) -> 3142.39 */
 const parseArgentineNumber = (s: string): number => {
@@ -152,32 +152,3 @@ export const fetchArsUsdRate = (
   }
 };
 
-/**
- * Fetches active cattle lots from the Tu Vaca backend.
- * Returns lots that are ACTIVE or FUNDED and have an on-chain ID.
- * Uses consensusIdenticalAggregation — all DON nodes must get the same response.
- */
-export const fetchActiveLots = (
-  sendRequester: HTTPSendRequester,
-  config: Config,
-): OracleLot[] => {
-  const response = sendRequester
-    .sendRequest({ url: config.backendLotsUrl, method: "GET" })
-    .result();
-
-  if (!ok(response)) {
-    throw new Error(`Lots HTTP failed: ${response.statusCode}`);
-  }
-
-  const raw = json(response) as Record<string, unknown>[];
-
-  return raw.map((lot) => ({
-    onChainLotId: (lot.onChainLotId as number) ?? 0,
-    totalShares: (lot.totalShares as number) ?? 0,
-    currentTotalWeightGrams: (lot.currentTotalWeightGrams as number) ?? 0,
-    initialTotalWeightGrams: (lot.initialTotalWeightGrams as number) ?? 0,
-    startDate: (lot.startDate as string) ?? "",
-    endDate: (lot.endDate as string) ?? "",
-    operatingCosts: (lot.operatingCosts as number) ?? 0,
-  }));
-};
