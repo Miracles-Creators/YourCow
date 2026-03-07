@@ -4,15 +4,15 @@
  * Pure function: takes market prices + lots -> returns computed NAV per lot.
  * No I/O, no SDK imports, no side effects. Independently testable.
  *
- * NAV Formula:
- *   revenue      = currentWeightKg * beefPriceUsd
- *   feedCosts    = (weightGain * FCR * cornPricePerKg) + projected future feed
- *   lotNAV       = revenue - feedCosts - operatingCosts
- *   navPerShare  = lotNAV / totalShares
+ * NAV Formula (current liquidation value — what lot is worth if sold today):
+ *   revenue     = currentWeightKg * beefPriceUsd
+ *   feedCost    = weightGainKg * FCR * cornPricePerKg   (feed spent so far)
+ *   lotNAV      = revenue - feedCost - operatingCosts
+ *   navPerShare = lotNAV / totalShares
  *
  * All output values are scaled x100 for on-chain storage (2 decimal places as integers).
  */
-import { type OracleLot, FCR, MS_PER_DAY } from "./types";
+import { type OracleLot, FCR } from "./types";
 
 /** Result for a single lot — ready for on-chain encoding */
 export type LotResult = {
@@ -33,7 +33,6 @@ export function calculateLotNAVs(
   cornPrice: number,
   log: (msg: string) => void,
 ): LotResult[] {
-  const now = Date.now();
   const cornPricePerKg = cornPrice / 1000; // USD/ton -> USD/kg
   const results: LotResult[] = [];
 
@@ -61,24 +60,15 @@ export function calculateLotNAVs(
     const initialWeightKg = lot.initialTotalWeightGrams / 1_000;
     const weightGainKg = currentWeightKg - initialWeightKg;
 
-    // Time calculations
-    const startMs = new Date(lot.startDate).getTime();
-    const daysElapsed = Math.max(1, Math.floor((now - startMs) / MS_PER_DAY));
-    const daysRemaining = lot.endDate
-      ? Math.max(0, Math.floor((new Date(lot.endDate).getTime() - now) / MS_PER_DAY))
-      : 0;
-
-    // Feed costs: historical (incurred) + projected (future)
-    const dailyGainKg = weightGainKg / daysElapsed;
+    // Feed cost for weight gained so far
     const feedCostIncurred = weightGainKg * FCR * cornPricePerKg;
-    const feedCostFuture = dailyGainKg * daysRemaining * FCR * cornPricePerKg;
 
     // Operating costs (stored as USD cents in backend -> convert to USD)
     const operatingCostsUsd = (lot.operatingCosts ?? 0) / 100;
 
-    // NAV = potential revenue - all costs
+    // NAV = current liquidation value — what the lot is worth if sold today
     const revenuePotential = currentWeightKg * beefPriceUsd;
-    const lotNav = revenuePotential - feedCostIncurred - feedCostFuture - operatingCostsUsd;
+    const lotNav = revenuePotential - feedCostIncurred - operatingCostsUsd;
     const navPerShare = lotNav / lot.totalShares;
 
     log(
