@@ -1,5 +1,5 @@
 /**
- * types.ts — Shared types and constants for the Tu Vaca CRE workflow.
+ * types.ts — Shared types and constants for the YourCow CRE workflow.
  *
  * This file defines the configuration shape (matching the JSON config files),
  * the lot data structure returned by the backend, and domain constants
@@ -8,12 +8,13 @@
 
 /** Workflow configuration — maps 1:1 to config.staging.json / config.production.json */
 export type Config = {
-  schedule: string;          // Cron expression (e.g. "*/30 * * * * *" = every 30s)
-  cornApiUrl: string;        // MAGyP FOB export price API
-  beefApiUrl: string;        // SIOCarnes live cattle price API
-  usdApiUrl: string;         // BCRA official exchange rate API
-  backendLotsUrl: string;    // Tu Vaca backend — GET /api/lots/oracle
+  schedule: string;           // Cron expression (e.g. "*/30 * * * * *" = every 30s)
+  cornApiUrl: string;         // MAGyP FOB export price API
+  beefApiUrl: string;         // SIOCarnes live cattle price API
+  usdApiUrl: string;          // BCRA official exchange rate API
+  backendLotsUrl: string;     // YourCow backend — GET /api/lots/oracle
   navContractAddress: string; // NAVOracle.sol deployed address on Sepolia
+  queryDate?: string;         // Optional date override for API queries (YYYY-MM-DD). Falls back to 3 days ago.
 };
 
 /**

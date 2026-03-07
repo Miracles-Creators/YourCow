@@ -1,5 +1,5 @@
 /**
- * fetchers.ts — API fetch functions for the Tu Vaca CRE workflow.
+ * fetchers.ts — API fetch functions for the YourCow CRE workflow.
  *
  * Each function follows the CRE SDK pattern:
  *   (sendRequester: HTTPSendRequester, config: Config) => ReturnType
@@ -11,7 +11,7 @@
  *   - Corn price:  MAGyP (Argentine Agriculture Ministry) FOB export API
  *   - Beef price:  SIOCarnes (MAGyP cattle monitoring system)
  *   - ARS/USD:     BCRA (Argentine Central Bank) official exchange rate
- *   - Active lots: Tu Vaca backend
+ *   - Active lots: YourCow backend
  */
 import { json, ok, type HTTPSendRequester } from "@chainlink/cre-sdk";
 import { type Config, FALLBACK_ARS_USD_RATE, MS_PER_DAY } from "./types";
@@ -21,8 +21,12 @@ const parseArgentineNumber = (s: string): number => {
   return Number.parseFloat(s.replace(/\./g, "").replace(",", "."));
 };
 
-/** Returns a Date for ~3 days ago, skipping weekends (gov APIs have no weekend data) */
-const getQueryDate = (): Date => {
+/** Returns the query date for API calls.
+ *  If config.queryDate is set (YYYY-MM-DD), uses that directly.
+ *  Otherwise falls back to ~3 days ago, skipping weekends (gov APIs have no weekend data).
+ */
+const getQueryDate = (override?: string): Date => {
+  if (override) return new Date(override);
   const d = new Date(Date.now() - 3 * MS_PER_DAY);
   const day = d.getUTCDay();
   if (day === 0) return new Date(d.getTime() - 2 * MS_PER_DAY); // Sunday -> Friday
@@ -54,7 +58,7 @@ export const fetchCornPrice = (
   sendRequester: HTTPSendRequester,
   config: Config,
 ): number => {
-  const date = formatDateAr(getQueryDate());
+  const date = formatDateAr(getQueryDate(config.queryDate));
   const url = `${config.cornApiUrl}?Fecha=${date}`;
 
   const response = sendRequester
@@ -91,7 +95,7 @@ export const fetchBeefPrice = (
   sendRequester: HTTPSendRequester,
   config: Config,
 ): number => {
-  const date = formatDateAr(getQueryDate());
+  const date = formatDateAr(getQueryDate(config.queryDate));
   const url = `${config.beefApiUrl}&dia=${date}`;
 
   const response = sendRequester
@@ -129,7 +133,7 @@ export const fetchArsUsdRate = (
   sendRequester: HTTPSendRequester,
   config: Config,
 ): number => {
-  const date = formatDateIso(getQueryDate());
+  const date = formatDateIso(getQueryDate(config.queryDate));
   const url = `${config.usdApiUrl}?fecha=${date}`;
 
   const response = sendRequester

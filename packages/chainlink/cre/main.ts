@@ -1,5 +1,5 @@
 /**
- * main.ts — CRE workflow entry point for Tu Vaca NAV Oracle.
+ * main.ts — CRE workflow entry point for YourCow NAV Oracle.
  *
  * This is a Chainlink CRE (Compute-Reporting Engine) workflow that runs on a
  * Decentralized Oracle Network (DON). Every 30 seconds it:
@@ -8,7 +8,7 @@
  *      - Corn price (USD/ton) from MAGyP
  *      - Beef price (ARS/kg) from SIOCarnes
  *      - ARS/USD exchange rate from BCRA
- *   2. Fetches active cattle lots from the Tu Vaca backend
+ *   2. Fetches active cattle lots from the YourCow backend
  *   3. Calculates NAV (Net Asset Value) for each lot
  *   4. Writes two on-chain transactions to NAVOracle.sol on Sepolia:
  *      - updateMarketPrices(beef, corn, arsUsdRate)
@@ -89,7 +89,8 @@ const onCronTrigger = (runtime: Runtime<Config>): number => {
     operatingCosts: (lot.operatingCosts as number) ?? 0,
   }));
 
-  runtime.log(`========== TU VACA NAV ORACLE ==========`);
+  runtime.log(`========== YOURCOW NAV ORACLE ==========`);
+  runtime.log(`Query date:     ${runtime.config.queryDate ?? "auto (3 days ago)"}`);
   runtime.log(`Corn (FOB):     ${cornPrice} USD/ton`);
   runtime.log(`Beef (Novillo): ${beefPriceArs.toFixed(2)} ARS/kg -> ${beefPriceUsd.toFixed(4)} USD/kg`);
   runtime.log(`ARS/USD Rate:   ${arsUsdRate}`);
