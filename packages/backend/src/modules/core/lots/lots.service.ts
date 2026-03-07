@@ -56,7 +56,7 @@ export class LotsService {
         // Herd data
         cattleCount: data.cattleCount,
         averageWeightKg: data.averageWeightKg,
-        initialWeightKg:data.initialWeightKg ,
+        initialWeightKg: data.initialWeightKg,
         durationWeeks: data.durationWeeks,
         startDate: data.startDate ? new Date(data.startDate) : null,
         endDate: data.endDate ? new Date(data.endDate) : null,
@@ -74,7 +74,6 @@ export class LotsService {
     });
   }
 
-  //TODO:REVIEW THIS TO REFACTOR 
   async listLots(): Promise<
     (Prisma.LotGetPayload<{
       include: {
@@ -129,7 +128,6 @@ export class LotsService {
       };
     });
   }
-//TODO:REVIEW THIS TO REFACTOR 
   async getLotById(
     id: number,
   ): Promise<
@@ -186,8 +184,7 @@ export class LotsService {
   > {
     const lots = await this.prisma.lot.findMany({
       where: {
-        //TODO: REVIEW THE DIFFERENTS STATUS OF LOTS
-        status: { in: [LotStatus.ACTIVE] },
+        status: { in: [LotStatus.ACTIVE, LotStatus.FUNDING] },
         onChainLotId: { not: null },
       },
       select: {
@@ -285,10 +282,7 @@ export class LotsService {
       throw error;
     }
 
-    const tokenAddress = await this.lotFactoryService.getSharesToken(
-      result.lotId
-    );
-    console.log(tokenAddress, "tokenAddress");
+    const tokenAddress = await this.lotFactoryService.getSharesToken(result.lotId);
     return this.prisma.lot.update({
       where: { id },
       data: {
@@ -301,7 +295,6 @@ export class LotsService {
       },
       include: { producer: { include: { user: true } } },
     });
-    
   }
 
   async updateLotStatus(id: number, status: LotStatus): Promise<Lot> {

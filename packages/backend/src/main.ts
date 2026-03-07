@@ -19,6 +19,8 @@ async function bootstrap(): Promise<void> {
     exclude: [{ path: "health", method: RequestMethod.GET }],
   });
 
+  app.enableShutdownHooks();
+
   const port = process.env.PORT ? Number(process.env.PORT) : 3001;
   await app.listen(port);
   console.log(`Backend server running on port ${port}`);

@@ -25,6 +25,7 @@ import { LotSharesTokenModule } from "./modules/onchain/lot-shares-token/lot-sha
 import { TraceabilityOracleModule } from "./modules/onchain/traceability-oracle/traceability-oracle.module";
 import { SettlementRegistryModule } from "./modules/onchain/settlement-registry/settlement-registry.module";
 import { TongoModule } from "./modules/onchain/tongo/tongo.module";
+import { NavRelayModule } from "./modules/onchain/nav-relay/nav-relay.module";
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { TongoModule } from "./modules/onchain/tongo/tongo.module";
     TraceabilityOracleModule,
     SettlementRegistryModule,
     TongoModule,
+    NavRelayModule,
   ],
   controllers: [HealthController],
 })

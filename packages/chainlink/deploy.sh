@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================
-# Tu Vaca — Deploy NAVOracle to Sepolia
+# YourCow — Deploy NAVOracle to Sepolia
 # ============================================
 #
 # Usage:

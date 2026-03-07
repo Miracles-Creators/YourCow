@@ -17,19 +17,20 @@
  * CRE constraints: no async/await, .result() on every capability call, no Node.js APIs.
  */
 import {
-  consensusIdenticalAggregation,
   consensusMedianAggregation,
   cre,
   handler,
+  json,
+  ok,
   prepareReportRequest,
   Runner,
   type Runtime,
 } from "@chainlink/cre-sdk";
 import { encodeFunctionData } from "viem";
 import navOracleAbi from "./abi/NAVOracle.json";
-import { fetchActiveLots, fetchArsUsdRate, fetchBeefPrice, fetchCornPrice } from "./fetchers";
+import { fetchArsUsdRate, fetchBeefPrice, fetchCornPrice } from "./fetchers";
 import { calculateLotNAVs } from "./nav";
-import { type Config, SEPOLIA_SELECTOR } from "./types";
+import { type Config, type OracleLot, SEPOLIA_SELECTOR } from "./types";
 
 /**
  * Main handler — triggered by cron on each DON execution cycle.
@@ -57,10 +58,36 @@ const onCronTrigger = (runtime: Runtime<Config>): number => {
     throw new Error(`Invalid beef USD conversion: ${beefPriceArs} / ${arsUsdRate}`);
   }
 
-  // Step 3: Fetch active lots (identical aggregation — all nodes must agree)
-  const lots = http
-    .sendRequest(runtime, fetchActiveLots, consensusIdenticalAggregation())(runtime.config)
-    .result();
+  // Step 3: Fetch active lots via ConfidentialHTTPClient (single enclave, no consensus)
+  const confHttp = new cre.capabilities.ConfidentialHTTPClient();
+  const lotsResponse = confHttp.sendRequest(runtime, {
+    vaultDonSecrets: [
+      { key: "ORACLE_API_KEY", namespace: "main" },
+    ],
+    request: {
+      url: runtime.config.backendLotsUrl,
+      method: "GET",
+      multiHeaders: {
+        "x-api-key": { values: ["{{.ORACLE_API_KEY}}"] },
+      },
+      encryptOutput: false,
+    },
+  }).result();
+
+  if (!ok(lotsResponse)) {
+    throw new Error(`Lots fetch failed: ${lotsResponse.statusCode}`);
+  }
+
+  const lotsRaw = json(lotsResponse) as Record<string, unknown>[];
+  const lots: OracleLot[] = lotsRaw.map((lot) => ({
+    onChainLotId: (lot.onChainLotId as number) ?? 0,
+    totalShares: (lot.totalShares as number) ?? 0,
+    currentTotalWeightGrams: (lot.currentTotalWeightGrams as number) ?? 0,
+    initialTotalWeightGrams: (lot.initialTotalWeightGrams as number) ?? 0,
+    startDate: (lot.startDate as string) ?? "",
+    endDate: (lot.endDate as string) ?? "",
+    operatingCosts: (lot.operatingCosts as number) ?? 0,
+  }));
 
   runtime.log(`========== TU VACA NAV ORACLE ==========`);
   runtime.log(`Corn (FOB):     ${cornPrice} USD/ton`);
@@ -89,11 +116,15 @@ const onCronTrigger = (runtime: Runtime<Config>): number => {
 
   const evmClient = new cre.capabilities.EVMClient(SEPOLIA_SELECTOR);
 
+  runtime.log(`Contract address: ${runtime.config.navContractAddress}`);
+
   const marketReport = runtime.report(prepareReportRequest(marketData)).result();
+
   evmClient
     .writeReport(runtime, {
       receiver: runtime.config.navContractAddress,
       report: marketReport,
+      gasConfig: { gasLimit: "300000" },
     })
     .result();
 
@@ -113,10 +144,12 @@ const onCronTrigger = (runtime: Runtime<Config>): number => {
     });
 
     const lotReport = runtime.report(prepareReportRequest(batchData)).result();
+
     evmClient
       .writeReport(runtime, {
         receiver: runtime.config.navContractAddress,
         report: lotReport,
+        gasConfig: { gasLimit: "1000000" },
       })
       .result();
 
