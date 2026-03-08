@@ -43,6 +43,14 @@ Chainlink CRE (DON) → NAVOracle.sol (EVM Sepolia) → NavRelayService → NavO
 
 **NAV Formula:** `revenue - feedCostIncurred - feedCostFuture - operatingCosts` (scaled ×100 for 2 decimal precision)
 
+**Chainlink usage (code links):**
+- CRE workflow entry point (fetch + compute + on-chain writes): [packages/chainlink/cre/main.ts](https://github.com/Gianfranco99/your-cow/blob/main/packages/chainlink/cre/main.ts)
+- Market-data fetchers (MAGyP, SIOCarnes, BCRA): [packages/chainlink/cre/fetchers.ts](https://github.com/Gianfranco99/your-cow/blob/main/packages/chainlink/cre/fetchers.ts)
+- NAV calculation logic: [packages/chainlink/cre/nav.ts](https://github.com/Gianfranco99/your-cow/blob/main/packages/chainlink/cre/nav.ts)
+- Sepolia contract written by CRE: [packages/chainlink/contracts/NAVOracle.sol](https://github.com/Gianfranco99/your-cow/blob/main/packages/chainlink/contracts/NAVOracle.sol)
+- Sepolia -> Starknet relay service: [packages/backend/src/modules/onchain/nav-relay/nav-relay.service.ts](https://github.com/Gianfranco99/your-cow/blob/main/packages/backend/src/modules/onchain/nav-relay/nav-relay.service.ts)
+- CRE workflow config/targets: [packages/chainlink/cre/workflow.yaml](https://github.com/Gianfranco99/your-cow/blob/main/packages/chainlink/cre/workflow.yaml), [packages/chainlink/project.yaml](https://github.com/Gianfranco99/your-cow/blob/main/packages/chainlink/project.yaml)
+
 ### 🔒 Tongo — Private P2P Transfers
 
 Privacy-preserving secondary market using **ElGamal encryption** on Starknet. Transfer amounts are encrypted on-chain — only buyer and seller know the traded value. The platform manages custodial Tongo keys (AES-256-GCM encrypted per user) and executes private transfers server-side via an operator account.
@@ -50,6 +58,12 @@ Privacy-preserving secondary market using **ElGamal encryption** on Starknet. Tr
 ### 🛡️ Garaga — Zero-Knowledge Proofs
 
 ZK proof of funding threshold ("this lot raised ≥ X% of its target") without revealing investor counts or exact amounts. Built with **Noir circuits** compiled to Ultra Honk proofs, verified on-chain via a Garaga Cairo verifier.
+
+### 🔍 ZK and Privacy in This Project
+
+- ZK (Noir + bb + Garaga) is used on Starknet for fundraising-threshold proofs in the Garaga module.
+- Tongo is used for privacy-preserving share transfers on Starknet.
+- Chainlink CRE uses `ConfidentialHTTPClient` to fetch private lot/business data securely.
 
 ---
 
