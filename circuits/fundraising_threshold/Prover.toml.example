@@ -1,0 +1,7 @@
+# Public inputs (visible on-chain)
+threshold_percent = "100"
+lot_id = "0x1"          # lot DB id as hex field element
+
+# Private inputs (hidden in proof)
+funded_shares = "100"   # 100 of 100 shares sold (100% >= 100% threshold -> passes)
+total_shares = "100"

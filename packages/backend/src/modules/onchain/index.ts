@@ -20,3 +20,6 @@ export * from "./audit-registry/audit-registry.service";
 
 export * from "./nav-relay/nav-relay.module";
 export * from "./nav-relay/nav-relay.service";
+
+export * from "./garaga/garaga.module";
+export * from "./garaga/garaga.service";

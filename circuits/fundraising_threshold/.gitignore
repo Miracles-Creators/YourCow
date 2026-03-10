@@ -1,0 +1,6 @@
+# Build artifacts — regenerated via nargo + bb
+target/
+
+# Local prover inputs — may contain real lot IDs
+# Commit Prover.toml.example instead
+Prover.toml

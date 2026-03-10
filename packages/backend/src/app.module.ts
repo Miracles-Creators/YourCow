@@ -26,6 +26,7 @@ import { TraceabilityOracleModule } from "./modules/onchain/traceability-oracle/
 import { SettlementRegistryModule } from "./modules/onchain/settlement-registry/settlement-registry.module";
 import { TongoModule } from "./modules/onchain/tongo/tongo.module";
 import { NavRelayModule } from "./modules/onchain/nav-relay/nav-relay.module";
+import { GaragaModule } from "./modules/onchain/garaga/garaga.module";
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { NavRelayModule } from "./modules/onchain/nav-relay/nav-relay.module";
     SettlementRegistryModule,
     TongoModule,
     NavRelayModule,
+    GaragaModule,
   ],
   controllers: [HealthController],
 })

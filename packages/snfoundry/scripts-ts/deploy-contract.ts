@@ -150,13 +150,7 @@ const estimateDeclareFee = async (
   classHash: string
 ): Promise<bigint> => {
   const tip = await estimateTip();
-  const { overall_fee } = await deployer.estimateDeclareFee(
-    {
-      contract: payload.contract,
-      compiledClassHash: classHash,
-    },
-    { tip }
-  );
+  const { overall_fee } = await deployer.estimateDeclareFee(payload, { tip });
 
   const minimumTip = 500000000000000000n; // 0.1 STRK
   const finalTip = overall_fee > minimumTip ? overall_fee : minimumTip;

@@ -8,6 +8,7 @@
     "deploy": "ts-node scripts-ts/helpers/deploy-wrapper.ts",
     "deploy:clear": "cd deployments && node clear.mjs $* && cd .. && ts-node scripts-ts/helpers/deploy-wrapper.ts $*",
     "deploy:no-reset": "yarn workspace @ss-2/snfoundry deploy --no-reset",
+    "set-settlement-registry": "ts-node scripts-ts/set-settlement-registry.ts",
     "format": "prettier --write 'scripts-ts/**/*.{ts,tsx}' && cd contracts && scarb fmt",
     "format:check": "prettier --check 'scripts-ts/**/*.{ts,tsx}' && cd contracts && scarb fmt --check",
     "postinstall": "shx cp -n .env.example .env",
@@ -20,7 +21,7 @@
     "dotenv": "^16.3.1",
     "envfile": "^6.18.0",
     "prettier": "^2.8.8",
-    "starknet": "8.5.3",
+    "starknet": "8.9.2",
     "toml": "^3.0.0",
     "tslib": "^2.6.2"
   },

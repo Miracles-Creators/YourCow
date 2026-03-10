@@ -18,6 +18,7 @@
     "deploy": "yarn workspace @ss-2/snfoundry deploy",
     "deploy:clear": "yarn workspace @ss-2/snfoundry deploy:clear",
     "deploy:no-reset": "yarn workspace @ss-2/snfoundry deploy --no-reset",
+    "set-settlement-registry": "yarn workspace @ss-2/snfoundry set-settlement-registry",
     "format": "yarn workspace @ss-2/nextjs format && yarn workspace @ss-2/snfoundry format",
     "format:check": "yarn workspace @ss-2/nextjs format:check && yarn workspace @ss-2/snfoundry format:check",
     "next:check-types": "yarn workspace @ss-2/nextjs check-types",
