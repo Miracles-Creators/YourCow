@@ -14,6 +14,7 @@ const withPWA = nextPWA({
 
 const nextConfig = {
   reactStrictMode: true,
+  devIndicators: false,
   logging: {
     incomingRequests: false,
   },

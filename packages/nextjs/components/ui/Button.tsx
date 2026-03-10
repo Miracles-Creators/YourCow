@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { Link } from "~~/lib/i18n/routing";
 import { cn } from "~~/lib/utils/cn";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
