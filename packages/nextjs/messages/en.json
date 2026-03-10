@@ -24,8 +24,8 @@
       "cancel": "Cancel",
       "confirm": "Confirm",
       "filter": "Filter",
-    "fund": "Fund",
-    "withdraw": "Withdraw"
+      "fund": "Fund",
+      "withdraw": "Withdraw"
     },
     "nav": {
       "home": "Home",
@@ -221,6 +221,11 @@
       "sharesAvailable": "Shares Available",
       "fundingProgress": "Funding Progress",
       "description": "Description",
+      "privateMetrics": {
+        "title": "Lot capacity",
+        "hidden": "Private",
+        "hint": "The progress bar remains visible without revealing the producer's total share count."
+      },
       "investButton": "Invest in this Lot",
       "categories": {
         "breeding": "Breeding",
@@ -233,6 +238,9 @@
       "subtitle": "Choose how much you want to invest in {lotName}",
       "amountLabel": "Amount to Invest",
       "amountPlaceholder": "0",
+      "privacy": {
+        "availabilityHidden": "Availability hidden for producer privacy"
+      },
       "calculation": {
         "shares": "Shares",
         "pricePerShare": "Price per Share",
@@ -243,7 +251,8 @@
       "errors": {
         "invalidAmount": "Please enter a valid amount",
         "insufficientShares": "Not enough shares available",
-        "minimumAmount": "Minimum amount is ${amount}"
+        "minimumAmount": "Minimum amount is ${amount}",
+        "privateCapacityExceeded": "Amount exceeds the lot's available private capacity"
       }
     },
     "confirmInvestment": {

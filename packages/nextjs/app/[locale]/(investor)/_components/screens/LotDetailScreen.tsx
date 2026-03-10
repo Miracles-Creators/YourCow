@@ -79,7 +79,8 @@ function computeFillPath(linePath: string): string {
 
 function getMonthLabels(durationWeeks: number): string[] {
   const totalMonths = Math.max(1, Math.round(durationWeeks / 4.33));
-  if (totalMonths <= 3) return Array.from({ length: totalMonths + 1 }, (_, i) => `M${i}`);
+  if (totalMonths <= 3)
+    return Array.from({ length: totalMonths + 1 }, (_, i) => `M${i}`);
   const mid = Math.round(totalMonths / 2);
   return [`M1`, `M${mid}`, `M${totalMonths}`];
 }
@@ -160,6 +161,30 @@ function FundingProgressBar({
   );
 }
 
+function PrivacyMetricCard({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+}) {
+  return (
+    <div className="rounded-2xl bg-vaca-green/5 p-5">
+      <p className="font-inter text-[9px] font-bold uppercase tracking-[0.2em] text-vaca-neutral-gray-400">
+        {label}
+      </p>
+      <p className="mt-2 font-inter text-2xl font-bold text-vaca-neutral-gray-900">
+        {value}
+      </p>
+      <p className="mt-1 font-inter text-xs text-vaca-neutral-gray-500">
+        {hint}
+      </p>
+    </div>
+  );
+}
+
 function P2POfferRow({ offer, onBuy }: { offer: OfferDto; onBuy: () => void }) {
   const remainingShares = offer.sharesAmount - offer.sharesFilled;
   const isStrk = offer.currency === "STRK";
@@ -173,10 +198,13 @@ function P2POfferRow({ offer, onBuy }: { offer: OfferDto; onBuy: () => void }) {
       <div>
         <p className="font-inter text-sm font-semibold text-vaca-neutral-gray-900">
           {price}{" "}
-          <span className="text-xs font-normal text-vaca-neutral-gray-400">/ share</span>
+          <span className="text-xs font-normal text-vaca-neutral-gray-400">
+            / share
+          </span>
         </p>
         <p className="mt-0.5 font-inter text-xs text-vaca-neutral-gray-400">
-          {remainingShares} {remainingShares === 1 ? "share" : "shares"} available
+          {remainingShares} {remainingShares === 1 ? "share" : "shares"}{" "}
+          available
         </p>
       </div>
       <motion.button
@@ -213,7 +241,9 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
   const chart = useMemo(() => {
     if (!lot) return null;
     const targetPath = computeGrowthPath(lot.investorPercent);
-    const conservativePath = computeGrowthPath(lot.investorPercent * CONSERVATIVE_FACTOR);
+    const conservativePath = computeGrowthPath(
+      lot.investorPercent * CONSERVATIVE_FACTOR,
+    );
     const fillPath = computeFillPath(targetPath);
     const labels = getMonthLabels(lot.durationWeeks);
     return { targetPath, conservativePath, fillPath, labels };
@@ -265,7 +295,6 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
   const imageUrl = getMetaString("imageUrl") || getLotImage(lotId);
   const category = CATEGORY_MAP[lot.productionType] ?? CATEGORY_MAP.FEEDLOT;
   const translatedCategory = t(`categories.${category.key}`);
-  const capitalRequired = lot.pricePerShare * lot.totalShares;
   const riskLevel = getMetaString("riskLevel", "low").toLowerCase();
   const risk = RISK_LEVELS[riskLevel] ?? RISK_LEVELS.low;
   const fundingProgress =
@@ -278,7 +307,6 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
   const detailRows = [
     { label: t("category"), value: translatedCategory },
     { label: t("herdSize"), value: lot.cattleCount.toLocaleString() },
-    { label: "Total Shares", value: lot.totalShares.toLocaleString() },
     {
       label: t("duration"),
       value: lot.durationWeeks
@@ -337,7 +365,10 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
              ════════════════════════════════════ */}
           <div className="lg:col-span-3">
             {/* Desktop Title Row — thumbnail + title + back/share */}
-            <motion.div variants={itemVariants} className="mb-8 hidden lg:block">
+            <motion.div
+              variants={itemVariants}
+              className="mb-8 hidden lg:block"
+            >
               <button
                 onClick={() => router.back()}
                 className="mb-4 inline-flex items-center gap-1.5 font-inter text-sm font-medium text-vaca-neutral-gray-400 transition-colors hover:text-vaca-neutral-gray-900"
@@ -519,8 +550,14 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
 
             {/* Funding Progress — mobile only */}
             {fundingProgress !== null && (
-              <motion.div variants={itemVariants} className="mb-4 mt-4 lg:hidden">
-                <FundingProgressBar progress={fundingProgress} label={t("fundingProgress")} />
+              <motion.div
+                variants={itemVariants}
+                className="mb-4 mt-4 lg:hidden"
+              >
+                <FundingProgressBar
+                  progress={fundingProgress}
+                  label={t("fundingProgress")}
+                />
                 {fundraisingProof && (
                   <div className="mt-3">
                     <FundraisingProofBadge proof={fundraisingProof} />
@@ -547,7 +584,9 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                       {label}
                     </span>
                     <div className="flex items-center gap-2">
-                      {dot && <span className={cn("h-2 w-2 rounded-full", dot)} />}
+                      {dot && (
+                        <span className={cn("h-2 w-2 rounded-full", dot)} />
+                      )}
                       <span className="font-inter text-sm font-bold text-vaca-neutral-gray-900">
                         {value}
                       </span>
@@ -589,29 +628,16 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
               </motion.div>
             )}
 
-            {/* Lot Value — mobile only */}
+            {/* Private funding summary — mobile only */}
             <motion.div
               variants={itemVariants}
               className="mt-10 rounded-2xl bg-vaca-green/5 p-5 lg:hidden"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-inter text-[9px] font-bold uppercase tracking-[0.2em] text-vaca-neutral-gray-400">
-                    Lot Value
-                  </p>
-                  <p className="mt-1 font-inter text-2xl font-bold text-vaca-neutral-gray-900">
-                    ${capitalRequired.toLocaleString()}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-inter text-[9px] font-bold uppercase tracking-[0.2em] text-vaca-neutral-gray-400">
-                    {t("sharesAvailable")}
-                  </p>
-                  <p className="mt-1 font-inter text-sm font-bold text-vaca-neutral-gray-900">
-                    {lot.totalShares.toLocaleString()} shares
-                  </p>
-                </div>
-              </div>
+              <PrivacyMetricCard
+                label={t("privateMetrics.title")}
+                value={t("privateMetrics.hidden")}
+                hint={t("privateMetrics.hint")}
+              />
             </motion.div>
 
             {/* Producer — mobile only */}
@@ -664,28 +690,18 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
 
                   <div className="my-5 border-t border-vaca-neutral-gray-50" />
 
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-inter text-[9px] font-bold uppercase tracking-[0.2em] text-vaca-neutral-gray-400">
-                        Lot Value
-                      </p>
-                      <p className="mt-1 font-inter text-xl font-bold text-vaca-neutral-gray-900">
-                        ${capitalRequired.toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-inter text-[9px] font-bold uppercase tracking-[0.2em] text-vaca-neutral-gray-400">
-                        {t("sharesAvailable")}
-                      </p>
-                      <p className="mt-1 font-inter text-sm font-bold text-vaca-neutral-gray-900">
-                        {lot.totalShares.toLocaleString()} shares
-                      </p>
-                    </div>
-                  </div>
+                  <PrivacyMetricCard
+                    label={t("privateMetrics.title")}
+                    value={t("privateMetrics.hidden")}
+                    hint={t("privateMetrics.hint")}
+                  />
 
                   {fundingProgress !== null && (
                     <div className="mt-5">
-                      <FundingProgressBar progress={fundingProgress} label={t("fundingProgress")} />
+                      <FundingProgressBar
+                        progress={fundingProgress}
+                        label={t("fundingProgress")}
+                      />
                       {fundraisingProof && (
                         <div className="mt-3">
                           <FundraisingProofBadge proof={fundraisingProof} />
@@ -719,7 +735,9 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                     </motion.button>
                   ) : (
                     <div className="flex h-14 items-center justify-center rounded-2xl border border-vaca-neutral-gray-100 bg-vaca-neutral-gray-50">
-                      <p className="font-inter text-sm text-vaca-neutral-gray-400">No P2P offers available</p>
+                      <p className="font-inter text-sm text-vaca-neutral-gray-400">
+                        No P2P offers available
+                      </p>
                     </div>
                   )}
                 </div>

@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLot } from "~~/hooks/lots/useLot";
 import { cn } from "~~/lib/utils/cn";
-import { calculateShares, calculateParticipation } from "~~/utils/investment";
+import { calculateShares } from "~~/utils/investment";
 import { containerVariants, itemVariants } from "../animations";
 
 interface InvestAmountScreenProps {
@@ -24,7 +24,6 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
 
   const [amount, setAmount] = useState(0);
   const [shares, setShares] = useState(0);
-  const [participation, setParticipation] = useState(0);
   const [estimatedReturn, setEstimatedReturn] = useState(0);
 
   const pricePerShare = lot?.pricePerShare ?? 0;
@@ -47,13 +46,11 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
   useEffect(() => {
     if (!hasPricing || amount <= 0) {
       setShares(0);
-      setParticipation(0);
       setEstimatedReturn(0);
       return;
     }
     const nextShares = calculateShares(amount, pricePerShare);
     setShares(nextShares);
-    setParticipation(calculateParticipation(nextShares, totalShares));
     setEstimatedReturn(
       Math.round(nextShares * pricePerShare * (investorPercent / 100)),
     );
@@ -79,7 +76,10 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
           <h2 className="mb-2 font-playfair text-2xl font-semibold text-vaca-neutral-gray-900">
             {tCommon("errors.notFound")}
           </h2>
-          <Link href="/marketplace" className="font-inter text-sm text-vaca-blue hover:underline">
+          <Link
+            href="/marketplace"
+            className="font-inter text-sm text-vaca-blue hover:underline"
+          >
             ← {tCommon("actions.back")}
           </Link>
         </div>
@@ -172,15 +172,13 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
             </div>
             {exceedsAvailable && (
               <p className="mt-2 font-inter text-xs text-vaca-error">
-                Maximum available: ${maxAmount.toLocaleString()}
+                {t("errors.privateCapacityExceeded")}
               </p>
             )}
             <div className="mt-2 flex items-center gap-3 font-inter text-xs text-vaca-neutral-gray-400">
-              <span>
-                ${pricePerShare} / share
-              </span>
+              <span>${pricePerShare} / share</span>
               <span className="h-1 w-1 rounded-full bg-vaca-neutral-gray-200" />
-              <span>{sharesAvailable.toLocaleString()} available</span>
+              <span>{t("privacy.availabilityHidden")}</span>
             </div>
           </motion.div>
 
@@ -202,10 +200,6 @@ export function InvestAmountScreen({ lotId }: InvestAmountScreenProps) {
                   <BreakdownRow
                     label={t("calculation.shares")}
                     value={`${shares.toLocaleString()} shares`}
-                  />
-                  <BreakdownRow
-                    label="Participation"
-                    value={`${participation}%`}
                   />
                   <BreakdownRow
                     label={t("calculation.pricePerShare")}

@@ -44,7 +44,9 @@ export function ConfirmInvestmentScreen({
   const totalFees = platformFee + paymentProcessingFee;
   const totalAmount = investmentAmount + totalFees;
   const investorPercent = lot?.investorPercent ?? 0;
-  const estimatedReturn = Math.round(investmentAmount * (investorPercent / 100));
+  const estimatedReturn = Math.round(
+    investmentAmount * (investorPercent / 100),
+  );
 
   const handleConfirm = async () => {
     if (!lot || !me?.id) {
@@ -177,17 +179,25 @@ export function ConfirmInvestmentScreen({
                 {lot.name}
               </h2>
               <p className="mt-0.5 font-inter text-xs text-vaca-neutral-gray-400">
-                {lot.location} · {lot.durationWeeks ? `${lot.durationWeeks} ${tCommon("time.weeks")}` : "—"}
+                {lot.location} ·{" "}
+                {lot.durationWeeks
+                  ? `${lot.durationWeeks} ${tCommon("time.weeks")}`
+                  : "—"}
               </p>
             </div>
 
             <div className="space-y-2.5">
-              <SummaryRow label={t("investmentAmount")} value={`$${investmentAmount.toLocaleString()}`} />
-              <SummaryRow label={t("shares")} value={`${shares.toLocaleString()} shares`} />
-              <SummaryRow label={t("pricePerShare")} value={`$${lot.pricePerShare}`} />
               <SummaryRow
-                label="Participation"
-                value={`${((shares / lot.totalShares) * 100).toFixed(2)}%`}
+                label={t("investmentAmount")}
+                value={`$${investmentAmount.toLocaleString()}`}
+              />
+              <SummaryRow
+                label={t("shares")}
+                value={`${shares.toLocaleString()} shares`}
+              />
+              <SummaryRow
+                label={t("pricePerShare")}
+                value={`$${lot.pricePerShare}`}
               />
             </div>
 
@@ -214,10 +224,21 @@ export function ConfirmInvestmentScreen({
               Fees
             </p>
             <div className="space-y-2.5">
-              <SummaryRow label="Platform (1.5%)" value={`$${platformFee.toFixed(2)}`} muted />
-              <SummaryRow label="Processing" value={`$${paymentProcessingFee.toFixed(2)}`} muted />
+              <SummaryRow
+                label="Platform (1.5%)"
+                value={`$${platformFee.toFixed(2)}`}
+                muted
+              />
+              <SummaryRow
+                label="Processing"
+                value={`$${paymentProcessingFee.toFixed(2)}`}
+                muted
+              />
               <div className="border-t border-vaca-neutral-gray-50 pt-2.5">
-                <SummaryRow label="Total Fees" value={`$${totalFees.toFixed(2)}`} />
+                <SummaryRow
+                  label="Total Fees"
+                  value={`$${totalFees.toFixed(2)}`}
+                />
               </div>
             </div>
           </motion.div>
@@ -232,7 +253,8 @@ export function ConfirmInvestmentScreen({
                 Total to Pay
               </span>
               <span className="font-inter text-2xl font-bold tabular-nums text-white">
-                ${totalAmount.toLocaleString("en-US", {
+                $
+                {totalAmount.toLocaleString("en-US", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -243,9 +265,9 @@ export function ConfirmInvestmentScreen({
           {/* Disclaimer */}
           <motion.div variants={itemVariants}>
             <p className="text-center font-inter text-[10px] leading-relaxed text-vaca-neutral-gray-400">
-              Returns are not guaranteed. Cattle investment involves agricultural
-              and market risks. Only invest amounts you can afford to tie up for
-              the full cycle duration.
+              Returns are not guaranteed. Cattle investment involves
+              agricultural and market risks. Only invest amounts you can afford
+              to tie up for the full cycle duration.
             </p>
           </motion.div>
 

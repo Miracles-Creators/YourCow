@@ -4,5 +4,6 @@
   "beefApiUrl": "https://siocarnes.magyp.gob.ar/api/Reportes/GetDatosMonitor?categoria=1&subcatergoria=-1&zona=-1&raza=-1",
   "usdApiUrl": "https://api.bcra.gob.ar/estadisticascambiarias/v1.0/Cotizaciones",
   "backendLotsUrl": "http://localhost:3001/api/lots/oracle",
-  "navContractAddress": "0x2fE73aAa0132100C6f78e6Cb4ea101c279581286"
+  "navContractAddress": "0x2fE73aAa0132100C6f78e6Cb4ea101c279581286",
+  "queryDate": "2026-01-05"
 }

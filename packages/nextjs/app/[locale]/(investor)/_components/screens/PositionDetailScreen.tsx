@@ -16,7 +16,11 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useLot } from "~~/hooks/lots/useLot";
-import { usePortfolioSummary, usePortfolioByLot, useCreateOffer } from "~~/hooks/marketplace";
+import {
+  usePortfolioSummary,
+  usePortfolioByLot,
+  useCreateOffer,
+} from "~~/hooks/marketplace";
 import { cn } from "~~/lib/utils/cn";
 import type { ProductionType, LotStatus } from "~~/lib/api/schemas";
 import { containerVariants, itemVariants } from "../animations";
@@ -78,7 +82,10 @@ function computeNavTrendPath(
     d += ` C${cpx},${pts[i - 1].y} ${cpx},${pts[i].y} ${pts[i].x},${pts[i].y}`;
   }
 
-  return { linePath: d, fillPath: `${d} L${CHART_W},${CHART_H} L0,${CHART_H} Z` };
+  return {
+    linePath: d,
+    fillPath: `${d} L${CHART_W},${CHART_H} L0,${CHART_H} Z`,
+  };
 }
 
 // ─── Sub-components ─────────────────────────────────────────
@@ -99,11 +106,18 @@ function MetricCard({
       <p className="font-inter text-[9px] font-bold uppercase tracking-[0.2em] text-vaca-neutral-gray-400">
         {label}
       </p>
-      <p className={cn("mt-2 font-inter text-2xl font-bold tracking-tight", valueColor)}>
+      <p
+        className={cn(
+          "mt-2 font-inter text-2xl font-bold tracking-tight",
+          valueColor,
+        )}
+      >
         {value}
       </p>
       {sub && (
-        <p className="mt-0.5 font-inter text-[10px] text-vaca-neutral-gray-500">{sub}</p>
+        <p className="mt-0.5 font-inter text-[10px] text-vaca-neutral-gray-500">
+          {sub}
+        </p>
       )}
     </div>
   );
@@ -214,7 +228,8 @@ function SellForm({
     return (
       <div className="rounded-xl bg-vaca-neutral-gray-50 p-4 text-center">
         <p className="font-inter text-xs text-vaca-neutral-gray-500">
-          Selling is available when the lot is <span className="font-semibold">Active</span>.
+          Selling is available when the lot is{" "}
+          <span className="font-semibold">Active</span>.
         </p>
       </div>
     );
@@ -233,7 +248,10 @@ function SellForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="sell-shares" className="mb-1.5 block font-inter text-xs font-semibold text-vaca-neutral-gray-600">
+        <label
+          htmlFor="sell-shares"
+          className="mb-1.5 block font-inter text-xs font-semibold text-vaca-neutral-gray-600"
+        >
           Shares to sell
         </label>
         <div className="relative">
@@ -244,7 +262,11 @@ function SellForm({
             max={availableShares}
             step={1}
             value={shares}
-            onChange={(e) => { setShares(e.target.value); setError(""); setSuccess(false); }}
+            onChange={(e) => {
+              setShares(e.target.value);
+              setError("");
+              setSuccess(false);
+            }}
             placeholder={`Max ${availableShares}`}
             className="w-full rounded-xl border-2 border-vaca-neutral-gray-100 bg-vaca-neutral-white px-4 py-3 font-inter text-sm text-vaca-neutral-gray-900 transition-colors focus:border-vaca-green focus:outline-none"
           />
@@ -259,7 +281,10 @@ function SellForm({
       </div>
 
       <div>
-        <label htmlFor="sell-price" className="mb-1.5 block font-inter text-xs font-semibold text-vaca-neutral-gray-600">
+        <label
+          htmlFor="sell-price"
+          className="mb-1.5 block font-inter text-xs font-semibold text-vaca-neutral-gray-600"
+        >
           Price per share (ARS)
         </label>
         <input
@@ -268,16 +293,26 @@ function SellForm({
           min={0.01}
           step={0.01}
           value={price}
-          onChange={(e) => { setPrice(e.target.value); setError(""); setSuccess(false); }}
+          onChange={(e) => {
+            setPrice(e.target.value);
+            setError("");
+            setSuccess(false);
+          }}
           className="w-full rounded-xl border-2 border-vaca-neutral-gray-100 bg-vaca-neutral-white px-4 py-3 font-inter text-sm text-vaca-neutral-gray-900 transition-colors focus:border-vaca-green focus:outline-none"
         />
       </div>
 
       {sharesNum > 0 && priceNum > 0 && (
         <div className="flex items-center justify-between rounded-xl bg-vaca-neutral-gray-50 px-4 py-3">
-          <span className="font-inter text-xs text-vaca-neutral-gray-500">Total</span>
+          <span className="font-inter text-xs text-vaca-neutral-gray-500">
+            Total
+          </span>
           <span className="font-inter text-sm font-bold text-vaca-neutral-gray-900">
-            ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            $
+            {total.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </span>
         </div>
       )}
@@ -328,7 +363,11 @@ function SellForm({
         ) : (
           <ArrowRightLeft className="h-4 w-4" />
         )}
-        {createOffer.isPending ? "Creating offer..." : success ? "Offer created" : "Create sell offer"}
+        {createOffer.isPending
+          ? "Creating offer..."
+          : success
+            ? "Offer created"
+            : "Create sell offer"}
       </motion.button>
     </form>
   );
@@ -356,7 +395,10 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
   );
 
   const chart = useMemo(
-    () => (position ? computeNavTrendPath(position.invested, position.currentValue) : null),
+    () =>
+      position
+        ? computeNavTrendPath(position.invested, position.currentValue)
+        : null,
     [position],
   );
 
@@ -420,10 +462,6 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
 
   const totalShares = positionByLot ? Number(positionByLot.total) : null;
   const lockedShares = positionByLot ? Number(positionByLot.locked) : null;
-  const participation =
-    totalShares != null && lot?.totalShares
-      ? ((totalShares / lot.totalShares) * 100).toFixed(1)
-      : null;
 
   const producerName = lot?.producer?.user?.name;
   const producerVerified = lot?.producer?.status === "ACTIVE";
@@ -431,9 +469,14 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
 
   const detailRows = [
     { label: t("lot.category"), value: categoryLabel },
-    lot?.cattleCount ? { label: t("lot.herdSize"), value: lot.cattleCount.toLocaleString() } : null,
+    lot?.cattleCount
+      ? { label: t("lot.herdSize"), value: lot.cattleCount.toLocaleString() }
+      : null,
     lot?.durationWeeks
-      ? { label: t("duration"), value: `${lot.durationWeeks} ${tCommon("time.weeks")}` }
+      ? {
+          label: t("duration"),
+          value: `${lot.durationWeeks} ${tCommon("time.weeks")}`,
+        }
       : null,
     lot?.location ? { label: t("lot.location"), value: lot.location } : null,
     lot?.investorPercent
@@ -478,7 +521,11 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
               isPositive ? "text-green-300" : "text-red-300",
             )}
           >
-            {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+            {isPositive ? (
+              <TrendingUp className="h-4 w-4" />
+            ) : (
+              <TrendingDown className="h-4 w-4" />
+            )}
             {isPositive ? "+" : ""}${Math.abs(gain).toLocaleString()} (
             {isPositive ? "+" : ""}
             {position.returnPercent.toFixed(1)}%)
@@ -501,7 +548,10 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
           {/* ════════ Main Column ════════ */}
           <div className="lg:col-span-3">
             {/* Desktop: back + title row */}
-            <motion.div variants={itemVariants} className="mb-8 hidden lg:block">
+            <motion.div
+              variants={itemVariants}
+              className="mb-8 hidden lg:block"
+            >
               <Link
                 href="/dashboard"
                 className="mb-4 inline-flex items-center gap-1.5 font-inter text-sm font-medium text-vaca-neutral-gray-400 transition-colors hover:text-vaca-neutral-gray-900"
@@ -512,7 +562,13 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
 
               <div className="flex items-start gap-5">
                 <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl">
-                  <Image src={imageUrl} alt={lotName} fill className="object-cover" sizes="96px" />
+                  <Image
+                    src={imageUrl}
+                    alt={lotName}
+                    fill
+                    className="object-cover"
+                    sizes="96px"
+                  />
                 </div>
                 <div className="min-w-0 flex-1 pt-1">
                   <h1 className="font-playfair text-3xl leading-tight text-vaca-neutral-gray-900">
@@ -524,7 +580,12 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
                     </span>
                     <span className="h-1 w-1 rounded-full bg-vaca-neutral-gray-200" />
                     <span className="flex items-center gap-1.5 font-inter text-[10px] font-bold uppercase tracking-[0.15em] text-vaca-neutral-gray-400">
-                      <span className={cn("h-1.5 w-1.5 rounded-full", statusCfg.dot)} />
+                      <span
+                        className={cn(
+                          "h-1.5 w-1.5 rounded-full",
+                          statusCfg.dot,
+                        )}
+                      />
                       {statusLabel}
                     </span>
                     {lot?.location && (
@@ -551,14 +612,19 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
                   {categoryLabel}
                 </span>
                 <span className="flex items-center gap-1.5 font-inter text-[10px] font-bold uppercase tracking-[0.15em] text-vaca-neutral-gray-400">
-                  <span className={cn("h-1.5 w-1.5 rounded-full", statusCfg.dot)} />
+                  <span
+                    className={cn("h-1.5 w-1.5 rounded-full", statusCfg.dot)}
+                  />
                   {statusLabel}
                 </span>
               </div>
             </motion.div>
 
             {/* Financial metrics 2×2 */}
-            <motion.div variants={itemVariants} className="mb-8 grid grid-cols-2 gap-3">
+            <motion.div
+              variants={itemVariants}
+              className="mb-8 grid grid-cols-2 gap-3"
+            >
               <MetricCard
                 label={t("investment.amount")}
                 value={`$${position.invested.toLocaleString()}`}
@@ -571,11 +637,14 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
               <MetricCard
                 label={t("investment.shares")}
                 value={totalShares?.toString() ?? "—"}
-                sub={participation ? `${participation}% ${t("holdings.shareOfLot")}` : undefined}
               />
               <MetricCard
                 label={t("daysRemaining")}
-                value={position.daysRemaining != null ? `${position.daysRemaining}d` : "—"}
+                value={
+                  position.daysRemaining != null
+                    ? `${position.daysRemaining}d`
+                    : "—"
+                }
               />
             </motion.div>
 
@@ -592,7 +661,9 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
                   <span
                     className={cn(
                       "rounded-full px-2.5 py-1 font-inter text-[10px] font-bold uppercase tracking-wider",
-                      isPositive ? "bg-vaca-green/5 text-vaca-green" : "bg-vaca-error/5 text-vaca-error",
+                      isPositive
+                        ? "bg-vaca-green/5 text-vaca-green"
+                        : "bg-vaca-error/5 text-vaca-error",
                     )}
                   >
                     {isPositive ? "+" : ""}
@@ -607,7 +678,13 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
                     viewBox={`0 0 ${CHART_W} ${CHART_H}`}
                   >
                     <defs>
-                      <linearGradient id="posNavFill" x1="0" x2="0" y1="0" y2="1">
+                      <linearGradient
+                        id="posNavFill"
+                        x1="0"
+                        x2="0"
+                        y1="0"
+                        y2="1"
+                      >
                         <stop
                           offset="0%"
                           stopColor={isPositive ? "#1B5E20" : "#DC2626"}
@@ -668,7 +745,10 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
                       </p>
                       <p className="mt-1 font-inter text-xl font-bold text-vaca-neutral-gray-900">
                         {lot.averageWeightKg}
-                        <span className="text-sm font-medium text-vaca-neutral-gray-500"> kg</span>
+                        <span className="text-sm font-medium text-vaca-neutral-gray-500">
+                          {" "}
+                          kg
+                        </span>
                       </p>
                     </div>
                   )}
@@ -688,10 +768,13 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
                         {t("estimatedEnd")}
                       </p>
                       <p className="mt-1 font-inter text-base font-bold text-vaca-neutral-gray-900">
-                        {new Date(position.estimatedEndDate).toLocaleDateString("en-US", {
-                          month: "short",
-                          year: "numeric",
-                        })}
+                        {new Date(position.estimatedEndDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "short",
+                            year: "numeric",
+                          },
+                        )}
                       </p>
                     </div>
                   )}
@@ -749,7 +832,11 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
               </h3>
               <SellForm
                 lotId={lotId}
-                availableShares={totalShares != null && lockedShares != null ? totalShares - lockedShares : 0}
+                availableShares={
+                  totalShares != null && lockedShares != null
+                    ? totalShares - lockedShares
+                    : 0
+                }
                 defaultPricePerShare={lot?.pricePerShare ?? 0}
                 lotStatus={position.status}
               />
@@ -820,16 +907,6 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
                         </span>
                       </div>
                     )}
-                    {participation && (
-                      <div className="flex items-center justify-between">
-                        <span className="font-inter text-xs text-vaca-neutral-gray-500">
-                          {t("holdings.shareOfLot")}
-                        </span>
-                        <span className="font-inter text-sm font-bold tabular-nums text-vaca-neutral-gray-900">
-                          {participation}%
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -839,7 +916,11 @@ export function PositionDetailScreen({ lotId }: PositionDetailScreenProps) {
                   </h3>
                   <SellForm
                     lotId={lotId}
-                    availableShares={totalShares != null && lockedShares != null ? totalShares - lockedShares : 0}
+                    availableShares={
+                      totalShares != null && lockedShares != null
+                        ? totalShares - lockedShares
+                        : 0
+                    }
                     defaultPricePerShare={lot?.pricePerShare ?? 0}
                     lotStatus={position.status}
                   />
@@ -891,7 +972,10 @@ function PositionDetailSkeleton() {
             </div>
             <div className="mb-8 grid grid-cols-2 gap-3">
               {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="h-24 rounded-2xl bg-vaca-neutral-gray-100" />
+                <div
+                  key={i}
+                  className="h-24 rounded-2xl bg-vaca-neutral-gray-100"
+                />
               ))}
             </div>
             <div className="mb-8 h-56 rounded-2xl bg-vaca-neutral-gray-100" />

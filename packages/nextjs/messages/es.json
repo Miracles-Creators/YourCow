@@ -24,8 +24,8 @@
       "cancel": "Cancelar",
       "confirm": "Confirmar",
       "filter": "Filtrar",
-    "fund": "Fondear",
-    "withdraw": "Retirar"
+      "fund": "Fondear",
+      "withdraw": "Retirar"
     },
     "nav": {
       "home": "Inicio",
@@ -221,6 +221,11 @@
       "sharesAvailable": "Acciones Disponibles",
       "fundingProgress": "Progreso de Financiamiento",
       "description": "Descripción",
+      "privateMetrics": {
+        "title": "Capacidad del lote",
+        "hidden": "Privada",
+        "hint": "El progress bar sigue visible sin revelar el total de acciones del productor."
+      },
       "investButton": "Invertir en este Lote",
       "categories": {
         "breeding": "Cría",
@@ -233,6 +238,9 @@
       "subtitle": "Elige cuánto quieres invertir en {lotName}",
       "amountLabel": "Cantidad a Invertir",
       "amountPlaceholder": "0",
+      "privacy": {
+        "availabilityHidden": "Disponibilidad oculta por privacidad del productor"
+      },
       "calculation": {
         "shares": "Acciones",
         "pricePerShare": "Precio por Acción",
@@ -243,7 +251,8 @@
       "errors": {
         "invalidAmount": "Ingresa una cantidad válida",
         "insufficientShares": "No hay suficientes acciones disponibles",
-        "minimumAmount": "La cantidad mínima es ${amount}"
+        "minimumAmount": "La cantidad mínima es ${amount}",
+        "privateCapacityExceeded": "La cantidad excede la capacidad privada disponible del lote"
       }
     },
     "confirmInvestment": {
