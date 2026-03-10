@@ -26,6 +26,9 @@ export { PositionCard } from "./ui/PositionCard";
 // Layouts
 export { InvestorLayout } from "./layouts/InvestorLayout";
 
+// Garaga Components
+export { FundraisingProofBadge } from "./garaga/FundraisingProofBadge";
+
 // Tongo Components
 export { TongoBalanceCard } from "./tongo/TongoBalanceCard";
 export { FundModal } from "./tongo/FundModal";

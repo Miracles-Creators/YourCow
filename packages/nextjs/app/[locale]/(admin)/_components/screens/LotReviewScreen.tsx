@@ -11,6 +11,7 @@ import { useLot } from "~~/hooks/lots/useLot";
 import { useApproveLot } from "~~/hooks/lots/useApproveLot";
 import { useAnimalsByLot } from "~~/hooks/animals/useAnimalsByLot";
 import { useApproveAnimals } from "~~/hooks/animals/useApproveAnimals";
+import { useGenerateProof } from "~~/hooks/garaga/useGenerateProof";
 import { notification } from "~~/utils/scaffold-stark/notification";
 
 type LotStatus = "Pending" | "Active" | "Paused" | "Rejected";
@@ -95,6 +96,7 @@ export function LotReviewScreen() {
   const queryClient = useQueryClient();
   const approveLot = useApproveLot();
   const isApproving = approveLot.isPending;
+  const proof = useGenerateProof(lotId);
   const animalsQuery = useAnimalsByLot(lotId);
   const approveAnimals = useApproveAnimals();
   const [selectedAnimalIds, setSelectedAnimalIds] = useState<number[]>([]);
@@ -718,6 +720,74 @@ export function LotReviewScreen() {
               </button>
             </ReviewPanel>
           )}
+
+          <div className="rounded-2xl border border-vaca-green/20 bg-vaca-green/5 p-5 shadow-sm">
+            <h3 className="text-sm font-semibold text-vaca-green">ZK Proof</h3>
+            <p className="mt-1 text-xs text-vaca-neutral-gray-500">
+              Prove on Starknet that this lot reached 100% funding — without revealing share counts.
+            </p>
+
+            {proof.status === "idle" && (
+              <button
+                type="button"
+                onClick={proof.generate}
+                className="mt-4 w-full rounded-full bg-vaca-green px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-vaca-green-dark"
+              >
+                Generate ZK Proof
+              </button>
+            )}
+
+            {(proof.status === "pending" || proof.status === "proving" || proof.status === "verifying") && (
+              <div className="mt-4 space-y-2">
+                <div className="flex items-center gap-2 text-sm text-vaca-neutral-gray-600">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+                    className="h-4 w-4 rounded-full border-2 border-vaca-green border-t-transparent"
+                  />
+                  {proof.status === "pending" && "Starting proof job..."}
+                  {proof.status === "proving" && "Generating proof (~2 min)..."}
+                  {proof.status === "verifying" && "Verifying on Starknet..."}
+                </div>
+                <p className="text-xs text-vaca-neutral-gray-400">
+                  The Noir circuit is running. Poll updates every 5 seconds.
+                </p>
+              </div>
+            )}
+
+            {proof.status === "done" && proof.txHash && (
+              <div className="mt-4 space-y-2">
+                <p className="text-sm font-semibold text-vaca-green">Proof verified on-chain</p>
+                <a
+                  href={`https://sepolia.voyager.online/tx/${proof.txHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block truncate text-xs text-vaca-blue underline-offset-2 hover:underline"
+                >
+                  {proof.txHash}
+                </a>
+                <p className="text-xs text-vaca-neutral-gray-500">
+                  Badge is now visible to investors on the lot detail page.
+                </p>
+              </div>
+            )}
+
+            {proof.status === "failed" && (
+              <div className="mt-4 space-y-2">
+                <p className="text-sm font-semibold text-red-600">Proof failed</p>
+                {proof.error && (
+                  <p className="text-xs text-red-500">{proof.error}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={proof.generate}
+                  className="mt-2 w-full rounded-full border border-vaca-green/40 px-4 py-2 text-sm font-semibold text-vaca-green transition hover:border-vaca-green"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+          </div>
 
           <div className="rounded-2xl border border-vaca-neutral-gray-200 bg-vaca-neutral-white p-5 shadow-sm">
             <h3 className="text-sm font-semibold text-vaca-neutral-gray-900">

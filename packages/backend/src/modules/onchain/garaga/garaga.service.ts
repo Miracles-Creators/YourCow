@@ -48,14 +48,11 @@ export class GaragaService {
     private readonly prisma: PrismaService,
     private readonly starknetService: StarknetService,
   ) {
-    const env = process.env.ENVIRONMENT ?? "devnet";
-    this.verifierAddress =
-      env === "sepolia"
-        ? (process.env.GARAGA_VERIFIER_ADDRESS_SEPOLIA ?? process.env.GARAGA_VERIFIER_ADDRESS ?? "")
-        : (process.env.GARAGA_VERIFIER_ADDRESS_DEVNET ?? process.env.GARAGA_VERIFIER_ADDRESS ?? "");
+    // The Garaga verifier lives on Sepolia only — one contract, always.
+    this.verifierAddress = process.env.GARAGA_VERIFIER_ADDRESS_SEPOLIA ?? "";
 
     if (!this.verifierAddress) {
-      this.logger.warn(`GARAGA_VERIFIER_ADDRESS_${env.toUpperCase()} not set - on-chain verification will fail`);
+      this.logger.warn("GARAGA_VERIFIER_ADDRESS_SEPOLIA not set - on-chain verification will fail");
     }
   }
 

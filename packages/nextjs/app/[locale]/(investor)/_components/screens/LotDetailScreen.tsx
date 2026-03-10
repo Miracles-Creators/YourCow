@@ -21,6 +21,7 @@ import type { OfferDto, ProductionType } from "~~/lib/api/schemas";
 import { formatStrkWei } from "~~/utils/scaffold-stark/common";
 import { containerVariants, itemVariants } from "../animations";
 import { AcceptOfferModal } from "../marketplace/AcceptOfferModal";
+import { FundraisingProofBadge } from "../garaga/FundraisingProofBadge";
 
 const LOT_IMAGES = [
   "/images/cattle-angus.jpg",
@@ -248,6 +249,18 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
     const value = metadata[key];
     return typeof value === "string" ? value : fallback;
   };
+
+  const fundraisingProof =
+    metadata.fundraisingProof &&
+    typeof metadata.fundraisingProof === "object" &&
+    (metadata.fundraisingProof as Record<string, unknown>).verified === true
+      ? (metadata.fundraisingProof as {
+          thresholdPercent: number;
+          verified: boolean;
+          txHash: string;
+          provedAt: string;
+        })
+      : null;
 
   const imageUrl = getMetaString("imageUrl") || getLotImage(lotId);
   const category = CATEGORY_MAP[lot.productionType] ?? CATEGORY_MAP.FEEDLOT;
@@ -506,8 +519,13 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
 
             {/* Funding Progress — mobile only */}
             {fundingProgress !== null && (
-              <motion.div variants={itemVariants} className="mb-10 mt-4 lg:hidden">
+              <motion.div variants={itemVariants} className="mb-4 mt-4 lg:hidden">
                 <FundingProgressBar progress={fundingProgress} label={t("fundingProgress")} />
+                {fundraisingProof && (
+                  <div className="mt-3">
+                    <FundraisingProofBadge proof={fundraisingProof} />
+                  </div>
+                )}
               </motion.div>
             )}
 
@@ -668,6 +686,11 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                   {fundingProgress !== null && (
                     <div className="mt-5">
                       <FundingProgressBar progress={fundingProgress} label={t("fundingProgress")} />
+                      {fundraisingProof && (
+                        <div className="mt-3">
+                          <FundraisingProofBadge proof={fundraisingProof} />
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
