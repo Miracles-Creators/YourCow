@@ -1,10 +1,12 @@
 # YourCow Docs (Quick Index)
 
-Last updated: 2026-02-17
+Last updated: 2026-03-09
 
 ## Source of Truth
 - Overall architecture + E2E flows: [`docs/ARCHITECTURE.md`](ARCHITECTURE.md)
 - Frontend client/backend rules (Zod + Query + Zustand): [`docs/CLIENT_BACKEND_INSTRUCTIONS.md`](CLIENT_BACKEND_INSTRUCTIONS.md)
+- Neuer (Noir) + Garaga proof architecture: [`docs/NEUER_GARAGA_ARCHITECTURE.md`](NEUER_GARAGA_ARCHITECTURE.md)
+- Tongo privacy architecture: [`docs/TONGO_PRIVACY_ARCHITECTURE.md`](TONGO_PRIVACY_ARCHITECTURE.md)
 - Screen execution (templates and prompts): [`docs/EXAMPLE-DESIGN.md`](EXAMPLE-DESIGN.md)
 - On-chain MVP specification: [`packages/snfoundry/PROJECT_SPEC.MD`](../packages/snfoundry/PROJECT_SPEC.MD)
 - Frontend architecture (deep dive): [`packages/nextjs/ARCHITECTURE.md`](../packages/nextjs/ARCHITECTURE.md)
