@@ -17,6 +17,9 @@ export class StarknetService implements OnModuleInit {
   private attestorAccount: Account | null = null;
   private network: NetworkName = "devnet";
 
+  private sepoliaProvider!: RpcProvider;
+  private sepoliaOperatorAccount: Account | null = null;
+
   async onModuleInit() {
     this.network = (process.env.ENVIRONMENT as NetworkName) || "devnet";
 
@@ -58,6 +61,27 @@ export class StarknetService implements OnModuleInit {
         address: attestorAddress,
         signer: attestorPrivateKey,
       });
+    }
+
+    // Dedicated Sepolia provider for services that always target Sepolia (e.g. Tongo)
+    const sepoliaRpcUrl = process.env.STARKNET_RPC_SEPOLIA || "https://api.cartridge.gg/x/starknet/sepolia";
+    this.sepoliaProvider = this.network === "sepolia"
+      ? this.provider
+      : new RpcProvider({
+          nodeUrl: sepoliaRpcUrl,
+          chainId: constants.StarknetChainId.SN_SEPOLIA,
+        });
+
+    const sepoliaKey = process.env.SEPOLIA_OPERATOR_PRIVATE_KEY;
+    const sepoliaAddr = process.env.SEPOLIA_OPERATOR_ADDRESS;
+    if (sepoliaKey && sepoliaAddr) {
+      this.sepoliaOperatorAccount = this.network === "sepolia"
+        ? this.operatorAccount
+        : new Account({
+            provider: this.sepoliaProvider,
+            address: sepoliaAddr,
+            signer: sepoliaKey,
+          });
     }
 
     this.logger.log(`Initialized on ${this.network} (${rpcUrl})`);
@@ -126,6 +150,19 @@ export class StarknetService implements OnModuleInit {
       address,
       providerOrAccount: signer,
     });
+  }
+
+  getSepoliaProvider(): RpcProvider {
+    return this.sepoliaProvider;
+  }
+
+  getSepoliaOperatorAccount(): Account {
+    if (!this.sepoliaOperatorAccount) {
+      throw new Error(
+        "Sepolia operator account not configured. Set SEPOLIA_OPERATOR_PRIVATE_KEY and SEPOLIA_OPERATOR_ADDRESS.",
+      );
+    }
+    return this.sepoliaOperatorAccount;
   }
 
   getNetwork(): NetworkName {

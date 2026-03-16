@@ -53,7 +53,7 @@ export class TongoService {
       sdkAccount = new TongoSdkAccount(
         BigInt(privateKeyHex),
         TONGO_CONTRACT_STRK,
-        this.starknetService.getProvider() as any,
+        this.starknetService.getSepoliaProvider() as any,
       );
     } catch (error) {
       this.logger.error(`Failed to create TongoSdkAccount for user ${userId}`, error);
@@ -81,7 +81,7 @@ export class TongoService {
   }
 
   getOperatorAddress(): string {
-    return this.starknetService.getOperatorAccount().address;
+    return this.starknetService.getSepoliaOperatorAccount().address;
   }
 
   async getBalance(userId: number): Promise<TongoBalance> {
@@ -96,7 +96,7 @@ export class TongoService {
     return this.withUserLock(userId, async () => {
       return this.withNonceLock(async () => {
         const sdkAccount = await this.getSdkAccount(userId);
-        const operator = this.starknetService.getOperatorAccount();
+        const operator = this.starknetService.getSepoliaOperatorAccount();
 
         const tongoAmount = await sdkAccount.erc20ToTongo(amount);
         const op = await sdkAccount.fund({
@@ -130,7 +130,7 @@ export class TongoService {
         });
 
         const toPubKey = JSON.parse(toRecord.tongoPublicKey);
-        const operator = this.starknetService.getOperatorAccount();
+        const operator = this.starknetService.getSepoliaOperatorAccount();
 
         const tongoAmount = await fromSdk.erc20ToTongo(amount);
         const op = await fromSdk.transfer({
@@ -152,7 +152,7 @@ export class TongoService {
     return this.withUserLock(userId, async () => {
       return this.withNonceLock(async () => {
         const sdkAccount = await this.getSdkAccount(userId);
-        const operator = this.starknetService.getOperatorAccount();
+        const operator = this.starknetService.getSepoliaOperatorAccount();
 
         const op = await sdkAccount.rollover({
           sender: operator.address,
@@ -175,7 +175,7 @@ export class TongoService {
     return this.withUserLock(userId, async () => {
       return this.withNonceLock(async () => {
         const sdkAccount = await this.getSdkAccount(userId);
-        const operator = this.starknetService.getOperatorAccount();
+        const operator = this.starknetService.getSepoliaOperatorAccount();
 
         const tongoAmount = await sdkAccount.erc20ToTongo(amount);
         const op = await sdkAccount.withdraw({
@@ -211,7 +211,7 @@ export class TongoService {
     }
 
     // Wait for tx confirmation on-chain
-    const provider = this.starknetService.getProvider();
+    const provider = this.starknetService.getSepoliaProvider();
     const receipt = await provider.waitForTransaction(txHash);
     if (!receipt || receipt.statusReceipt !== "SUCCEEDED") {
       throw new BadRequestException("Transaction not confirmed on-chain");
@@ -244,7 +244,7 @@ export class TongoService {
     return new TongoSdkAccount(
       BigInt(privateKey),
       TONGO_CONTRACT_STRK,
-      this.starknetService.getProvider() as any,
+      this.starknetService.getSepoliaProvider() as any,
     );
   }
 
