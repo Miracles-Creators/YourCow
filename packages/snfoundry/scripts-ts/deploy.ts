@@ -153,16 +153,6 @@ const deployYourCowProtocol = async (): Promise<void> => {
   console.log(yellow("  3. Update NAV_ORACLE_STARKNET_ADDRESS in backend .env with the NavOracle address\n"));
 };
 
-// Original example contract deployment
-const deployYourContract = async (): Promise<void> => {
-  await deployContract({
-    contract: "YourContract",
-    constructorArgs: {
-      owner: deployer.address,
-    },
-  });
-};
-
 const main = async (): Promise<void> => {
   try {
     assertDeployerDefined();
@@ -171,9 +161,6 @@ const main = async (): Promise<void> => {
 
     // Deploy YourCow Protocol
     await deployYourCowProtocol();
-
-    // Deploy the example contract
-    await deployYourContract();
 
     await executeDeployCalls();
     exportDeployments();

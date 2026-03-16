@@ -167,6 +167,30 @@ yarn deploy --network sepolia    # to Sepolia testnet
 
 ---
 
+## Deployed Contracts (Sepolia)
+
+### Starknet Sepolia
+
+| Contract | Address |
+|----------|---------|
+| LotFactory | `0x171abbecb4fc412c2f8dda0eda615a451e5e31acb89d5f0c9e07defec8a98e1` |
+| AnimalRegistry | `0x7fd8598f277634aee30524c6540acb1c560dcc2d630144b822dd144b65ace1c` |
+| TraceabilityOracle | `0x622f73ebbe4275b61c7fed100adb5c9076443761488db022b52278cc21d2974` |
+| SettlementRegistry | `0x46d47b577c35927d6cce8dc31813a1f53b9f1179417c03788fe132cf3414b1c` |
+| AuditRegistry | `0x21cdc5c65f5d53d3b0c39002182ad5de2666affbaba82eb45e7d38ee738b213` |
+| NavOracle | `0x13041e92b146f9d7c91897122b52473262ba4f687ee8ae49e529af0a6830b9` |
+| Tongo (STRK) | `0x408163bfcfc2d76f34b444cb55e09dace5905cf84c0884e4637c2c0f06ab6ed` |
+
+### EVM Sepolia
+
+| Contract | Address |
+|----------|---------|
+| NAVOracle.sol | `0x2fE73aAa0132100C6f78e6Cb4ea101c279581286` |
+
+> To switch between devnet and Sepolia, flip `ENVIRONMENT` in `packages/backend/.env` and `NEXT_PUBLIC_ENVIRONMENT` in `packages/nextjs/.env` to `"sepolia"`.
+
+---
+
 ## Documentation
 
 | Doc | Description |
