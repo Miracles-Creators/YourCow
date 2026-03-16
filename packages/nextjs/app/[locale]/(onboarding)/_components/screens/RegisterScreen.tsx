@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "~~/lib/i18n/routing";
 import { cn } from "~~/lib/utils/cn";
+import { CowLogo } from "~~/app/[locale]/(investor)/_components/ui/Logo";
 import {
   FormRow,
   OnboardingShell,
@@ -92,21 +93,7 @@ export function RegisterScreen() {
     <OnboardingShell>
       {/* Logo */}
       <motion.div variants={shellItemVariants} className="mb-8 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-vaca-green/10">
-          <svg
-            className="h-8 w-8 text-vaca-green"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-            />
-          </svg>
-        </div>
+        <CowLogo className="mx-auto h-16 w-16" />
       </motion.div>
 
       {/* Header */}
