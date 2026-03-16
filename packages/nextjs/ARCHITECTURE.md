@@ -1,606 +1,574 @@
-# YourCow - Frontend Architecture
+# Frontend Architecture — Agent Reference
 
-**Last Updated:** January 2026
-**Framework:** Next.js 15 (App Router)
-**Styling:** Tailwind CSS v4 + DaisyUI
-**Language:** TypeScript
+> **Purpose**: Deterministic guide for AI agents building features in this Next.js app.
+> Read this BEFORE writing any code. Every rule here is enforced — violations will break patterns.
 
 ---
 
-## 📐 Core Principles
+## Tech Stack
 
-1. **Feature-based Colocation** - Group code by feature, not by type
-2. **Route Groups** - Organize routes logically without affecting URLs
-3. **Private Folders** - Use `_folder` for internal organization (excluded from routing)
-4. **Design System First** - Centralized tokens, no hardcoded values
-5. **Atomic Components** - Build from primitives up to complex screens
-6. **Type Safety** - Full TypeScript, no `any` types
-7. **Accessibility** - WCAG 2.1 AA compliance minimum
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| Framework | Next.js (App Router) | 15 |
+| Language | TypeScript (strict) | 5.x |
+| Styling | Tailwind CSS | 4.x |
+| State (server) | TanStack React Query | 5.x |
+| State (client) | Zustand | 4.x |
+| Animations | Framer Motion | 12.x |
+| Validation | Zod | 3.x |
+| i18n | next-intl | 4.x |
+| Blockchain | starknet.js + @starknet-react | 8.5.3 / 5.x |
+| Icons | lucide-react, @heroicons/react | — |
+| Fonts | Inter (body), Playfair Display (headings) via next/font | — |
 
 ---
 
-## 📁 Project Structure
+## Folder Structure
 
 ```
 packages/nextjs/
-├── app/                              # Next.js App Router
-│   ├── layout.tsx                    # Root layout (minimal, i18n wrapper)
-│   │
-│   └── [locale]/                     # 🌍 Dynamic locale segment (en, es)
-│       ├── layout.tsx                # Locale layout (providers, global styles)
-│       ├── page.tsx                  # Homepage
-│       │
-│       ├── (investor)/               # ← FEATURE: Investor screens
-│       │   ├── _components/          # Private folder (investor components)
-│       │   │   ├── ui/               # Investor-branded UI components
-│       │   │   ├── screens/          # Full screen components
-│       │   │   ├── layouts/          # Feature-specific layouts
-│       │   │   └── index.ts          # Barrel exports
-│       │   ├── welcome/page.tsx      # Route: /en/welcome
-│       │   ├── login/page.tsx        # Route: /en/login
-│       │   ├── marketplace/page.tsx  # Route: /en/marketplace
-│       │   ├── portfolio/page.tsx    # Route: /en/portfolio
-│       │   └── layout.tsx            # Shared investor layout + metadata
-│       │
-│       ├── (producer)/               # ← FEATURE: Producer screens
-│       │   ├── _components/          # Private folder (producer components)
-│       │   │   ├── ui/               # Producer-specific UI components
-│       │   │   ├── screens/          # Full screen components
-│       │   │   ├── layouts/          # Feature-specific layouts
-│       │   │   └── index.ts          # Barrel exports
-│       │   └── producer/             # Producer routes
-│       │       └── lots/             # Lot management routes
-│       │
-│       ├── (admin)/                  # ← FEATURE: Admin screens
-│       │   ├── _components/          # Private folder (admin components)
-│       │   │   ├── ui/               # Admin-specific UI components
-│       │   │   ├── screens/          # Full screen components
-│       │   │   ├── layouts/          # Feature-specific layouts
-│       │   │   └── index.ts          # Barrel exports
-│       │   ├── admin/                # Admin routes (URL: /admin/...)
-│       │   │   ├── dashboard/page.tsx
-│       │   │   ├── lots/
-│       │   │   ├── producers/
-│       │   │   ├── settlements/
-│       │   │   ├── updates/
-│       │   │   └── support/
-│       │   └── layout.tsx            # Shared admin layout + metadata
-│       │
-│       ├── debug/                    # Debug/development screens
-│       ├── blockexplorer/            # Block explorer screens
-│       └── api/                      # API routes
+├── app/
+│   ├── layout.tsx                    # Root layout (no providers — just redirect)
+│   ├── page.tsx                      # Root page (redirect to /[locale])
+│   ├── api/                          # API routes (Next.js Route Handlers)
+│   │   └── price/route.ts
+│   └── [locale]/                     # i18n wrapper (en, es)
+│       ├── layout.tsx                # Providers: ReactQuery, NextIntl, Theme, Starknet
+│       ├── page.tsx                  # Landing page
+│       ├── (investor)/               # Route group — investor-facing screens
+│       │   ├── layout.tsx            # InvestorLayout wrapper + fonts
+│       │   ├── _components/          # PRIVATE — colocated with this route group
+│       │   │   ├── index.ts          # Barrel exports for ALL investor components
+│       │   │   ├── animations.ts     # Shared animation variants
+│       │   │   ├── screens/          # Full-page screen components
+│       │   │   ├── ui/               # Feature-specific UI primitives
+│       │   │   ├── layouts/          # Layout wrappers (InvestorLayout)
+│       │   │   ├── marketplace/      # Sub-feature components
+│       │   │   ├── tongo/            # Sub-feature components
+│       │   │   └── garaga/           # Sub-feature components
+│       │   ├── dashboard/page.tsx
+│       │   ├── marketplace/page.tsx
+│       │   ├── lot/[id]/page.tsx
+│       │   └── ...
+│       ├── (admin)/                  # Route group — admin screens
+│       │   ├── layout.tsx
+│       │   ├── _components/
+│       │   │   ├── index.ts
+│       │   │   ├── screens/
+│       │   │   ├── ui/
+│       │   │   └── layouts/
+│       │   └── admin/dashboard/page.tsx
+│       ├── (producer)/               # Route group — producer screens
+│       │   ├── layout.tsx
+│       │   ├── _components/
+│       │   │   ├── index.ts
+│       │   │   ├── screens/
+│       │   │   ├── ui/
+│       │   │   └── layouts/
+│       │   └── producer/page.tsx
+│       ├── (onboarding)/             # Route group — registration flow
+│       │   ├── layout.tsx
+│       │   ├── _components/
+│       │   │   ├── index.ts
+│       │   │   ├── screens/
+│       │   │   └── ui/
+│       │   └── onboarding/.../page.tsx
+│       ├── blockexplorer/            # Standalone feature (no route group)
+│       ├── configure/
+│       └── debug/
 │
-├── components/                        # 🔷 SHARED across ALL features
-│   ├── ui/                           # Generic, reusable UI primitives
-│   │   ├── Button.tsx                # Base button (variants, sizes, colors)
-│   │   ├── Card.tsx                  # Base card (variants, accents)
-│   │   ├── Badge.tsx                 # Status badge/pill
-│   │   ├── ProgressBar.tsx           # Progress indicator
-│   │   ├── Input.tsx                 # Form input
-│   │   ├── Section.tsx               # Content section wrapper
+├── components/                       # SHARED across all route groups
+│   ├── ui/                           # Generic primitives (Button, Card, Badge, Input, etc.)
 │   │   └── index.ts                  # Barrel exports
-│   ├── scaffold-stark/               # Starknet integration components
-│   ├── Header.tsx                    # Global header
-│   └── Footer.tsx                    # Global footer
+│   ├── scaffold-stark/               # Starknet scaffold components (wallet, address, etc.)
+│   ├── ScaffoldStarkAppWithProviders.tsx
+│   ├── ReactQueryProvider.tsx
+│   ├── ThemeProvider.tsx
+│   └── LanguageSwitcher.tsx
 │
-├── lib/                              # Core application logic
-│   ├── constants/                    # Design tokens & configuration
-│   │   └── brand.ts                  # Colors, typography, copy
-│   ├── utils/                        # Utility functions
-│   │   └── cn.ts                     # Tailwind class merger
-│   ├── fonts.ts                      # next/font configuration
-│   └── i18n/                         # Internationalization
-│       ├── config.ts                 # i18n configuration
-│       ├── routing.ts                # Locale routing
-│       └── request.ts                # Server-side locale handling
+├── hooks/                            # Shared custom hooks (organized by domain)
+│   ├── auth/                         # useLogin, useMe, useLinkWallet
+│   ├── lots/                         # useLots, useLot, useCreateLot, useApproveLot
+│   ├── animals/                      # useAnimalsByLot, useCreateAnimal, useApproveAnimals
+│   ├── producers/                    # useProducers, useProducer, useCreateProducer
+│   ├── payments/                     # useCreatePayment, useConfirmPayment, useFiatDeposit
+│   ├── settlements/                  # useSettlements, useCreateSettlement, useConfirmSettlement
+│   ├── marketplace/                  # useOffers, usePortfolio, useBuyPrimary, etc.
+│   │   └── index.ts                  # All marketplace hooks in one barrel file
+│   ├── shareTransfers/
+│   ├── audit/
+│   ├── garaga/
+│   ├── tongo/
+│   ├── scaffold-stark/               # Starknet scaffold hooks
+│   ├── blockexplorer/
+│   └── useAccount.ts, useScrollLock.ts
 │
-├── hooks/                            # Shared React hooks
-├── services/                         # Business logic & API clients
-├── types/                            # TypeScript type definitions
-├── utils/                            # Helper functions
-├── messages/                         # 🌍 Translation files
-│   ├── en.json                       # English translations
-│   └── es.json                       # Spanish translations
+├── lib/                              # Pure logic, no React
+│   ├── api/                          # Backend API client layer
+│   │   ├── client.ts                 # apiFetch<T>() — base HTTP client
+│   │   ├── schemas.ts                # Zod schemas + type exports (single source of truth)
+│   │   ├── lots.ts                   # listLots, getLot, createLot, approveLot
+│   │   ├── auth.ts
+│   │   ├── marketplace.ts
+│   │   ├── payments.ts
+│   │   ├── producers.ts
+│   │   ├── animals.ts
+│   │   ├── settlements.ts
+│   │   ├── shareTransfers.ts
+│   │   ├── audit.ts
+│   │   ├── garaga.ts
+│   │   └── tongo.ts
+│   ├── constants/
+│   │   └── brand.ts                  # Brand colors, typography constants
+│   ├── fonts.ts                      # next/font definitions (Inter, Playfair)
+│   ├── i18n/
+│   │   ├── config.ts
+│   │   ├── request.ts
+│   │   └── routing.ts               # Locale config: ['en', 'es'], default 'es'
+│   └── utils/
+│       └── cn.ts                     # clsx + tailwind-merge utility
+│
+├── services/                         # Client-side services
+│   ├── store/                        # Zustand stores
+│   │   ├── store.ts                  # Global state (network, currency price)
+│   │   ├── lotDraft.ts               # Lot creation wizard state
+│   │   ├── onboarding.ts             # Onboarding flow state
+│   │   ├── p2pPreview.ts             # P2P preview state
+│   │   └── history.ts
+│   └── web3/                         # Blockchain client-side services
+│       ├── connectors.tsx            # Wallet connectors
+│       ├── provider.ts               # RPC provider
+│       ├── PriceService.ts
+│       ├── faucet.ts
+│       └── websocket.ts
+│
+├── contracts/                        # On-chain contract configs
+│   ├── deployedContracts.ts          # Contract addresses + ABIs (auto-generated)
+│   ├── configExternalContracts.ts
+│   └── predeployedContracts.ts
+│
+├── utils/                            # Legacy utilities (scaffold-stark inherited)
+│   ├── scaffold-stark/               # Scaffold framework utilities
+│   ├── blockexplorer/
+│   ├── Constants.ts
+│   ├── investment.ts
+│   └── profile.ts
+│
+├── types/                            # Shared TypeScript types
+│   ├── utils.ts
+│   └── window.d.ts
+│
 ├── styles/
-│   └── globals.css                   # Global styles (Tailwind + DaisyUI themes)
-├── public/                           # Static assets
-└── contracts/                        # Smart contract configs
+│   └── globals.css                   # Tailwind directives + global styles
+│
+├── messages/                         # i18n translation files
+│   ├── en.json
+│   └── es.json
+│
+├── middleware.ts                      # next-intl middleware (locale routing)
+├── tailwind.config.ts                # Brand colors (vaca-*), fonts, animations
+├── scaffold.config.ts                # Scaffold-Stark config
+└── supportedChains.ts
 ```
 
 ---
 
-## 🌍 Internationalization (i18n)
+## Core Patterns
 
-### URL Structure
+### 1. Page = Thin Shell, Screen = All Logic
 
-All routes include a locale segment:
-
-```
-/en/welcome        → English welcome page
-/es/welcome        → Spanish welcome page
-/en/marketplace    → English marketplace
-/es/portfolio      → Spanish portfolio
-```
-
-### How It Works
-
-1. **Dynamic Segment**: `app/[locale]/` captures the locale
-2. **next-intl**: Handles translations and locale detection
-3. **Messages**: Stored in `messages/{locale}.json`
-
-### Using Translations
+**Pages are server components** that only render metadata + the screen component.
+**Screens are client components** (`"use client"`) that contain all UI logic.
 
 ```tsx
-import { useTranslations } from 'next-intl';
-
-export function WelcomeScreen() {
-  const t = useTranslations('investor.welcome');
-  return <h1>{t('tagline')}</h1>;
-}
-```
-
----
-
-## 🎯 Component Architecture
-
-### Shared Primitives (`components/ui/`)
-
-Generic components used across ALL features. No feature-specific styling.
-
-| Component | Purpose | Usage |
-|-----------|---------|-------|
-| `Button` | Base button with variants, sizes, color schemes | `<Button variant="primary" colorScheme="green">` |
-| `Card` | Container with accents, padding, variants | `<Card accent="green" variant="elevated">` |
-| `Badge` | Status indicator with tones | `<Badge tone="success">Active</Badge>` |
-| `ProgressBar` | Progress with animation support | `<ProgressBar value={75} color="green" />` |
-| `Input` | Form input with label, error states | `<Input label="Email" error="Required" />` |
-| `Section` | Content section with title, divider | `<Section title="Details" accent="brown">` |
-
-**Usage:**
-```tsx
-import { Button, Card, Badge } from "~/components/ui";
-
-// Feature components compose these primitives
-export function InvestorCard() {
-  return (
-    <Card accent="green" variant="elevated">
-      <Badge tone="success">Active</Badge>
-      <Button colorScheme="green">Invest</Button>
-    </Card>
-  );
-}
-```
-
-### Feature Components (`app/[locale]/(feature)/_components/`)
-
-Feature-specific components that compose shared primitives.
-
-```tsx
-// app/[locale]/(investor)/_components/ui/PrimaryButton.tsx
-import { Button } from "~/components/ui";
-
-export function PrimaryButton(props) {
-  return (
-    <Button
-      colorScheme="green"
-      icon={<Arrow />}
-      {...props}
-    />
-  );
-}
-```
-
----
-
-## 🎨 Design System
-
-### Tailwind Configuration
-
-Colors defined in `tailwind.config.ts`:
-
-```typescript
-colors: {
-  vaca: {
-    green: { DEFAULT: '#1B5E20', dark: '#0D4715', light: '#2E7D32' },
-    blue: { DEFAULT: '#4FC3F7', light: '#81D4FA', dark: '#0288D1' },
-    brown: { DEFAULT: '#8D6E63', light: '#A1887F', dark: '#5D4037' },
-    neutral: { bg: '#FAFAF8', white: '#FFFFFF', gray: { 50-900 } },
-  },
-}
-```
-
-### Using Design Tokens
-
-```tsx
-// ✅ GOOD - Use design tokens
-<div className="bg-vaca-green text-vaca-neutral-bg">
-
-// ❌ BAD - Hardcoded colors
-<div className="bg-[#1B5E20]">
-```
-
-### Typography
-
-Fonts configured in `lib/fonts.ts`:
-
-```tsx
-import { inter, playfair } from "~~/lib/fonts";
-
-<h1 className="font-playfair">Headline</h1>
-<p className="font-inter">Body text</p>
-```
-
-### CSS Organization
-
-**`styles/globals.css`** contains:
-1. DaisyUI theme configuration (light/dark)
-2. CSS custom properties for scaffold UI
-3. Base styles (html, body, typography)
-4. Scaffold/debug utilities (not used in investor/producer)
-
-**Key principle:** YourCow features use Tailwind classes, NOT the scaffold utilities.
-
----
-
-## 📦 Import Patterns
-
-### Barrel Exports
-
-Each `_components/` folder has an `index.ts`:
-
-```typescript
-// app/[locale]/(investor)/_components/index.ts
-export { WelcomeScreen } from "./screens/WelcomeScreen";
-export { PrimaryButton } from "./ui/PrimaryButton";
-export { InvestorLayout } from "./layouts/InvestorLayout";
-```
-
-### Clean Imports
-
-```tsx
-// ✅ GOOD - Barrel imports
-import { WelcomeScreen, PrimaryButton } from "../_components";
-import { Button, Card } from "~/components/ui";
-
-// ❌ BAD - Deep imports
-import { WelcomeScreen } from "../_components/screens/WelcomeScreen";
-```
-
-### Path Aliases
-
-```typescript
-// tsconfig.json
-"paths": { "~~/*": ["./*"] }
-
-// Usage
-import { cn } from "~~/lib/utils/cn";
-import { Button } from "~~/components/ui";
-```
-
----
-
-## 🚀 Route Groups Explained
-
-### What are Route Groups?
-
-Folders wrapped in parentheses `(name)` are **excluded from the URL path**.
-
-```
-app/[locale]/
-├── (investor)/
-│   └── welcome/page.tsx       → URL: /en/welcome (not /en/investor/welcome)
-├── (producer)/
-│   └── producer/page.tsx      → URL: /en/producer
-└── (admin)/
-    └── admin/dashboard/page.tsx → URL: /en/admin/dashboard
-```
-
-### Why Use Them?
-
-1. **Organization** - Group related routes logically
-2. **Shared Layouts** - Apply layout to specific routes
-3. **Clean URLs** - No nested paths in URLs
-
----
-
-## 🔒 Private Folders (`_folder`)
-
-Folders prefixed with `_` are **ignored by the router**.
-
-```
-app/[locale]/(investor)/
-├── _components/     # ← Private (not routed)
-├── _hooks/          # ← Private (not routed)
-├── _constants/      # ← Private (not routed)
-└── welcome/page.tsx # ← Public (routed as /en/welcome)
-```
-
----
-
-## 📝 Naming Conventions
-
-### Files
-
-```
-PascalCase.tsx     # Components
-camelCase.ts       # Utilities, hooks
-kebab-case/        # Route folders
-UPPER_CASE.md      # Documentation
-```
-
-### Components
-
-```tsx
-// PascalCase for components
-export function PrimaryButton() {}
-
-// camelCase for hooks
-export function useInvestorAuth() {}
-
-// camelCase for utilities
-export function formatCurrency() {}
-```
-
----
-
-## 🔄 State Management
-
-### Local State
-
-Use React hooks for component-specific state:
-
-```tsx
-function LoginScreen() {
-  const [email, setEmail] = useState('');
-}
-```
-
-### Global State
-
-Use **Zustand** for cross-component state:
-
-```typescript
-// lib/store/investorStore.ts
-import { create } from 'zustand';
-
-export const useInvestorStore = create((set) => ({
-  user: null,
-  setUser: (user) => set({ user }),
-}));
-```
-
-### Server State
-
-Use Next.js Server Components or React Query for server data.
-
----
-
-## 📱 Responsive Design
-
-### Breakpoints
-
-```typescript
-sm: 640px   // Mobile landscape
-md: 768px   // Tablet
-lg: 1024px  // Desktop
-xl: 1280px  // Large desktop
-```
-
-### Mobile-First
-
-```tsx
-<div className="
-  px-4 py-6           // Mobile (default)
-  sm:px-6 sm:py-8     // Tablet
-  lg:px-8 lg:py-12    // Desktop
-">
-```
-
----
-
-## ♿ Accessibility
-
-All components MUST meet **WCAG 2.1 AA** minimum.
-
-### Required Practices
-
-1. **Semantic HTML** - Use `<button>`, `<nav>`, `<main>`
-2. **ARIA labels** - Add `aria-label` to icons
-3. **Focus management** - Visible focus rings
-4. **Color contrast** - 4.5:1 minimum for text
-5. **Keyboard navigation** - All interactions work without mouse
-
-```tsx
-// ✅ GOOD
-<button
-  onClick={handleClick}
-  aria-label="Submit form"
-  className="focus-visible:ring-2"
->
-
-// ❌ BAD
-<div onClick={handleClick}>
-```
-
----
-
-## 🎭 Animation Guidelines
-
-Use **Framer Motion** for animations.
-
-### Standard Patterns
-
-```tsx
-// Page mount animation
-<motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
->
-
-// Button hover
-<motion.button
-  whileHover={{ scale: 1.02 }}
-  whileTap={{ scale: 0.98 }}
->
-```
-
-### Rules
-
-- Use `transform` and `opacity` only (performance)
-- Respect `prefers-reduced-motion`
-- Keep animations subtle (fintech, not crypto)
-- Standard easing: `[0.4, 0, 0.2, 1]`
-
----
-
-## 🚨 Common Mistakes to Avoid
-
-### ❌ Don't
-
-```tsx
-// Hardcoding colors
-<div className="bg-[#1B5E20]">
-
-// Wrong component location
-components/investor/Logo.tsx
-
-// Deep imports
-import { Logo } from "../_components/ui/Logo";
-
-// Using `any`
-function Button(props: any) {}
-
-// Non-semantic HTML
-<div onClick={handleClick}>
-```
-
-### ✅ Do
-
-```tsx
-// Use design tokens
-<div className="bg-vaca-green">
-
-// Feature-based colocation
-app/[locale]/(investor)/_components/ui/Logo.tsx
-
-// Barrel imports
-import { Logo } from "../_components";
-
-// Typed props
-function Button({ children }: { children: ReactNode }) {}
-
-// Semantic HTML
-<button onClick={handleClick}>
-```
-
----
-
-## 🗂️ Folder Decision Tree
-
-**"Where does this file go?"**
-
-```
-START
-  ↓
-Is it a route (URL)?
-  ├─ YES → app/[locale]/([feature])/[route-name]/page.tsx
-  └─ NO → Continue
-       ↓
-Is it used by MULTIPLE features?
-  ├─ YES → components/ui/[ComponentName].tsx
-  └─ NO → Continue
-       ↓
-Is it feature-specific UI?
-  ├─ YES → app/[locale]/([feature])/_components/ui/[ComponentName].tsx
-  └─ NO → Continue
-       ↓
-Is it a full screen?
-  ├─ YES → app/[locale]/([feature])/_components/screens/[ScreenName].tsx
-  └─ NO → Continue
-       ↓
-Is it a layout wrapper?
-  ├─ YES → app/[locale]/([feature])/_components/layouts/[LayoutName].tsx
-  └─ NO → Continue
-       ↓
-Is it a utility function?
-  ├─ YES → lib/utils/[utilityName].ts
-  └─ NO → Continue
-       ↓
-Is it a translation?
-  └─ YES → messages/[locale].json
-```
-
----
-
-## 🎯 Adding New Features
-
-### Example: Adding Admin Feature
-
-**Step 1:** Create route group and route segment
-
-```bash
-mkdir -p app/\[locale\]/\(admin\)/_components/{ui,screens,layouts}
-mkdir -p app/\[locale\]/\(admin\)/admin
-```
-
-**Step 2:** Create layout
-
-```tsx
-// app/[locale]/(admin)/layout.tsx
-import { AdminLayout } from "./_components/layouts/AdminLayout";
-
-export default function AdminRootLayout({ children }) {
-  return <AdminLayout>{children}</AdminLayout>;
-}
-```
-
-**Step 3:** Create screen
-
-```tsx
-// app/[locale]/(admin)/_components/screens/DashboardScreen.tsx
-import { Card, Button } from "~/components/ui";
-
-export function DashboardScreen() {
-  return (
-    <Card>
-      <h1>Admin Dashboard</h1>
-      <Button colorScheme="green">Action</Button>
-    </Card>
-  );
-}
-```
-
-**Step 4:** Create route (note: inside `admin/` folder for URL prefix)
-
-```tsx
-// app/[locale]/(admin)/admin/dashboard/page.tsx → URL: /en/admin/dashboard
-import { DashboardScreen } from "../../_components";
+// app/[locale]/(investor)/dashboard/page.tsx — THIN
+import type { Metadata } from "next";
+import { DashboardScreen } from "../_components/screens/DashboardScreen";
+
+export const metadata: Metadata = { title: "Dashboard" };
 
 export default function DashboardPage() {
   return <DashboardScreen />;
 }
 ```
 
-**Step 5:** Add barrel exports
-
 ```tsx
-// app/[locale]/(admin)/_components/index.ts
-export { DashboardScreen } from "./screens/DashboardScreen";
-export { AdminLayout } from "./layouts/AdminLayout";
+// app/[locale]/(investor)/_components/screens/DashboardScreen.tsx — ALL LOGIC
+"use client";
+
+import { usePortfolioSummary } from "~~/hooks/marketplace";
+
+export function DashboardScreen() {
+  const { data, isPending } = usePortfolioSummary();
+  if (isPending) return <DashboardSkeleton />;
+  if (!data) return <EmptyDashboard />;
+  return <div>...</div>;
+}
+
+// Skeleton and Empty components defined in the SAME file (not separate files)
+function DashboardSkeleton() { ... }
+function EmptyDashboard() { ... }
+```
+
+**Rules**:
+- Pages: NO `"use client"`, NO hooks, NO state. Only metadata + `<ScreenComponent />`
+- Screens: named `*Screen.tsx`, always `"use client"`, always in `_components/screens/`
+- Every screen handles its own loading, empty, and error states **inline** (as private functions in same file)
+- Use named exports (`export function`), not default exports
+
+### 2. Route Groups = Feature Boundaries
+
+Route groups `(investor)`, `(admin)`, `(producer)`, `(onboarding)` are feature boundaries.
+They do NOT appear in the URL (`/dashboard` not `/investor/dashboard`).
+
+Each route group owns:
+- Its own `layout.tsx` (wraps with feature-specific layout component)
+- Its own `_components/` directory (PRIVATE — not importable outside the group)
+- Its own barrel `index.ts` that exports everything
+
+**Layout pattern**:
+```tsx
+// app/[locale]/(investor)/layout.tsx
+import { InvestorLayout } from "./_components/layouts/InvestorLayout";
+
+export default function InvestorRootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className={`${inter.variable} ${playfair.variable} font-inter`}>
+      <InvestorLayout>{children}</InvestorLayout>
+    </div>
+  );
+}
+```
+
+### 3. Component Organization Inside `_components/`
+
+```
+_components/
+├── index.ts          # Barrel exports — EVERYTHING goes through here
+├── animations.ts     # Shared framer-motion variants
+├── screens/          # Full-page components (one per route)
+├── ui/               # Feature-specific primitives (buttons, cards, pills)
+├── layouts/          # Layout wrappers (sidebar + topbar + content)
+└── <sub-feature>/    # Group related components (marketplace/, tongo/)
+```
+
+**Import rule**: Always import from the barrel, never deep-path.
+```tsx
+// CORRECT
+import { DashboardScreen, PrimaryButton, Logo } from "../_components";
+
+// WRONG
+import { Logo } from "../_components/ui/Logo";
+```
+
+### 4. Shared vs Feature-Specific Components
+
+| Question | Location |
+|----------|----------|
+| Used by 2+ route groups? | `components/ui/` |
+| Used by only one route group? | `app/(feature)/_components/ui/` |
+| Is it a full page? | `app/(feature)/_components/screens/` |
+| Is it a layout shell? | `app/(feature)/_components/layouts/` |
+| Is it a sub-feature cluster? | `app/(feature)/_components/<sub-feature>/` |
+
+`components/ui/` contains **unbranded primitives**: Button, Card, Badge, Input, ProgressBar, Section.
+Feature components compose these with brand styling.
+
+### 5. Data Flow: lib/api → hooks → screens
+
+**Three-layer pattern** — never skip a layer:
+
+```
+lib/api/schemas.ts    → Zod schemas + types (SINGLE source of truth for ALL types)
+lib/api/<domain>.ts   → apiFetch calls, returns Zod-parsed data
+hooks/<domain>/       → React Query wrappers (useQuery/useMutation)
+screens/              → Consume hooks, render UI
+```
+
+**API client** (`lib/api/client.ts`):
+```tsx
+// Thin wrapper — all API calls go through this
+export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const response = await fetch(`${baseUrl}${path}`, {
+    ...options,
+    cache: "no-store",
+    headers: { "Content-Type": "application/json", ...options.headers },
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json() as Promise<T>;
+}
+```
+
+**API domain file** (`lib/api/lots.ts`):
+```tsx
+import { apiFetch } from "./client";
+import { LotSchema, type LotDto } from "./schemas";
+
+export async function listLots(): Promise<LotDto[]> {
+  const lots = await apiFetch<LotDto[]>("/lots");
+  return LotSchema.array().parse(lots);  // Always validate with Zod
+}
+```
+
+**Hook** (`hooks/lots/useLots.ts`):
+```tsx
+export function useLots() {
+  const { isPending, data, error } = useQuery({
+    queryKey: ["lots"],
+    queryFn: listLots,
+    staleTime: 60_000,
+  });
+  return { isPending, data, error };
+}
+```
+
+**Mutations invalidate related queries**:
+```tsx
+export function useCreateOffer() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createOffer,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["offers"] });
+      queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+    },
+  });
+}
+```
+
+**Schema rules** (`lib/api/schemas.ts`):
+- ALL Zod schemas live in this ONE file
+- Types are inferred: `export type LotDto = z.infer<typeof LotSchema>`
+- API functions always parse responses through schemas
+- Input types can be defined in the domain file if simple
+
+### 6. Styling
+
+**Tailwind only** — no CSS modules, no styled-components, no inline styles.
+
+**Brand color tokens** (defined in `tailwind.config.ts`):
+```
+vaca-green           #1B5E20    primary, trust
+vaca-green-dark      #0D4715    hover states
+vaca-green-light     #2E7D32    lighter variant
+vaca-green-lighter   #4CAF50    lightest
+vaca-gold            #9d9858    accents, CTAs
+vaca-gold-light      rgba(...)  gold backgrounds
+vaca-blue            #4FC3F7    secondary, liquidity
+vaca-brown           #8D6E63    real assets, earth
+vaca-error           #DC2626    errors
+vaca-success         #059669    success
+vaca-warning         #D97706    warnings
+vaca-neutral-bg      #FAFAF8    page background
+vaca-neutral-white   #FFFFFF
+vaca-neutral-gray-{50-900}      text, borders, surfaces
+```
+
+**Utility**: `cn()` from `lib/utils/cn.ts` (clsx + tailwind-merge).
+
+**Fonts**: `font-inter` (body), `font-playfair` (headings) — applied via CSS variables from `lib/fonts.ts`.
+
+**Rules**:
+- NEVER hardcode hex colors — use `vaca-*` tokens
+- Mobile-first: base styles for mobile, `lg:` for desktop
+- Use `cn()` for conditional classes
+- Responsive pattern: `className="px-4 py-3 lg:px-8 lg:py-6"`
+
+### 7. Animations
+
+Standard variants defined in `_components/animations.ts`:
+- `containerVariants` / `slowContainerVariants` — stagger children
+- `itemVariants` / `slowItemVariants` — fade in + slide up
+
+Apply to screens:
+```tsx
+<motion.div variants={containerVariants} initial="hidden" animate="visible">
+  <motion.div variants={itemVariants}>...</motion.div>
+</motion.div>
+```
+
+**Rules**: Subtle only. Transform/opacity only. No bounce, no shake, no delays > 1s.
+Standard easing: `[0.4, 0, 0.2, 1]`.
+
+### 8. i18n
+
+- Locales: `en`, `es` (default: `es`)
+- URL format: `/en/dashboard`, `/es/dashboard`
+- Translation files: `messages/en.json`, `messages/es.json`
+- Usage: `const t = useTranslations("investor.dashboard");` then `t("stats.currentValue")`
+- Navigation: import `{ Link, useRouter, usePathname }` from `~~/lib/i18n/routing`
+- Middleware: `middleware.ts` handles locale detection and routing
+
+### 9. State Management
+
+| Type | Tool | Location |
+|------|------|----------|
+| Server data | React Query | `hooks/<domain>/` |
+| Global client state | Zustand | `services/store/store.ts` |
+| Feature wizard state | Zustand | `services/store/lotDraft.ts`, `onboarding.ts` |
+| URL state | Next.js searchParams | In page/screen components |
+
+React Query is the primary state manager. Zustand is used sparingly for cross-component client state that doesn't come from the server.
+
+### 10. Blockchain Integration
+
+- Wallet connection: `@starknet-react/core` providers in `ScaffoldStarkAppWithProviders`
+- Contract ABIs + addresses: `contracts/deployedContracts.ts`
+- Scaffold hooks: `hooks/scaffold-stark/` (useScaffoldReadContract, useScaffoldWriteContract)
+- Custom wallet hook: `hooks/useAccount.ts`
+
+### 11. Provider Stack
+
+The `[locale]/layout.tsx` wraps children with this provider hierarchy:
+```
+ReactQueryProvider
+  └── NextIntlClientProvider
+        └── ThemeProvider
+              └── ScaffoldStarkAppWithProviders (Starknet wallet providers)
+                    └── {children}
 ```
 
 ---
 
-## 📚 Key Resources
+## Adding a New Feature — Step by Step
 
-- [Next.js App Router Docs](https://nextjs.org/docs/app)
-- [Tailwind CSS v4 Docs](https://tailwindcss.com/docs)
-- [Framer Motion Docs](https://www.framer.com/motion/)
-- [next-intl Docs](https://next-intl-docs.vercel.app/)
-- [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+### New screen in existing route group
+
+1. Create screen: `app/[locale]/(feature)/_components/screens/NewScreen.tsx` (with `"use client"`)
+2. Create page: `app/[locale]/(feature)/new-route/page.tsx` (thin shell, server component)
+3. Export from barrel: add to `_components/index.ts`
+4. Add translations: add keys to `messages/en.json` and `messages/es.json`
+
+### New API endpoint consumption
+
+1. Add Zod schema to `lib/api/schemas.ts`
+2. Add API function to `lib/api/<domain>.ts` (use `apiFetch` + Zod parse)
+3. Create hook in `hooks/<domain>/use<Name>.ts` (useQuery or useMutation)
+4. Use hook in screen component
+
+### New shared UI component
+
+1. Create in `components/ui/NewComponent.tsx` (with TypeScript interface for props)
+2. Export from `components/ui/index.ts`
+3. Use `cn()` for class merging, `vaca-*` tokens for colors
+
+### New feature-specific UI component
+
+1. Create in `app/[locale]/(feature)/_components/ui/NewComponent.tsx`
+2. Export from `app/[locale]/(feature)/_components/index.ts`
+
+### New sub-feature cluster
+
+1. Create directory: `app/[locale]/(feature)/_components/<sub-feature>/`
+2. Add component files inside
+3. Export all from `_components/index.ts`
+
+### New route group (new user role)
+
+1. Create `app/[locale]/(newrole)/layout.tsx`
+2. Create `app/[locale]/(newrole)/_components/` with `index.ts`, `screens/`, `ui/`, `layouts/`
+3. Create layout component in `layouts/`
+4. Add routes as `(newrole)/<route>/page.tsx`
+
+### New Zustand store
+
+1. Create in `services/store/<name>.ts`
+2. Use `create<Type>()` from zustand
+3. Keep stores small and focused on one concern
+
+### New domain hook folder
+
+1. Create `hooks/<domain>/`
+2. One hook per file: `use<Action>.ts`
+3. If many hooks, create `index.ts` barrel that exports all
 
 ---
 
-**Last Updated:** January 2026
-**Maintained by:** YourCow Engineering Team
+## File Placement Decision Tree
+
+```
+Is it a route (URL)?
+  YES → app/[locale]/(feature)/<route>/page.tsx
+
+Is it used by 2+ route groups?
+  YES → components/ui/<Name>.tsx
+
+Is it a full screen?
+  YES → app/[locale]/(feature)/_components/screens/<Name>Screen.tsx
+
+Is it feature-specific UI?
+  YES → app/[locale]/(feature)/_components/ui/<Name>.tsx
+
+Is it a layout wrapper?
+  YES → app/[locale]/(feature)/_components/layouts/<Name>.tsx
+
+Is it a sub-feature cluster?
+  YES → app/[locale]/(feature)/_components/<sub-feature>/<Name>.tsx
+
+Is it a React Query hook?
+  YES → hooks/<domain>/use<Name>.ts
+
+Is it an API function?
+  YES → lib/api/<domain>.ts
+
+Is it a Zod schema/type?
+  YES → lib/api/schemas.ts (ALL schemas in one file)
+
+Is it a utility function?
+  YES → lib/utils/<name>.ts
+
+Is it a Zustand store?
+  YES → services/store/<name>.ts
+
+Is it a constant/config?
+  YES → lib/constants/<name>.ts
+```
+
+---
+
+## Naming Conventions
+
+| Thing | Convention | Example |
+|-------|-----------|---------|
+| Component files | PascalCase.tsx | `DashboardScreen.tsx` |
+| Hook files | camelCase.ts | `useLots.ts` |
+| Utility files | camelCase.ts | `cn.ts` |
+| Route folders | kebab-case | `lot-detail/` |
+| Barrel exports | index.ts | `_components/index.ts` |
+| Zod schemas | PascalCase + Schema suffix | `LotSchema` |
+| Types | PascalCase + Dto suffix | `LotDto` |
+| Hooks | use + PascalCase | `useLots()` |
+| Screens | PascalCase + Screen suffix | `DashboardScreen` |
+
+---
+
+## Validation Commands
+
+```bash
+yarn check-types    # TypeScript validation (tsc --noEmit)
+yarn build          # Production build
+yarn dev            # Dev server (localhost:3000)
+yarn lint           # ESLint
+yarn test           # Vitest
+```
+
+---
+
+## Anti-Patterns — NEVER Do These
+
+| Anti-Pattern | Correct Pattern |
+|-------------|----------------|
+| Put feature components in `components/` | Use `app/(feature)/_components/` |
+| Import from deep paths | Import from barrel `_components/index.ts` |
+| Hardcode hex colors | Use `vaca-*` Tailwind tokens |
+| Use `any` type | Define proper interfaces |
+| Add `"use client"` to page.tsx | Pages are server components; screen is client |
+| Skip loading/empty states | Every screen handles isPending + empty |
+| Create new CSS files | Use Tailwind classes only |
+| Put API types next to hooks | Types live in `lib/api/schemas.ts` |
+| Use fetch directly in components | Go through `lib/api/` → `hooks/` → component |
+| Mix route group concerns | Each `(group)` owns its own `_components/` |
+| Create default exports for components | Use named exports: `export function Name()` |
+| Put skeleton/empty in separate files | Define them as private functions in the screen file |
+| Skip Zod parsing in API functions | Always validate: `Schema.parse(response)` |
