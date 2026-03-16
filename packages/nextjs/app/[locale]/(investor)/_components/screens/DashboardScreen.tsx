@@ -1,18 +1,49 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { usePortfolioSummary } from "~~/hooks/marketplace";
+import { useMe } from "~~/hooks/auth/useMe";
+import { useCancelOffer, useOffers, usePortfolioSummary } from "~~/hooks/marketplace";
 import { cn } from "~~/lib/utils/cn";
+import type { OfferDto } from "~~/lib/api/schemas";
 import { PortfolioValueChart } from "../ui/PortfolioValueChart";
+import { OfferShareCard } from "../ui/OfferShareCard";
 import { PositionCard } from "../ui/PositionCard";
 import { PrimaryButton } from "../ui/PrimaryButton";
 import { slowContainerVariants as containerVariants, slowItemVariants as itemVariants } from "../animations";
 
 export function DashboardScreen() {
   const t = useTranslations("investor.dashboard");
+  const { data: me } = useMe();
   const { data: summary, isPending } = usePortfolioSummary();
+  const { data: offers, isPending: offersPending } = useOffers(
+    me?.id ? { sellerId: me.id } : undefined,
+    { enabled: Boolean(me?.id) },
+  );
+  const cancelOffer = useCancelOffer();
+  const [cancellingOfferId, setCancellingOfferId] = useState<number | null>(null);
+
+  const activeOffers = useMemo(
+    () => (offers ?? []).filter(
+      offer => offer.status === "OPEN" || offer.status === "PARTIALLY_FILLED",
+    ),
+    [offers],
+  );
+
+  const handleCancelOffer = async (offerId: number) => {
+    if (!window.confirm("Cancel this offer? The unsold shares will be available in your portfolio again.")) {
+      return;
+    }
+
+    setCancellingOfferId(offerId);
+    try {
+      await cancelOffer.mutateAsync(offerId);
+    } finally {
+      setCancellingOfferId(null);
+    }
+  };
 
   if (isPending) {
     return <DashboardSkeleton />;
@@ -119,7 +150,7 @@ export function DashboardScreen() {
 
       {/* Your Lots */}
       {summary.lots.length > 0 && (
-        <motion.div variants={itemVariants} className="pb-3">
+        <motion.div variants={itemVariants} className="pb-5">
           <h2 className="pb-3 font-playfair text-lg font-bold text-vaca-neutral-gray-900 lg:text-xl">
             {t("performance.title")}
           </h2>
@@ -129,6 +160,47 @@ export function DashboardScreen() {
             ))}
           </div>
         </motion.div>
+      )}
+
+      {/* Active Offers */}
+      {(offersPending || activeOffers.length > 0) && (
+        <motion.section variants={itemVariants} className="pb-3">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="font-inter text-[10px] font-bold uppercase tracking-[0.18em] text-vaca-neutral-gray-400">
+                {t("offers.eyebrow")}
+              </p>
+              <h2 className="mt-1 font-playfair text-lg font-bold text-vaca-neutral-gray-900 lg:text-xl">
+                {t("offers.title")}
+              </h2>
+            </div>
+            <div className="rounded-full border border-vaca-neutral-gray-200 bg-vaca-neutral-white px-3 py-1.5 font-inter text-xs font-semibold text-vaca-neutral-gray-700">
+              {t("offers.count", { count: activeOffers.length })}
+            </div>
+          </div>
+
+          {offersPending ? (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 2 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-40 animate-pulse rounded-2xl bg-vaca-neutral-gray-100"
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {activeOffers.map((offer: OfferDto) => (
+                <OfferShareCard
+                  key={offer.id}
+                  offer={offer}
+                  isCancelling={cancelOffer.isPending && cancellingOfferId === offer.id}
+                  onCancel={handleCancelOffer}
+                />
+              ))}
+            </div>
+          )}
+        </motion.section>
       )}
     </motion.div>
   );

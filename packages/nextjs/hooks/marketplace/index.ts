@@ -19,11 +19,15 @@ type AcceptOfferParams = {
   input: AcceptOfferInput;
 };
 
-export function useOffers(filters?: OfferFilters) {
+export function useOffers(
+  filters?: OfferFilters,
+  options?: { enabled?: boolean },
+) {
   const { isPending, data, error, refetch } = useQuery({
     queryKey: ["offers", filters],
     queryFn: () => getOffers(filters),
     staleTime: 30_000, // 30 seconds - marketplace data should be more fresh
+    enabled: options?.enabled ?? true,
   });
   return { isPending, data, error, refetch };
 }
