@@ -16,6 +16,7 @@
     "clean": "yarn workspace @ss-2/snfoundry clean",
     "compile": "yarn workspace @ss-2/snfoundry compile",
     "deploy": "yarn workspace @ss-2/snfoundry deploy",
+    "deploy:with-garaga": "yarn workspace @ss-2/snfoundry deploy:with-garaga",
     "deploy:clear": "yarn workspace @ss-2/snfoundry deploy:clear",
     "deploy:no-reset": "yarn workspace @ss-2/snfoundry deploy --no-reset",
     "set-settlement-registry": "yarn workspace @ss-2/snfoundry set-settlement-registry",
