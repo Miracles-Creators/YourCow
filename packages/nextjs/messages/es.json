@@ -431,7 +431,8 @@
         "viewPortfolio": "Ver Portafolio",
         "viewPosition": "Ver Posición",
         "browseLots": "Explorar Más Lotes"
-      }
+      },
+      "viewTransaction": "Ver Transacción"
     },
     "oracle": {
       "title": "Oráculo de Mercado",
@@ -813,6 +814,195 @@
         "step3": "Publica cuando la verificación sea aprobada"
       },
       "supportLink": "Contactar soporte"
+    }
+  },
+  "producer": {
+    "createLot": {
+      "steps": {
+        "basicInfo": "Info Básica",
+        "herdCycle": "Rodeo y Ciclo",
+        "financing": "Financiamiento",
+        "documents": "Documentos",
+        "review": "Revisión"
+      },
+      "basicInfo": {
+        "title": "Crear un nuevo lote",
+        "subtitle": "Completá los datos esenciales para registrar el lote correctamente.",
+        "fields": {
+          "producerId": { "label": "ID de productor" },
+          "lotName": { "label": "Nombre del lote" },
+          "farmName": { "label": "Nombre del establecimiento / Feedlot" },
+          "location": { "label": "Ubicación (Provincia/Estado + País)" },
+          "productionType": {
+            "label": "Tipo de producción",
+            "placeholder": "Seleccioná un tipo de producción",
+            "helper": "Seleccioná cómo se gestionará este lote operativamente.",
+            "options": {
+              "feedlot": "Feedlot",
+              "pasture": "Pastoreo",
+              "mixed": "Mixto"
+            }
+          },
+          "startDate": { "label": "Fecha de inicio" }
+        },
+        "buttons": {
+          "saveDraft": "Guardar borrador",
+          "continue": "Continuar"
+        },
+        "errors": {
+          "lotNameRequired": "El nombre del lote es requerido.",
+          "farmNameRequired": "El nombre del establecimiento es requerido.",
+          "locationRequired": "La ubicación es requerida.",
+          "productionTypeRequired": "Seleccioná un tipo de producción.",
+          "startDateRequired": "La fecha de inicio es requerida."
+        }
+      },
+      "herdCycle": {
+        "title": "Rodeo y ciclo productivo",
+        "subtitle": "Proporcioná métricas operativas para transparencia y reportes.",
+        "fields": {
+          "cattleCount": { "label": "Cantidad de cabezas" },
+          "averageWeightKg": { "label": "Peso promedio (kg)" },
+          "initialWeightKg": { "label": "Peso inicial (kg)" },
+          "notes": { "label": "Notas (opcional)" }
+        },
+        "timeline": {
+          "label": "Plazo",
+          "durationOption": "Duración estimada (semanas)",
+          "dateOption": "Fecha objetivo de cierre",
+          "placeholder": "ej. 24"
+        },
+        "investorNote": {
+          "title": "Lo que ven los inversores",
+          "description": "Mostramos estas métricas para generar confianza en los inversores."
+        },
+        "buttons": {
+          "back": "Volver",
+          "continue": "Continuar"
+        },
+        "errors": {
+          "cattleCountRequired": "La cantidad de cabezas es requerida.",
+          "averageWeightRequired": "El peso promedio es requerido.",
+          "initialWeightRequired": "El peso inicial es requerido.",
+          "durationRequired": "La duración estimada es requerida.",
+          "targetDateRequired": "La fecha objetivo es requerida."
+        }
+      },
+      "financing": {
+        "title": "Estructura de financiamiento",
+        "subtitle": "Definí el capital requerido y la asignación a inversores.",
+        "fields": {
+          "totalCapital": { "label": "Capital total requerido (USD)" },
+          "fundingDeadline": { "label": "Fecha límite de fondeo" },
+          "operatingCosts": { "label": "Costos operativos estimados (opcional)" }
+        },
+        "platformNote": "Los términos finales están sujetos a aprobación de la plataforma.",
+        "buttons": {
+          "back": "Volver",
+          "continue": "Continuar"
+        },
+        "errors": {
+          "totalCapitalRequired": "El capital total es requerido.",
+          "fundingDeadlineRequired": "La fecha límite de fondeo es requerida."
+        }
+      },
+      "documents": {
+        "title": "Documentos y presentación",
+        "subtitle": "Subí la documentación requerida para completar la verificación.",
+        "sections": {
+          "required": {
+            "title": "Documentos requeridos",
+            "subtitle": "Presentá comprobante de operación y documentación del lote."
+          },
+          "producer": {
+            "title": "Conocé al productor",
+            "subtitle": "Opcional, recomendado: presentá a tu familia/equipo y cómo gestionás este lote."
+          }
+        },
+        "fields": {
+          "ownership": {
+            "label": "Comprobante de propiedad / operación",
+            "helper": "Registro empresarial, contrato de arrendamiento o licencia operativa."
+          },
+          "lotDocs": {
+            "label": "Documentación del lote",
+            "helper": "Certificados sanitarios, trazabilidad o informes veterinarios."
+          },
+          "insurance": {
+            "label": "Seguro",
+            "helper": "Documentación de cobertura opcional."
+          },
+          "video": {
+            "label": "Video corto (máx. 2 minutos)",
+            "helper": "Sin promesas de retorno. Sé auténtico."
+          }
+        },
+        "buttons": {
+          "back": "Volver",
+          "continue": "Continuar"
+        }
+      },
+      "review": {
+        "title": "Revisar y enviar",
+        "subtitle": "Confirmá los datos antes de enviar para aprobación.",
+        "sections": {
+          "basicInfo": {
+            "title": "Info básica",
+            "lot": "Lote",
+            "farm": "Establecimiento",
+            "location": "Ubicación",
+            "startDate": "Fecha de inicio"
+          },
+          "herdCycle": {
+            "title": "Rodeo y ciclo",
+            "cattleCount": "Cantidad de cabezas",
+            "averageWeight": "Peso promedio",
+            "initialWeight": "Peso inicial",
+            "timeline": "Plazo",
+            "weeks": "semanas"
+          },
+          "financing": {
+            "title": "Financiamiento",
+            "totalCapital": "Capital total requerido",
+            "investorAllocation": "Asignación a inversores",
+            "fundingDeadline": "Fecha límite de fondeo"
+          },
+          "documents": {
+            "title": "Estado de documentos",
+            "ownership": "Comprobante de propiedad / operación",
+            "lotDocs": "Documentación del lote",
+            "insurance": "Seguro",
+            "video": "Video de presentación del productor",
+            "uploaded": "Cargado",
+            "missing": "Faltante",
+            "optional": "Opcional"
+          }
+        },
+        "checklist": {
+          "title": "Lista de verificación de envío",
+          "items": {
+            "lotDetails": "Datos del lote confirmados",
+            "herdCycle": "Métricas de rodeo y ciclo revisadas",
+            "financing": "Términos de financiamiento alineados",
+            "documents": "Documentos cargados"
+          }
+        },
+        "buttons": {
+          "back": "Volver",
+          "submit": "Enviar para aprobación",
+          "submitting": "Enviando..."
+        },
+        "modal": {
+          "title": "Confirmar envío",
+          "description": "No podrás cambiar parámetros clave después de la aprobación sin una revisión adicional.",
+          "cancel": "Cancelar",
+          "submit": "Enviar para aprobación",
+          "submitting": "Enviando..."
+        },
+        "errors": {
+          "invalidData": "Datos faltantes o inválidos. Revisá el formulario."
+        }
+      }
     }
   }
 }

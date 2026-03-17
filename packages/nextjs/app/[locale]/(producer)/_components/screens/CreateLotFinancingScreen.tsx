@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "~~/lib/utils/cn";
 import { ProducerWizardStepper } from "../ui/ProducerWizardStepper";
 import { useLotDraftStore } from "~~/services/store/lotDraft";
@@ -15,14 +16,6 @@ type FinancingFormState = {
   operatingCosts: number;
 };
 
-const STEPS = [
-  "Basic Info",
-  "Herd & Cycle",
-  "Financing",
-  "Documents",
-  "Review",
-];
-
 const INITIAL_STATE: FinancingFormState = {
   totalCapital: 0,
   investorPercent: 35,
@@ -31,8 +24,16 @@ const INITIAL_STATE: FinancingFormState = {
 };
 
 export function CreateLotFinancingScreen() {
+  const t = useTranslations("producer.createLot");
   const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
+  const steps = [
+    t("steps.basicInfo"),
+    t("steps.herdCycle"),
+    t("steps.financing"),
+    t("steps.documents"),
+    t("steps.review"),
+  ];
   const [formState, setFormState] = useState<FinancingFormState>(INITIAL_STATE);
   const draft = useLotDraftStore((state) => state.draft);
   const updateDraft = useLotDraftStore((state) => state.updateDraft);
@@ -81,10 +82,10 @@ export function CreateLotFinancingScreen() {
     const nextErrors: Partial<Record<keyof FinancingFormState, string>> = {};
 
     if (formState.totalCapital <= 0) {
-      nextErrors.totalCapital = "Total capital is required.";
+      nextErrors.totalCapital = t("financing.errors.totalCapitalRequired");
     }
     if (!formState.fundingDeadline.trim()) {
-      nextErrors.fundingDeadline = "Funding deadline is required.";
+      nextErrors.fundingDeadline = t("financing.errors.fundingDeadlineRequired");
     }
 
     setErrors(nextErrors);
@@ -112,14 +113,14 @@ export function CreateLotFinancingScreen() {
       transition={transition}
       className="space-y-8"
     >
-      <ProducerWizardStepper steps={STEPS} currentStep={2} />
+      <ProducerWizardStepper steps={steps} currentStep={2} />
 
       <header>
         <h1 className="font-playfair text-4xl font-semibold text-vaca-neutral-gray-900">
-          Financing structure
+          {t("financing.title")}
         </h1>
         <p className="mt-2 text-sm text-vaca-neutral-gray-500">
-          Define how much capital is required and the investor allocation.
+          {t("financing.subtitle")}
         </p>
       </header>
 
@@ -134,7 +135,7 @@ export function CreateLotFinancingScreen() {
           <div className="form-control">
             <label className="label" htmlFor="total-capital">
               <span className="label-text font-medium">
-                Total capital required (USD)
+                {t("financing.fields.totalCapital.label")}
               </span>
             </label>
             <input
@@ -169,7 +170,7 @@ export function CreateLotFinancingScreen() {
           <div className="form-control">
             <label className="label" htmlFor="funding-deadline">
               <span className="label-text font-medium">
-                Funding deadline date
+                {t("financing.fields.fundingDeadline.label")}
               </span>
             </label>
             <input
@@ -201,52 +202,10 @@ export function CreateLotFinancingScreen() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white p-5 shadow-sm">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-semibold text-vaca-neutral-gray-700">
-                Percentage offered to investors
-              </p>
-              <p className="text-xs text-vaca-neutral-gray-500">
-                Adjust the offered stake as a percentage of total capital.
-              </p>
-            </div>
-            <input
-              type="number"
-              min={0}
-              max={100}
-              className="input input-bordered w-28"
-              value={formState.investorPercent}
-              onChange={(event) =>
-                handlePercentChange(Number(event.target.value))
-              }
-              aria-label="Investor percentage"
-            />
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            value={formState.investorPercent}
-            onChange={(event) =>
-              handlePercentChange(Number(event.target.value))
-            }
-            className="range range-sm mt-4"
-            aria-label="Investor percentage slider"
-          />
-          <div className="mt-2 flex justify-between text-xs text-vaca-neutral-gray-500">
-            <span>0%</span>
-            <span className="font-semibold text-vaca-green">
-              {formState.investorPercent}%
-            </span>
-            <span>100%</span>
-          </div>
-        </div>
-
         <div className="form-control max-w-sm">
           <label className="label" htmlFor="operating-costs">
             <span className="label-text font-medium">
-              Estimated operating costs (optional)
+              {t("financing.fields.operatingCosts.label")}
             </span>
           </label>
           <input
@@ -264,7 +223,7 @@ export function CreateLotFinancingScreen() {
 
         <div className="rounded-xl border-l-4 border-vaca-blue bg-vaca-neutral-white p-4 text-sm text-vaca-neutral-gray-600">
           <p className="font-semibold text-vaca-blue">
-            Final terms are subject to platform approval.
+            {t("financing.platformNote")}
           </p>
         </div>
 
@@ -273,7 +232,7 @@ export function CreateLotFinancingScreen() {
             href="/producer/lots/new/herd"
             className="btn btn-ghost text-vaca-neutral-gray-600"
           >
-            Back
+            {t("financing.buttons.back")}
           </Link>
           <button
             type="submit"
@@ -283,7 +242,7 @@ export function CreateLotFinancingScreen() {
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vaca-blue focus-visible:ring-offset-2 focus-visible:ring-offset-vaca-neutral-bg",
             )}
           >
-            Continue
+            {t("financing.buttons.continue")}
           </button>
         </div>
       </motion.form>

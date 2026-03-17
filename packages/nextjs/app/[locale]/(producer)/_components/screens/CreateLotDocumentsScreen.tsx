@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "~~/lib/utils/cn";
 import { ProducerWizardStepper } from "../ui/ProducerWizardStepper";
 import { UploadDropzone } from "../ui/UploadDropzone";
@@ -11,17 +12,17 @@ import { useLotDraftStore } from "~~/services/store/lotDraft";
 
 type DocumentKey = "ownership" | "lotDocs" | "insurance" | "video";
 
-const STEPS = [
-  "Basic Info",
-  "Herd & Cycle",
-  "Financing",
-  "Documents",
-  "Review",
-];
-
 export function CreateLotDocumentsScreen() {
+  const t = useTranslations("producer.createLot");
   const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
+  const steps = [
+    t("steps.basicInfo"),
+    t("steps.herdCycle"),
+    t("steps.financing"),
+    t("steps.documents"),
+    t("steps.review"),
+  ];
   const [uploadProgress, setUploadProgress] = useState<
     Record<DocumentKey, number | null>
   >({
@@ -85,14 +86,14 @@ export function CreateLotDocumentsScreen() {
       transition={transition}
       className="space-y-8"
     >
-      <ProducerWizardStepper steps={STEPS} currentStep={3} />
+      <ProducerWizardStepper steps={steps} currentStep={3} />
 
       <header>
         <h1 className="font-playfair text-4xl font-semibold text-vaca-neutral-gray-900">
-          Documents & presentation
+          {t("documents.title")}
         </h1>
         <p className="mt-2 text-sm text-vaca-neutral-gray-500">
-          Upload the required documentation so we can complete verification.
+          {t("documents.subtitle")}
         </p>
       </header>
 
@@ -106,33 +107,33 @@ export function CreateLotDocumentsScreen() {
         <section className="space-y-6">
           <div>
             <h2 className="font-playfair text-2xl font-semibold text-vaca-neutral-gray-900">
-              Required documents
+              {t("documents.sections.required.title")}
             </h2>
             <p className="mt-2 text-sm text-vaca-neutral-gray-500">
-              Provide proof of operation and documentation for the lot.
+              {t("documents.sections.required.subtitle")}
             </p>
           </div>
           <div className="grid gap-6 lg:grid-cols-2">
             <UploadDropzone
               id="ownership-proof"
-              label="Ownership / operation proof"
-              helper="Business registry, land lease, or operating license."
+              label={t("documents.fields.ownership.label")}
+              helper={t("documents.fields.ownership.helper")}
               required
               progress={uploadProgress.ownership}
               onFileSelect={(file) => handleUpload("ownership", file)}
             />
             <UploadDropzone
               id="lot-docs"
-              label="Lot documentation"
-              helper="Health certificates, traceability, or vet reports."
+              label={t("documents.fields.lotDocs.label")}
+              helper={t("documents.fields.lotDocs.helper")}
               required
               progress={uploadProgress.lotDocs}
               onFileSelect={(file) => handleUpload("lotDocs", file)}
             />
             <UploadDropzone
               id="insurance-docs"
-              label="Insurance"
-              helper="Optional coverage documentation."
+              label={t("documents.fields.insurance.label")}
+              helper={t("documents.fields.insurance.helper")}
               progress={uploadProgress.insurance}
               onFileSelect={(file) => handleUpload("insurance", file)}
             />
@@ -148,17 +149,16 @@ export function CreateLotDocumentsScreen() {
         <section className="space-y-4">
           <div>
             <h2 className="font-playfair text-2xl font-semibold text-vaca-neutral-gray-900">
-              Meet the producer
+              {t("documents.sections.producer.title")}
             </h2>
             <p className="mt-2 text-sm text-vaca-neutral-gray-500">
-              Optional, recommended: introduce your family/team and how you
-              manage this lot.
+              {t("documents.sections.producer.subtitle")}
             </p>
           </div>
           <UploadDropzone
             id="producer-video"
-            label="Short video upload (max 2 minutes)"
-            helper="No return promises. Keep it authentic."
+            label={t("documents.fields.video.label")}
+            helper={t("documents.fields.video.helper")}
             progress={uploadProgress.video}
             onFileSelect={(file) => handleUpload("video", file)}
           />
@@ -169,7 +169,7 @@ export function CreateLotDocumentsScreen() {
             href="/producer/lots/new/financing"
             className="btn btn-ghost text-vaca-neutral-gray-600"
           >
-            Back
+            {t("documents.buttons.back")}
           </Link>
           <button
             type="submit"
@@ -179,7 +179,7 @@ export function CreateLotDocumentsScreen() {
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vaca-blue focus-visible:ring-offset-2 focus-visible:ring-offset-vaca-neutral-bg",
             )}
           >
-            Continue
+            {t("documents.buttons.continue")}
           </button>
         </div>
       </motion.form>

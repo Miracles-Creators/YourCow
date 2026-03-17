@@ -431,7 +431,8 @@
         "viewPortfolio": "View Portfolio",
         "viewPosition": "View Position",
         "browseLots": "Browse More Lots"
-      }
+      },
+      "viewTransaction": "View Transaction"
     },
     "oracle": {
       "title": "Market Oracle",
@@ -813,6 +814,195 @@
         "step3": "Publish when verification is approved"
       },
       "supportLink": "Contact support"
+    }
+  },
+  "producer": {
+    "createLot": {
+      "steps": {
+        "basicInfo": "Basic Info",
+        "herdCycle": "Herd & Cycle",
+        "financing": "Financing",
+        "documents": "Documents",
+        "review": "Review"
+      },
+      "basicInfo": {
+        "title": "Create a new lot",
+        "subtitle": "Capture the essentials so we can register the lot correctly.",
+        "fields": {
+          "producerId": { "label": "Producer ID" },
+          "lotName": { "label": "Lot name" },
+          "farmName": { "label": "Farm / Feedlot name" },
+          "location": { "label": "Location (Province/State + Country)" },
+          "productionType": {
+            "label": "Production type",
+            "placeholder": "Select a production type",
+            "helper": "Select how this lot will be managed operationally.",
+            "options": {
+              "feedlot": "Feedlot",
+              "pasture": "Pasture",
+              "mixed": "Mixed"
+            }
+          },
+          "startDate": { "label": "Start date" }
+        },
+        "buttons": {
+          "saveDraft": "Save draft",
+          "continue": "Continue"
+        },
+        "errors": {
+          "lotNameRequired": "Lot name is required.",
+          "farmNameRequired": "Farm or feedlot name is required.",
+          "locationRequired": "Location is required.",
+          "productionTypeRequired": "Select a production type.",
+          "startDateRequired": "Start date is required."
+        }
+      },
+      "herdCycle": {
+        "title": "Herd & production cycle",
+        "subtitle": "Provide operational metrics for transparency and reporting.",
+        "fields": {
+          "cattleCount": { "label": "Number of cattle" },
+          "averageWeightKg": { "label": "Average weight (kg)" },
+          "initialWeightKg": { "label": "Initial weight (kg)" },
+          "notes": { "label": "Notes (optional)" }
+        },
+        "timeline": {
+          "label": "Timeline",
+          "durationOption": "Expected duration (weeks)",
+          "dateOption": "Target end date",
+          "placeholder": "e.g. 24"
+        },
+        "investorNote": {
+          "title": "What investors see",
+          "description": "We display these metrics to build investor trust."
+        },
+        "buttons": {
+          "back": "Back",
+          "continue": "Continue"
+        },
+        "errors": {
+          "cattleCountRequired": "Number of cattle is required.",
+          "averageWeightRequired": "Average weight is required.",
+          "initialWeightRequired": "Initial weight is required.",
+          "durationRequired": "Expected duration is required.",
+          "targetDateRequired": "Target end date is required."
+        }
+      },
+      "financing": {
+        "title": "Financing structure",
+        "subtitle": "Define how much capital is required and the investor allocation.",
+        "fields": {
+          "totalCapital": { "label": "Total capital required (USD)" },
+          "fundingDeadline": { "label": "Funding deadline date" },
+          "operatingCosts": { "label": "Estimated operating costs (optional)" }
+        },
+        "platformNote": "Final terms are subject to platform approval.",
+        "buttons": {
+          "back": "Back",
+          "continue": "Continue"
+        },
+        "errors": {
+          "totalCapitalRequired": "Total capital is required.",
+          "fundingDeadlineRequired": "Funding deadline is required."
+        }
+      },
+      "documents": {
+        "title": "Documents & presentation",
+        "subtitle": "Upload the required documentation so we can complete verification.",
+        "sections": {
+          "required": {
+            "title": "Required documents",
+            "subtitle": "Provide proof of operation and documentation for the lot."
+          },
+          "producer": {
+            "title": "Meet the producer",
+            "subtitle": "Optional, recommended: introduce your family/team and how you manage this lot."
+          }
+        },
+        "fields": {
+          "ownership": {
+            "label": "Ownership / operation proof",
+            "helper": "Business registry, land lease, or operating license."
+          },
+          "lotDocs": {
+            "label": "Lot documentation",
+            "helper": "Health certificates, traceability, or vet reports."
+          },
+          "insurance": {
+            "label": "Insurance",
+            "helper": "Optional coverage documentation."
+          },
+          "video": {
+            "label": "Short video upload (max 2 minutes)",
+            "helper": "No return promises. Keep it authentic."
+          }
+        },
+        "buttons": {
+          "back": "Back",
+          "continue": "Continue"
+        }
+      },
+      "review": {
+        "title": "Review & submit",
+        "subtitle": "Confirm the details below before sending for approval.",
+        "sections": {
+          "basicInfo": {
+            "title": "Basic info",
+            "lot": "Lot",
+            "farm": "Farm",
+            "location": "Location",
+            "startDate": "Start date"
+          },
+          "herdCycle": {
+            "title": "Herd & cycle",
+            "cattleCount": "Number of cattle",
+            "averageWeight": "Average weight",
+            "initialWeight": "Initial weight",
+            "timeline": "Timeline",
+            "weeks": "weeks"
+          },
+          "financing": {
+            "title": "Financing",
+            "totalCapital": "Total capital required",
+            "investorAllocation": "Investor allocation",
+            "fundingDeadline": "Funding deadline"
+          },
+          "documents": {
+            "title": "Documents status",
+            "ownership": "Ownership / operation proof",
+            "lotDocs": "Lot documentation",
+            "insurance": "Insurance",
+            "video": "Producer intro video",
+            "uploaded": "Uploaded",
+            "missing": "Missing",
+            "optional": "Optional"
+          }
+        },
+        "checklist": {
+          "title": "Submission checklist",
+          "items": {
+            "lotDetails": "Lot details confirmed",
+            "herdCycle": "Herd & cycle metrics reviewed",
+            "financing": "Financing terms aligned",
+            "documents": "Documents uploaded"
+          }
+        },
+        "buttons": {
+          "back": "Back",
+          "submit": "Submit for approval",
+          "submitting": "Submitting..."
+        },
+        "modal": {
+          "title": "Confirm submission",
+          "description": "You can't change core parameters after approval without re-review.",
+          "cancel": "Cancel",
+          "submit": "Submit for approval",
+          "submitting": "Submitting..."
+        },
+        "errors": {
+          "invalidData": "Missing or invalid data. Please review the form."
+        }
+      }
     }
   }
 }

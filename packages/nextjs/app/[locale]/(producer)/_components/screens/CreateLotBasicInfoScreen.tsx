@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "~~/lib/utils/cn";
 import { ProducerWizardStepper } from "../ui/ProducerWizardStepper";
 import { useLotDraftStore } from "~~/services/store/lotDraft";
@@ -17,14 +18,6 @@ type BasicInfoFormState = {
   startDate: string;
 };
 
-const STEPS = [
-  "Basic Info",
-  "Herd & Cycle",
-  "Financing",
-  "Documents",
-  "Review",
-];
-
 const INITIAL_STATE: BasicInfoFormState = {
   producerId: 0,
   lotName: "",
@@ -35,8 +28,16 @@ const INITIAL_STATE: BasicInfoFormState = {
 };
 
 export function CreateLotBasicInfoScreen() {
+  const t = useTranslations("producer.createLot");
   const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
+  const steps = [
+    t("steps.basicInfo"),
+    t("steps.herdCycle"),
+    t("steps.financing"),
+    t("steps.documents"),
+    t("steps.review"),
+  ];
   const [formState, setFormState] = useState<BasicInfoFormState>(INITIAL_STATE);
   const draft = useLotDraftStore((state) => state.draft);
   const updateDraft = useLotDraftStore((state) => state.updateDraft);
@@ -82,19 +83,19 @@ export function CreateLotBasicInfoScreen() {
     const nextErrors: Partial<Record<keyof BasicInfoFormState, string>> = {};
 
     if (!formState.lotName.trim()) {
-      nextErrors.lotName = "Lot name is required.";
+      nextErrors.lotName = t("basicInfo.errors.lotNameRequired");
     }
     if (!formState.farmName.trim()) {
-      nextErrors.farmName = "Farm or feedlot name is required.";
+      nextErrors.farmName = t("basicInfo.errors.farmNameRequired");
     }
     if (!formState.location.trim()) {
-      nextErrors.location = "Location is required.";
+      nextErrors.location = t("basicInfo.errors.locationRequired");
     }
     if (!formState.productionType) {
-      nextErrors.productionType = "Select a production type.";
+      nextErrors.productionType = t("basicInfo.errors.productionTypeRequired");
     }
     if (!formState.startDate) {
-      nextErrors.startDate = "Start date is required.";
+      nextErrors.startDate = t("basicInfo.errors.startDateRequired");
     }
 
     setErrors(nextErrors);
@@ -124,14 +125,14 @@ export function CreateLotBasicInfoScreen() {
       transition={transition}
       className="space-y-8"
     >
-      <ProducerWizardStepper steps={STEPS} currentStep={0} />
+      <ProducerWizardStepper steps={steps} currentStep={0} />
 
       <header>
         <h1 className="font-playfair text-4xl font-semibold text-vaca-neutral-gray-900">
-          Create a new lot
+          {t("basicInfo.title")}
         </h1>
         <p className="mt-2 text-sm text-vaca-neutral-gray-500">
-          Capture the essentials so we can register the lot correctly.
+          {t("basicInfo.subtitle")}
         </p>
       </header>
 
@@ -145,7 +146,7 @@ export function CreateLotBasicInfoScreen() {
         <div className="grid gap-6 md:grid-cols-2">
           <div className="form-control">
             <label className="label" htmlFor="producer-id">
-              <span className="label-text font-medium">Producer ID</span>
+              <span className="label-text font-medium">{t("basicInfo.fields.producerId.label")}</span>
             </label>
             <input
               id="producer-id"
@@ -161,7 +162,7 @@ export function CreateLotBasicInfoScreen() {
           </div>
           <div className="form-control">
             <label className="label" htmlFor="lot-name">
-              <span className="label-text font-medium">Lot name</span>
+              <span className="label-text font-medium">{t("basicInfo.fields.lotName.label")}</span>
             </label>
             <input
               id="lot-name"
@@ -187,7 +188,7 @@ export function CreateLotBasicInfoScreen() {
           <div className="form-control">
             <label className="label" htmlFor="farm-name">
               <span className="label-text font-medium">
-                Farm / Feedlot name
+                {t("basicInfo.fields.farmName.label")}
               </span>
             </label>
             <input
@@ -214,7 +215,7 @@ export function CreateLotBasicInfoScreen() {
           <div className="form-control">
             <label className="label" htmlFor="location">
               <span className="label-text font-medium">
-                Location (Province/State + Country)
+                {t("basicInfo.fields.location.label")}
               </span>
             </label>
             <input
@@ -240,7 +241,7 @@ export function CreateLotBasicInfoScreen() {
 
           <div className="form-control">
             <label className="label" htmlFor="production-type">
-              <span className="label-text font-medium">Production type</span>
+              <span className="label-text font-medium">{t("basicInfo.fields.productionType.label")}</span>
             </label>
             <select
               id="production-type"
@@ -260,14 +261,14 @@ export function CreateLotBasicInfoScreen() {
               required
             >
               <option value="" disabled>
-                Select a production type
+                {t("basicInfo.fields.productionType.placeholder")}
               </option>
-              <option value="feedlot">Feedlot</option>
-              <option value="pasture">Pasture</option>
-              <option value="mixed">Mixed</option>
+              <option value="feedlot">{t("basicInfo.fields.productionType.options.feedlot")}</option>
+              <option value="pasture">{t("basicInfo.fields.productionType.options.pasture")}</option>
+              <option value="mixed">{t("basicInfo.fields.productionType.options.mixed")}</option>
             </select>
             <p className="mt-2 text-xs text-vaca-neutral-gray-500">
-              Select how this lot will be managed operationally.
+              {t("basicInfo.fields.productionType.helper")}
             </p>
             {errors.productionType && (
               <p
@@ -281,7 +282,7 @@ export function CreateLotBasicInfoScreen() {
 
           <div className="form-control">
             <label className="label" htmlFor="start-date">
-              <span className="label-text font-medium">Start date</span>
+              <span className="label-text font-medium">{t("basicInfo.fields.startDate.label")}</span>
             </label>
             <input
               id="start-date"
@@ -314,7 +315,7 @@ export function CreateLotBasicInfoScreen() {
             type="button"
             className="btn btn-ghost text-vaca-neutral-gray-600"
           >
-            Save draft
+            {t("basicInfo.buttons.saveDraft")}
           </button>
           <button
             type="submit"
@@ -324,7 +325,7 @@ export function CreateLotBasicInfoScreen() {
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vaca-blue focus-visible:ring-offset-2 focus-visible:ring-offset-vaca-neutral-bg",
             )}
           >
-            Continue
+            {t("basicInfo.buttons.continue")}
           </button>
         </div>
       </motion.form>
