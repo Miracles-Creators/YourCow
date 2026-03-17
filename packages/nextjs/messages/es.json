@@ -66,7 +66,10 @@
       "network": "Error de conexión. Verifica tu internet.",
       "notFound": "No encontrado",
       "unauthorized": "No autorizado",
-      "invalidInput": "Entrada inválida"
+      "invalidInput": "Entrada inválida",
+      "walletLinkFailed": "No se pudo vincular la wallet. Intenta de nuevo.",
+      "walletAlreadyLinked": "Esta wallet ya está vinculada a otra cuenta.",
+      "walletMismatch": "La wallet conectada no coincide con la asociada a tu cuenta."
     },
     "loading": {
       "default": "Cargando...",

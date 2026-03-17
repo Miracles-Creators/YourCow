@@ -10,7 +10,11 @@ import { LAST_CONNECTED_TIME_LOCALSTORAGE_KEY } from "~~/utils/Constants";
 
 const loader = ({ src }: { src: string }) => src;
 
-const ConnectModal = () => {
+type ConnectModalProps = {
+  onConnect?: () => void;
+};
+
+const ConnectModal = ({ onConnect }: ConnectModalProps) => {
   const modalRef = useRef<HTMLInputElement>(null);
   const [isBurnerWallet, setIsBurnerWallet] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -49,6 +53,7 @@ const ConnectModal = () => {
     setLastConnector({ id: connector.id });
     setLastConnectionTime(Date.now());
     handleCloseModal();
+    onConnect?.();
   }
 
   function handleConnectBurner(
@@ -63,6 +68,7 @@ const ConnectModal = () => {
       setLastConnector({ id: connector.id, ix });
       setLastConnectionTime(Date.now());
       handleCloseModal();
+      onConnect?.();
     }
   }
 

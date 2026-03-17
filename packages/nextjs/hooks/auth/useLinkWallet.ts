@@ -48,7 +48,15 @@ function normalizeSignature(signature: unknown): string[] {
   return [];
 }
 
-export function useLinkWallet() {
+type LinkWalletOptions = {
+  onLinkFailed?: () => void;
+  messages?: {
+    linkFailed: string;
+    alreadyLinked: string;
+  };
+};
+
+export function useLinkWallet(options?: LinkWalletOptions) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -58,7 +66,19 @@ export function useLinkWallet() {
     },
     onError: (error) => {
       console.error("Failed to link wallet:", error);
-      notification.error("No se pudo vincular la wallet");
+
+      const isAlreadyLinked =
+        error instanceof Error &&
+        error.message.includes("already linked");
+
+      notification.error(
+        isAlreadyLinked
+          ? (options?.messages?.alreadyLinked ?? "This wallet is already linked to another account.")
+          : (options?.messages?.linkFailed ?? "Could not link wallet."),
+      );
+
+      attemptedAddresses.clear();
+      options?.onLinkFailed?.();
     },
   });
 }
@@ -74,8 +94,20 @@ type AutoLinkParams = {
 const attemptedAddresses = new Set<string>();
 const mismatchNotifiedAddresses = new Set<string>();
 
-export function useAutoLinkWallet() {
-  const linkWalletMutation = useLinkWallet();
+type AutoLinkOptions = {
+  onLinkFailed?: () => void;
+  messages?: {
+    linkFailed: string;
+    alreadyLinked: string;
+    walletMismatch: string;
+  };
+};
+
+export function useAutoLinkWallet(options?: AutoLinkOptions) {
+  const linkWalletMutation = useLinkWallet({
+    onLinkFailed: options?.onLinkFailed,
+    messages: options?.messages,
+  });
 
   const tryLinkWallet = useCallback(
     ({ status, account, accountAddress, me }: AutoLinkParams) => {
@@ -91,14 +123,16 @@ export function useAutoLinkWallet() {
         return;
       }
 
-      // User has different wallet linked - warn once
+      // User has different wallet linked - disconnect and warn
       if (currentWallet && currentWallet !== normalizedAddress) {
         if (!mismatchNotifiedAddresses.has(normalizedAddress)) {
           mismatchNotifiedAddresses.add(normalizedAddress);
           notification.warning(
-            "La wallet conectada no coincide con la asociada a tu cuenta",
+            options?.messages?.walletMismatch ??
+              "The connected wallet does not match the one linked to your account.",
           );
         }
+        options?.onLinkFailed?.();
         return;
       }
 
@@ -117,7 +151,7 @@ export function useAutoLinkWallet() {
       attemptedAddresses.add(normalizedAddress);
       linkWalletMutation.mutate({ account, address: normalizedAddress });
     },
-    [linkWalletMutation],
+    [linkWalletMutation, options?.messages?.walletMismatch],
   );
 
   return {
