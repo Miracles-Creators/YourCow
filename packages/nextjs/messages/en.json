@@ -363,7 +363,13 @@
       "privateMetrics": {
         "title": "Lot capacity",
         "hidden": "Private",
-        "hint": "The progress bar remains visible without revealing the producer's total share count."
+        "hint": "The progress bar remains visible without revealing the producer's total share count.",
+        "verifyButton": "Verify with ZK Proof",
+        "verifyFailed": "Proof generation failed",
+        "retryButton": "Retry",
+        "statusPending": "Starting proof job...",
+        "statusProving": "Generating proof (~2 min)...",
+        "statusVerifying": "Verifying on Starknet..."
       },
       "investButton": "Invest in this Lot",
       "categories": {
