@@ -23,7 +23,6 @@ interface LotRecord {
   needsAttention?: boolean;
 }
 
-
 const lots: LotRecord[] = [
   {
     id: 102,
@@ -171,7 +170,10 @@ export function LotsListScreen() {
                       {lot.producer}
                     </p>
                   </div>
-                  <StatusPill label={lot.status} tone={statusTone[lot.status]} />
+                  <StatusPill
+                    label={lot.status}
+                    tone={statusTone[lot.status]}
+                  />
                 </div>
                 <div className="mt-3 flex items-center justify-between text-xs text-vaca-neutral-gray-500">
                   <span>Funded {lot.fundedPercent}%</span>

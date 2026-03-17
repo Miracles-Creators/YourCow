@@ -292,7 +292,7 @@ pub mod LotFactory {
                 metadata_hash,
                 created_at,
                 total_initial_weight_grams: 0, // Set by backend later
-                total_current_weight_grams: 0, // Set by backend later
+                total_current_weight_grams: 0 // Set by backend later
             };
 
             // Store lot and token mapping

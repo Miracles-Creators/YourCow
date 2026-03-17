@@ -117,10 +117,12 @@ export function SideNav() {
                   aria-current={active ? "page" : undefined}
                 >
                   {item.icon(active)}
-                  <span className={cn(
-                    "font-inter text-sm",
-                    active ? "font-semibold" : "font-medium",
-                  )}>
+                  <span
+                    className={cn(
+                      "font-inter text-sm",
+                      active ? "font-semibold" : "font-medium",
+                    )}
+                  >
                     {item.label}
                   </span>
                   {active && (

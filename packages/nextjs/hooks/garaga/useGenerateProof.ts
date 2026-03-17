@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { startProof, pollJob, type ProofJob, type ProofJobStatus } from "~~/lib/api/garaga";
+import {
+  startProof,
+  pollJob,
+  type ProofJob,
+  type ProofJobStatus,
+} from "~~/lib/api/garaga";
 
 type AnyStatus = ProofJobStatus | "idle";
 
@@ -30,12 +35,13 @@ export function useGenerateProof(lotId: number) {
   }, []);
 
   useEffect(() => {
-    if (!state.jobId || state.status === "done" || state.status === "failed") return;
+    if (!state.jobId || state.status === "done" || state.status === "failed")
+      return;
 
     const tick = async () => {
       try {
         const job: ProofJob = await pollJob(state.jobId!);
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           status: job.status,
           txHash: job.txHash ?? null,
@@ -57,9 +63,14 @@ export function useGenerateProof(lotId: number) {
     setState({ status: "pending", jobId: null, txHash: null, error: null });
     try {
       const { jobId } = await startProof(lotId, 100);
-      setState(prev => ({ ...prev, jobId, status: "proving" }));
+      setState((prev) => ({ ...prev, jobId, status: "proving" }));
     } catch (err) {
-      setState({ status: "failed", jobId: null, txHash: null, error: err instanceof Error ? err.message : "Failed to start proof" });
+      setState({
+        status: "failed",
+        jobId: null,
+        txHash: null,
+        error: err instanceof Error ? err.message : "Failed to start proof",
+      });
     }
   }, [lotId]);
 

@@ -58,7 +58,12 @@ export function OfferList({
   // Loading state
   if (isLoading) {
     return (
-      <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6", className)}>
+      <div
+        className={cn(
+          "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6",
+          className,
+        )}
+      >
         {Array.from({ length: 6 }).map((_, index) => (
           <LoadingSkeleton key={index} />
         ))}
@@ -101,7 +106,9 @@ export function OfferList({
         <h3 className="font-playfair text-xl font-semibold text-vaca-neutral-gray-900 mb-2">
           No offers yet
         </h3>
-        <p className="text-sm text-vaca-neutral-gray-500 max-w-sm">{emptyMessage}</p>
+        <p className="text-sm text-vaca-neutral-gray-500 max-w-sm">
+          {emptyMessage}
+        </p>
       </motion.div>
     );
   }
@@ -112,7 +119,10 @@ export function OfferList({
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6", className)}
+      className={cn(
+        "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6",
+        className,
+      )}
     >
       {offers.map((offer) => (
         <motion.div key={offer.id} variants={itemVariants}>

@@ -3,7 +3,8 @@ import { InvestorProfileScreen } from "../../../_components/screens/InvestorProf
 
 export const metadata: Metadata = {
   title: "Investor Profile",
-  description: "Complete your investor profile to start investing in cattle lots.",
+  description:
+    "Complete your investor profile to start investing in cattle lots.",
 };
 
 export default function InvestorProfilePage() {

@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { AdminPageHeader, DataTable, StatusPill, type AdminStatusTone } from "../index";
+import {
+  AdminPageHeader,
+  DataTable,
+  StatusPill,
+  type AdminStatusTone,
+} from "../index";
 import { cn } from "~~/lib/utils/cn";
 
 interface TicketRecord {

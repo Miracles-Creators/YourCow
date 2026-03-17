@@ -21,7 +21,10 @@ export function BottomNav() {
       href: "/dashboard",
       icon: (isActive) => (
         <svg
-          className={cn("h-[18px] w-4", isActive ? "fill-current" : "fill-none")}
+          className={cn(
+            "h-[18px] w-4",
+            isActive ? "fill-current" : "fill-none",
+          )}
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth={2}
@@ -39,7 +42,10 @@ export function BottomNav() {
       href: "/marketplace",
       icon: (isActive) => (
         <svg
-          className={cn("h-5 w-[18px]", isActive ? "fill-current" : "fill-none")}
+          className={cn(
+            "h-5 w-[18px]",
+            isActive ? "fill-current" : "fill-none",
+          )}
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth={2}

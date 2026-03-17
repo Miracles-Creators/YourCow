@@ -71,7 +71,7 @@ export function ProducerLotTimelineScreen() {
   const filteredItems =
     filter === "all"
       ? timelineItems
-      : timelineItems.filter(item => item.type === filter);
+      : timelineItems.filter((item) => item.type === filter);
 
   return (
     <motion.div
@@ -90,7 +90,7 @@ export function ProducerLotTimelineScreen() {
       </header>
 
       <div className="flex flex-wrap gap-2">
-        {filterOptions.map(option => (
+        {filterOptions.map((option) => (
           <button
             key={option.value}
             type="button"
@@ -127,7 +127,7 @@ export function ProducerLotTimelineScreen() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredItems.map(item => (
+          {filteredItems.map((item) => (
             <div
               key={item.id}
               className="flex flex-col gap-4 rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between"

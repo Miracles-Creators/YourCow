@@ -17,7 +17,6 @@ import { useLogin } from "~~/hooks/auth/useLogin";
 import { useCreateProducer } from "~~/hooks/producers/useCreateProducer";
 import { useLotDraftStore } from "~~/services/store/lotDraft";
 
-
 interface FormData {
   name: string;
   email: string;
@@ -51,7 +50,7 @@ export function ProducerProfileScreen() {
   const router = useRouter();
   const login = useLogin();
   const createProducer = useCreateProducer();
-  const updateDraft = useLotDraftStore(state => state.updateDraft);
+  const updateDraft = useLotDraftStore((state) => state.updateDraft);
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -133,7 +132,8 @@ export function ProducerProfileScreen() {
         name: formData.name,
         email: formData.email,
         senasaId: formData.senasaId,
-        location: locationParts.length > 0 ? locationParts.join(", ") : undefined,
+        location:
+          locationParts.length > 0 ? locationParts.join(", ") : undefined,
         yearsOperating: Number(formData.yearsOperating),
       });
       updateDraft({ producerId: producer.userId });
@@ -150,23 +150,22 @@ export function ProducerProfileScreen() {
     router.push("/onboarding/producer/verification");
   };
 
-  const handleInputChange = (field: keyof FormData) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    if (errors[field as keyof FormErrors]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+  const handleInputChange =
+    (field: keyof FormData) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      if (errors[field as keyof FormErrors]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
 
-  const handleSelectChange = (field: keyof FormData) => (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    if (errors[field as keyof FormErrors]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+  const handleSelectChange =
+    (field: keyof FormData) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      if (errors[field as keyof FormErrors]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
 
   return (
     <OnboardingShell>

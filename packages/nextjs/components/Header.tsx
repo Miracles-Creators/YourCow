@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Link } from "~~/lib/i18n/routing";
 import { usePathname } from "~~/lib/i18n/routing";
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { CustomConnectButton } from "~~/components/scaffold-stark/CustomConnectButton";
@@ -57,14 +57,14 @@ const producerLinks: HeaderMenuLink[] = [
 
 export const HeaderMenuLinks = () => {
   const pathname = usePathname();
-  const t = useTranslations('common.header');
+  const t = useTranslations("common.header");
   const isProducerRoute = pathname.startsWith("/producer");
   const links = isProducerRoute ? producerLinks : menuLinks;
   const activeHref =
     links
-      .map(link => link.href)
+      .map((link) => link.href)
       .sort((a, b) => b.length - a.length)
-      .find(href => pathname === href || pathname.startsWith(`${href}/`)) ??
+      .find((href) => pathname === href || pathname.startsWith(`${href}/`)) ??
     "";
 
   return (
@@ -97,8 +97,8 @@ export const HeaderMenuLinks = () => {
  */
 export const Header = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const t = useTranslations('common.header');
-  const tBrand = useTranslations('brand');
+  const t = useTranslations("common.header");
+  const tBrand = useTranslations("brand");
 
   return (
     <div className="navbar min-h-0 shrink-0 justify-between z-20 px-4 sm:px-6 bg-vaca-neutral-white border-b-2 border-vaca-neutral-gray-100">
@@ -110,7 +110,9 @@ export const Header = () => {
             className={`btn btn-ghost ${
               isDrawerOpen ? "hover:bg-vaca-green/10" : "hover:bg-transparent"
             }`}
-            onClick={() => setIsDrawerOpen((prevIsOpenState) => !prevIsOpenState)}
+            onClick={() =>
+              setIsDrawerOpen((prevIsOpenState) => !prevIsOpenState)
+            }
             aria-label="Open navigation menu"
             aria-expanded={isDrawerOpen}
           >
@@ -148,10 +150,10 @@ export const Header = () => {
           </div>
           <div className="flex flex-col">
             <span className="font-playfair text-lg font-bold leading-tight text-vaca-green">
-              {tBrand('name')}
+              {tBrand("name")}
             </span>
             <span className="font-inter text-xs text-vaca-neutral-gray-500">
-              {t('tagline')}
+              {t("tagline")}
             </span>
           </div>
         </Link>

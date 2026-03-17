@@ -45,8 +45,8 @@ export function RegisterSaleEventScreen() {
   );
 
   const handleChange = (field: keyof SaleFormState, value: string) => {
-    setFormState(prev => ({ ...prev, [field]: value }));
-    setErrors(prev => ({ ...prev, [field]: "" }));
+    setFormState((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const validate = () => {
@@ -88,8 +88,12 @@ export function RegisterSaleEventScreen() {
 
     const totalProceeds = parseNumber(formState.totalAmount);
     const finalTotalWeightGrams = parseNumber(formState.finalTotalWeightGrams);
-    const finalAverageWeightGrams = parseNumber(formState.finalAverageWeightGrams);
-    const initialTotalWeightGrams = parseNumber(formState.initialTotalWeightGrams);
+    const finalAverageWeightGrams = parseNumber(
+      formState.finalAverageWeightGrams,
+    );
+    const initialTotalWeightGrams = parseNumber(
+      formState.initialTotalWeightGrams,
+    );
 
     if (
       totalProceeds === null ||
@@ -154,7 +158,7 @@ export function RegisterSaleEventScreen() {
                 errors.saleDate && "border-vaca-brown",
               )}
               value={formState.saleDate}
-              onChange={event => handleChange("saleDate", event.target.value)}
+              onChange={(event) => handleChange("saleDate", event.target.value)}
               aria-invalid={Boolean(errors.saleDate)}
               aria-describedby={errors.saleDate ? "sale-date-error" : undefined}
               required
@@ -182,7 +186,9 @@ export function RegisterSaleEventScreen() {
                 errors.totalAmount && "border-vaca-brown",
               )}
               value={formState.totalAmount}
-              onChange={event => handleChange("totalAmount", event.target.value)}
+              onChange={(event) =>
+                handleChange("totalAmount", event.target.value)
+              }
               aria-invalid={Boolean(errors.totalAmount)}
               aria-describedby={
                 errors.totalAmount ? "total-amount-error" : undefined
@@ -212,7 +218,9 @@ export function RegisterSaleEventScreen() {
               step={1}
               className="input input-bordered w-full"
               value={formState.finalCosts}
-              onChange={event => handleChange("finalCosts", event.target.value)}
+              onChange={(event) =>
+                handleChange("finalCosts", event.target.value)
+              }
             />
           </div>
 
@@ -232,12 +240,14 @@ export function RegisterSaleEventScreen() {
                 errors.finalTotalWeightGrams && "border-vaca-brown",
               )}
               value={formState.finalTotalWeightGrams}
-              onChange={event =>
+              onChange={(event) =>
                 handleChange("finalTotalWeightGrams", event.target.value)
               }
               aria-invalid={Boolean(errors.finalTotalWeightGrams)}
               aria-describedby={
-                errors.finalTotalWeightGrams ? "final-total-weight-error" : undefined
+                errors.finalTotalWeightGrams
+                  ? "final-total-weight-error"
+                  : undefined
               }
               required
             />
@@ -267,7 +277,7 @@ export function RegisterSaleEventScreen() {
                 errors.finalAverageWeightGrams && "border-vaca-brown",
               )}
               value={formState.finalAverageWeightGrams}
-              onChange={event =>
+              onChange={(event) =>
                 handleChange("finalAverageWeightGrams", event.target.value)
               }
               aria-invalid={Boolean(errors.finalAverageWeightGrams)}
@@ -304,7 +314,7 @@ export function RegisterSaleEventScreen() {
                 errors.initialTotalWeightGrams && "border-vaca-brown",
               )}
               value={formState.initialTotalWeightGrams}
-              onChange={event =>
+              onChange={(event) =>
                 handleChange("initialTotalWeightGrams", event.target.value)
               }
               aria-invalid={Boolean(errors.initialTotalWeightGrams)}
@@ -334,7 +344,7 @@ export function RegisterSaleEventScreen() {
             id="sale-notes"
             className="textarea textarea-bordered min-h-[120px] w-full"
             value={formState.notes}
-            onChange={event => handleChange("notes", event.target.value)}
+            onChange={(event) => handleChange("notes", event.target.value)}
           />
         </div>
 

@@ -43,7 +43,7 @@ export function InvestorProfileScreen() {
   const login = useLogin();
   const register = useOnboardingStore((state) => state.register);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  
+
   const [formData, setFormData] = useState<FormData>({
     country: "",
     phone: "",
@@ -122,23 +122,21 @@ export function InvestorProfileScreen() {
     router.push("/onboarding/investor/kyc");
   };
 
-  const handleInputChange = (field: keyof FormData) => (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+  const handleInputChange =
+    (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
 
-  const handleSelectChange = (field: keyof FormData) => (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+  const handleSelectChange =
+    (field: keyof FormData) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
 
   return (
     <OnboardingShell>

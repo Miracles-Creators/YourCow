@@ -77,11 +77,8 @@ export function LoginScreen() {
       >
         {/* Email Input */}
         <div className="space-y-2">
-          <label
-            htmlFor="email"
-            className="sr-only"
-          >
-            {t('emailLabel')}
+          <label htmlFor="email" className="sr-only">
+            {t("emailLabel")}
           </label>
           <input
             id="email"

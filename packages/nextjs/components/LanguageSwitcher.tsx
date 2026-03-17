@@ -1,10 +1,15 @@
 "use client";
 
-import { useLocale } from 'next-intl';
-import { useRouter, usePathname } from '~~/lib/i18n/routing';
-import { locales, localeLabels, localeFlags, type Locale } from '~~/lib/i18n/config';
-import { cn } from '~~/lib/utils/cn';
-import { useState, useEffect } from 'react';
+import { useLocale } from "next-intl";
+import { useRouter, usePathname } from "~~/lib/i18n/routing";
+import {
+  locales,
+  localeLabels,
+  localeFlags,
+  type Locale,
+} from "~~/lib/i18n/config";
+import { cn } from "~~/lib/utils/cn";
+import { useState, useEffect } from "react";
 
 /**
  * LanguageSwitcher Component
@@ -25,8 +30,8 @@ export function LanguageSwitcher() {
 
   const switchLocale = (newLocale: Locale) => {
     // Save to localStorage for persistence
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('YourCow-locale', newLocale);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("YourCow-locale", newLocale);
     }
     router.replace(pathname, { locale: newLocale });
     setIsOpen(false);
@@ -34,8 +39,8 @@ export function LanguageSwitcher() {
 
   // Save current locale to localStorage when it changes
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('YourCow-locale', locale);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("YourCow-locale", locale);
     }
   }, [locale]);
 
@@ -50,7 +55,7 @@ export function LanguageSwitcher() {
           "font-inter text-sm font-medium text-vaca-neutral-gray-700",
           "transition-all duration-200",
           "hover:border-vaca-green/30 hover:bg-vaca-neutral-gray-50",
-          "focus:outline-none focus:ring-2 focus:ring-vaca-green/20"
+          "focus:outline-none focus:ring-2 focus:ring-vaca-green/20",
         )}
         aria-label="Select language"
         aria-expanded={isOpen}
@@ -60,7 +65,7 @@ export function LanguageSwitcher() {
         <svg
           className={cn(
             "h-4 w-4 transition-transform duration-200",
-            isOpen && "rotate-180"
+            isOpen && "rotate-180",
           )}
           fill="none"
           viewBox="0 0 24 24"
@@ -97,7 +102,7 @@ export function LanguageSwitcher() {
                   "first:rounded-t-md last:rounded-b-md",
                   locale === loc
                     ? "bg-vaca-green/10 font-semibold text-vaca-green"
-                    : "text-vaca-neutral-gray-700 hover:bg-vaca-neutral-gray-50"
+                    : "text-vaca-neutral-gray-700 hover:bg-vaca-neutral-gray-50",
                 )}
                 aria-current={locale === loc ? "true" : undefined}
               >

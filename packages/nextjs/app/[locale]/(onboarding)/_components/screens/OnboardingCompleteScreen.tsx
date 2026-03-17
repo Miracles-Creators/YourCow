@@ -145,10 +145,7 @@ export function OnboardingCompleteScreen({
       </motion.div>
 
       {/* Support link */}
-      <motion.p
-        variants={shellItemVariants}
-        className="mt-6 text-center"
-      >
+      <motion.p variants={shellItemVariants} className="mt-6 text-center">
         <a
           href="mailto:support@yourcow.com"
           className="font-inter text-sm text-vaca-neutral-gray-500 underline-offset-2 hover:text-vaca-green hover:underline"

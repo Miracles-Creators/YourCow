@@ -164,7 +164,10 @@ export const mockLots: Lot[] = [
     },
     traceabilityEvents: [
       { date: "2025-10-20", description: "Organic pasture verification" },
-      { date: "2025-11-10", description: "Herd purchase from certified supplier" },
+      {
+        date: "2025-11-10",
+        description: "Herd purchase from certified supplier",
+      },
       { date: "2025-12-05", description: "Organic feed program started" },
     ],
   },

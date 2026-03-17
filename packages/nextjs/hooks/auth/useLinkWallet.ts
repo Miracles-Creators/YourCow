@@ -15,7 +15,9 @@ type LinkWalletInput = {
 
 async function executeLinkWallet({ account, address }: LinkWalletInput) {
   const challenge = await getWalletLinkChallenge(address);
-  const rawSignature = await account.signMessage(challenge.typedData as TypedData);
+  const rawSignature = await account.signMessage(
+    challenge.typedData as TypedData,
+  );
   const signature = normalizeSignature(rawSignature);
 
   if (signature.length === 0) {
@@ -36,7 +38,10 @@ function normalizeSignature(signature: unknown): string[] {
       return sig.signature.map((v) => v?.toString?.() ?? String(v));
     }
     if (sig.r !== undefined && sig.s !== undefined) {
-      return [sig.r?.toString?.() ?? String(sig.r), sig.s?.toString?.() ?? String(sig.s)];
+      return [
+        sig.r?.toString?.() ?? String(sig.r),
+        sig.s?.toString?.() ?? String(sig.s),
+      ];
     }
   }
 
@@ -90,7 +95,9 @@ export function useAutoLinkWallet() {
       if (currentWallet && currentWallet !== normalizedAddress) {
         if (!mismatchNotifiedAddresses.has(normalizedAddress)) {
           mismatchNotifiedAddresses.add(normalizedAddress);
-          notification.warning("La wallet conectada no coincide con la asociada a tu cuenta");
+          notification.warning(
+            "La wallet conectada no coincide con la asociada a tu cuenta",
+          );
         }
         return;
       }
@@ -101,7 +108,9 @@ export function useAutoLinkWallet() {
       }
 
       // Check if signMessage is available
-      if (typeof (account as { signMessage?: unknown }).signMessage !== "function") {
+      if (
+        typeof (account as { signMessage?: unknown }).signMessage !== "function"
+      ) {
         return;
       }
 

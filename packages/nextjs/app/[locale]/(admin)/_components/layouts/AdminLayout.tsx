@@ -117,13 +117,8 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
             </nav>
           </div>
 
-          <main
-            id="admin-main"
-            className="flex-1 px-5 py-6 sm:px-6 lg:px-10"
-          >
-            <div className="mx-auto w-full max-w-7xl min-w-0">
-              {children}
-            </div>
+          <main id="admin-main" className="flex-1 px-5 py-6 sm:px-6 lg:px-10">
+            <div className="mx-auto w-full max-w-7xl min-w-0">{children}</div>
           </main>
         </div>
       </div>

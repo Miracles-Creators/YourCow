@@ -26,8 +26,7 @@ export function OnboardingSteps({ steps, className }: OnboardingStepsProps) {
             <div
               className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors",
-                step.status === "completed" &&
-                  "bg-vaca-green text-white",
+                step.status === "completed" && "bg-vaca-green text-white",
                 step.status === "active" &&
                   "bg-vaca-green/10 text-vaca-green ring-2 ring-vaca-green",
                 step.status === "pending" &&

@@ -23,19 +23,21 @@ export function OfferShareCard({
 }: OfferShareCardProps) {
   const t = useTranslations("investor.dashboard.offers");
   const remainingShares = offer.sharesAmount - offer.sharesFilled;
-  const fillPercent = offer.sharesAmount > 0
-    ? (offer.sharesFilled / offer.sharesAmount) * 100
-    : 0;
+  const fillPercent =
+    offer.sharesAmount > 0
+      ? (offer.sharesFilled / offer.sharesAmount) * 100
+      : 0;
 
   const isStrk = offer.currency === "STRK";
-  const priceLabel = isStrk && offer.strkPricePerShare
-    ? `${formatStrkWei(offer.strkPricePerShare)} STRK`
-    : new Intl.NumberFormat("es-AR", {
-        style: "currency",
-        currency: offer.currency,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(offer.pricePerShare / 100);
+  const priceLabel =
+    isStrk && offer.strkPricePerShare
+      ? `${formatStrkWei(offer.strkPricePerShare)} STRK`
+      : new Intl.NumberFormat("es-AR", {
+          style: "currency",
+          currency: offer.currency,
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(offer.pricePerShare / 100);
 
   const lotName = offer.lot?.name ?? `Lot #${offer.lotId}`;
 
@@ -83,7 +85,8 @@ export function OfferShareCard({
             {t("card.fulfillment")}
           </span>
           <span className="font-inter text-xs font-semibold text-vaca-neutral-gray-700">
-            {offer.sharesFilled}/{offer.sharesAmount} ({Math.round(fillPercent)}%)
+            {offer.sharesFilled}/{offer.sharesAmount} ({Math.round(fillPercent)}
+            %)
           </span>
         </div>
         <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-vaca-neutral-gray-200">

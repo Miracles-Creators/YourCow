@@ -30,8 +30,8 @@ export function CreateLotDocumentsScreen() {
     insurance: null,
     video: null,
   });
-  const draft = useLotDraftStore(state => state.draft);
-  const updateDraft = useLotDraftStore(state => state.updateDraft);
+  const draft = useLotDraftStore((state) => state.draft);
+  const updateDraft = useLotDraftStore((state) => state.updateDraft);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -54,8 +54,8 @@ export function CreateLotDocumentsScreen() {
   const handleUpload = (key: DocumentKey, file: File | null) => {
     if (!file) return;
     // TODO: Integrate with services/uploads.ts
-    setUploadProgress(prev => ({ ...prev, [key]: 100 }));
-    setErrors(prev => ({ ...prev, [key]: "" }));
+    setUploadProgress((prev) => ({ ...prev, [key]: 100 }));
+    setErrors((prev) => ({ ...prev, [key]: "" }));
   };
 
   const validate = () => {
@@ -119,7 +119,7 @@ export function CreateLotDocumentsScreen() {
               helper="Business registry, land lease, or operating license."
               required
               progress={uploadProgress.ownership}
-              onFileSelect={file => handleUpload("ownership", file)}
+              onFileSelect={(file) => handleUpload("ownership", file)}
             />
             <UploadDropzone
               id="lot-docs"
@@ -127,14 +127,14 @@ export function CreateLotDocumentsScreen() {
               helper="Health certificates, traceability, or vet reports."
               required
               progress={uploadProgress.lotDocs}
-              onFileSelect={file => handleUpload("lotDocs", file)}
+              onFileSelect={(file) => handleUpload("lotDocs", file)}
             />
             <UploadDropzone
               id="insurance-docs"
               label="Insurance"
               helper="Optional coverage documentation."
               progress={uploadProgress.insurance}
-              onFileSelect={file => handleUpload("insurance", file)}
+              onFileSelect={(file) => handleUpload("insurance", file)}
             />
           </div>
           {(errors.ownership || errors.lotDocs) && (
@@ -160,7 +160,7 @@ export function CreateLotDocumentsScreen() {
             label="Short video upload (max 2 minutes)"
             helper="No return promises. Keep it authentic."
             progress={uploadProgress.video}
-            onFileSelect={file => handleUpload("video", file)}
+            onFileSelect={(file) => handleUpload("video", file)}
           />
         </section>
 

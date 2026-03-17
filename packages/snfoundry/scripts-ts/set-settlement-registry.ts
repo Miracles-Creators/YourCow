@@ -48,10 +48,16 @@ const main = async (): Promise<void> => {
   const lotFactoryAddress = deployments["LotFactory"]?.address;
   const settlementRegistryAddress = deployments["SettlementRegistry"]?.address;
 
-  if (!lotFactoryAddress) throw new Error("❌ LotFactory address not found in deployments.");
-  if (!settlementRegistryAddress) throw new Error("❌ SettlementRegistry address not found in deployments.");
+  if (!lotFactoryAddress)
+    throw new Error("❌ LotFactory address not found in deployments.");
+  if (!settlementRegistryAddress)
+    throw new Error("❌ SettlementRegistry address not found in deployments.");
 
-  console.log(yellow(`\n🔗 Setting SettlementRegistry on LotFactory (${networkName})...\n`));
+  console.log(
+    yellow(
+      `\n🔗 Setting SettlementRegistry on LotFactory (${networkName})...\n`
+    )
+  );
   console.log(yellow(`   LotFactory:          ${lotFactoryAddress}`));
   console.log(yellow(`   SettlementRegistry:  ${settlementRegistryAddress}\n`));
 
@@ -59,7 +65,9 @@ const main = async (): Promise<void> => {
     {
       contractAddress: lotFactoryAddress,
       entrypoint: "set_settlement_registry",
-      calldata: CallData.compile({ settlement_registry: settlementRegistryAddress }),
+      calldata: CallData.compile({
+        settlement_registry: settlementRegistryAddress,
+      }),
     },
   ]);
 

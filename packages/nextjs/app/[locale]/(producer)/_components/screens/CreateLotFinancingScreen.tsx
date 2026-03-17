@@ -33,16 +33,15 @@ const INITIAL_STATE: FinancingFormState = {
 export function CreateLotFinancingScreen() {
   const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
-  const [formState, setFormState] =
-    useState<FinancingFormState>(INITIAL_STATE);
-  const draft = useLotDraftStore(state => state.draft);
-  const updateDraft = useLotDraftStore(state => state.updateDraft);
+  const [formState, setFormState] = useState<FinancingFormState>(INITIAL_STATE);
+  const draft = useLotDraftStore((state) => state.draft);
+  const updateDraft = useLotDraftStore((state) => state.updateDraft);
   const [errors, setErrors] = useState<
     Partial<Record<keyof FinancingFormState, string>>
   >({});
 
   useEffect(() => {
-    setFormState(prev => ({
+    setFormState((prev) => ({
       ...prev,
       totalCapital: draft.financing.totalCapital,
       investorPercent: draft.financing.investorPercent,
@@ -60,8 +59,8 @@ export function CreateLotFinancingScreen() {
   );
 
   const handleTextChange = (field: "fundingDeadline", value: string) => {
-    setFormState(prev => ({ ...prev, [field]: value }));
-    setErrors(prev => ({ ...prev, [field]: "" }));
+    setFormState((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const handleNumberChange = (
@@ -69,13 +68,13 @@ export function CreateLotFinancingScreen() {
     value: string,
   ) => {
     const parsed = value === "" ? 0 : Number(value);
-    setFormState(prev => ({ ...prev, [field]: parsed }));
-    setErrors(prev => ({ ...prev, [field]: "" }));
+    setFormState((prev) => ({ ...prev, [field]: parsed }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const handlePercentChange = (value: number) => {
     const nextValue = Math.min(100, Math.max(0, value));
-    setFormState(prev => ({ ...prev, investorPercent: nextValue }));
+    setFormState((prev) => ({ ...prev, investorPercent: nextValue }));
   };
 
   const validate = () => {
@@ -148,7 +147,7 @@ export function CreateLotFinancingScreen() {
                 errors.totalCapital && "border-vaca-brown",
               )}
               value={formState.totalCapital || ""}
-              onChange={event =>
+              onChange={(event) =>
                 handleNumberChange("totalCapital", event.target.value)
               }
               aria-invalid={Boolean(errors.totalCapital)}
@@ -182,7 +181,7 @@ export function CreateLotFinancingScreen() {
                 errors.fundingDeadline && "border-vaca-brown",
               )}
               value={formState.fundingDeadline}
-              onChange={event =>
+              onChange={(event) =>
                 handleTextChange("fundingDeadline", event.target.value)
               }
               aria-invalid={Boolean(errors.fundingDeadline)}
@@ -218,7 +217,7 @@ export function CreateLotFinancingScreen() {
               max={100}
               className="input input-bordered w-28"
               value={formState.investorPercent}
-              onChange={event =>
+              onChange={(event) =>
                 handlePercentChange(Number(event.target.value))
               }
               aria-label="Investor percentage"
@@ -229,7 +228,7 @@ export function CreateLotFinancingScreen() {
             min={0}
             max={100}
             value={formState.investorPercent}
-            onChange={event =>
+            onChange={(event) =>
               handlePercentChange(Number(event.target.value))
             }
             className="range range-sm mt-4"
@@ -257,7 +256,7 @@ export function CreateLotFinancingScreen() {
             min={0}
             className="input input-bordered w-full"
             value={formState.operatingCosts || ""}
-            onChange={event =>
+            onChange={(event) =>
               handleNumberChange("operatingCosts", event.target.value)
             }
           />

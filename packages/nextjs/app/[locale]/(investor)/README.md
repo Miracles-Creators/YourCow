@@ -27,16 +27,19 @@ app/(investor)/
 ## 🎯 Why This Structure?
 
 ### Route Group `(investor)`
+
 - ✅ URLs are clean: `/welcome` not `/investor/welcome`
 - ✅ Shared layout applied to all screens
 - ✅ Logical grouping without URL nesting
 
 ### Private Folder `_components`
+
 - ✅ Next.js ignores for routing (not public)
 - ✅ Everything investor-related in ONE place
 - ✅ Easy to find, easy to maintain
 
 ### Feature-based Organization
+
 - ✅ Add new investor screen? Just add `_components/screens/NewScreen.tsx`
 - ✅ No jumping between `/app/` and `/components/` folders
 - ✅ Self-contained feature module
@@ -68,6 +71,7 @@ export default function PortfolioPage() {
 ## 🎨 Design System
 
 Uses centralized design tokens:
+
 - **Colors**: `lib/constants/brand.ts` → `vaca-green`, `vaca-blue`, etc.
 - **Fonts**: `lib/fonts.ts` → Playfair Display + Inter
 - **Animations**: Framer Motion variants in screens
@@ -80,11 +84,13 @@ Uses centralized design tokens:
 ## 🔗 Shared vs Feature-specific
 
 **Investor-specific** (stays here):
+
 - Logo, PrimaryButton, TrustBadge (all branded)
 - InvestorLayout
 - All screens
 
 **Shared across app** (goes in `/components/ui/`):
+
 - Generic Button, Input, Card (no branding)
 - Shared utilities
 

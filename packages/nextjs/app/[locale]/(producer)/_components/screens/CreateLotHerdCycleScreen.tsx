@@ -39,17 +39,16 @@ const INITIAL_STATE: HerdCycleFormState = {
 export function CreateLotHerdCycleScreen() {
   const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
-  const [formState, setFormState] =
-    useState<HerdCycleFormState>(INITIAL_STATE);
+  const [formState, setFormState] = useState<HerdCycleFormState>(INITIAL_STATE);
   const [mode, setMode] = useState<TimelineMode>("duration");
-  const draft = useLotDraftStore(state => state.draft);
-  const updateDraft = useLotDraftStore(state => state.updateDraft);
+  const draft = useLotDraftStore((state) => state.draft);
+  const updateDraft = useLotDraftStore((state) => state.updateDraft);
   const [errors, setErrors] = useState<
     Partial<Record<keyof HerdCycleFormState, string>>
   >({});
 
   useEffect(() => {
-    setFormState(prev => ({
+    setFormState((prev) => ({
       ...prev,
       cattleCount: draft.herdCycle.cattleCount,
       averageWeightKg: draft.herdCycle.averageWeightKg,
@@ -69,18 +68,25 @@ export function CreateLotHerdCycleScreen() {
     [prefersReducedMotion],
   );
 
-  const handleTextChange = (field: "targetEndDate" | "notes", value: string) => {
-    setFormState(prev => ({ ...prev, [field]: value }));
-    setErrors(prev => ({ ...prev, [field]: "" }));
+  const handleTextChange = (
+    field: "targetEndDate" | "notes",
+    value: string,
+  ) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const handleNumberChange = (
-    field: "cattleCount" | "averageWeightKg" | "initialWeightKg" | "durationWeeks",
+    field:
+      | "cattleCount"
+      | "averageWeightKg"
+      | "initialWeightKg"
+      | "durationWeeks",
     value: string,
   ) => {
     const parsed = value === "" ? 0 : Number(value);
-    setFormState(prev => ({ ...prev, [field]: parsed }));
-    setErrors(prev => ({ ...prev, [field]: "" }));
+    setFormState((prev) => ({ ...prev, [field]: parsed }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const validate = () => {
@@ -164,7 +170,7 @@ export function CreateLotHerdCycleScreen() {
                 errors.cattleCount && "border-vaca-brown",
               )}
               value={formState.cattleCount || ""}
-              onChange={event =>
+              onChange={(event) =>
                 handleNumberChange("cattleCount", event.target.value)
               }
               aria-invalid={Boolean(errors.cattleCount)}
@@ -200,7 +206,7 @@ export function CreateLotHerdCycleScreen() {
                 errors.averageWeightKg && "border-vaca-brown",
               )}
               value={formState.averageWeightKg || ""}
-              onChange={event =>
+              onChange={(event) =>
                 handleNumberChange("averageWeightKg", event.target.value)
               }
               aria-invalid={Boolean(errors.averageWeightKg)}
@@ -236,7 +242,7 @@ export function CreateLotHerdCycleScreen() {
                 errors.initialWeightKg && "border-vaca-brown",
               )}
               value={formState.initialWeightKg || ""}
-              onChange={event =>
+              onChange={(event) =>
                 handleNumberChange("initialWeightKg", event.target.value)
               }
               aria-invalid={Boolean(errors.initialWeightKg)}
@@ -296,7 +302,7 @@ export function CreateLotHerdCycleScreen() {
                   errors.durationWeeks && "border-vaca-brown",
                 )}
                 value={formState.durationWeeks || ""}
-                onChange={event =>
+                onChange={(event) =>
                   handleNumberChange("durationWeeks", event.target.value)
                 }
                 aria-invalid={Boolean(errors.durationWeeks)}
@@ -325,10 +331,10 @@ export function CreateLotHerdCycleScreen() {
                   "input input-bordered w-full",
                   errors.targetEndDate && "border-vaca-brown",
                 )}
-              value={formState.targetEndDate}
-              onChange={event =>
-                handleTextChange("targetEndDate", event.target.value)
-              }
+                value={formState.targetEndDate}
+                onChange={(event) =>
+                  handleTextChange("targetEndDate", event.target.value)
+                }
                 aria-invalid={Boolean(errors.targetEndDate)}
                 aria-describedby={
                   errors.targetEndDate ? "target-end-date-error" : undefined
@@ -362,8 +368,8 @@ export function CreateLotHerdCycleScreen() {
             id="notes"
             name="notes"
             className="textarea textarea-bordered min-h-[120px] w-full"
-              value={formState.notes}
-              onChange={event => handleTextChange("notes", event.target.value)}
+            value={formState.notes}
+            onChange={(event) => handleTextChange("notes", event.target.value)}
           />
         </div>
 

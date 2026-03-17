@@ -3,7 +3,8 @@ import { InvestorKycScreen } from "../../../_components/screens/InvestorKycScree
 
 export const metadata: Metadata = {
   title: "Investor Verification",
-  description: "Complete identity verification and risk profile to start investing.",
+  description:
+    "Complete identity verification and risk profile to start investing.",
 };
 
 export default function InvestorKycPage() {

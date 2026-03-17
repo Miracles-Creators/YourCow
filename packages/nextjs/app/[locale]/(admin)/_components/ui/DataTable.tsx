@@ -33,9 +33,7 @@ export function DataTable({
         )}
         aria-label={caption ? undefined : ariaLabel}
       >
-        {caption ? (
-          <caption className="sr-only">{caption}</caption>
-        ) : null}
+        {caption ? <caption className="sr-only">{caption}</caption> : null}
         {children}
       </table>
     </div>

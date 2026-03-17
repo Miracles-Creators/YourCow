@@ -31,10 +31,13 @@ export async function logout(): Promise<void> {
 export async function getWalletLinkChallenge(
   address: string,
 ): Promise<WalletChallengeDto> {
-  const challenge = await apiFetch<WalletChallengeDto>("/auth/wallet/challenge", {
-    method: "POST",
-    body: JSON.stringify({ address }),
-  });
+  const challenge = await apiFetch<WalletChallengeDto>(
+    "/auth/wallet/challenge",
+    {
+      method: "POST",
+      body: JSON.stringify({ address }),
+    },
+  );
   return WalletChallengeSchema.parse(challenge);
 }
 

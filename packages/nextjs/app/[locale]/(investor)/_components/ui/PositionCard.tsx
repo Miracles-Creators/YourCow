@@ -8,12 +8,32 @@ import { cn } from "~~/lib/utils/cn";
 import type { LotStatus, PortfolioSummaryLotDto } from "~~/lib/api/schemas";
 
 const STATUS_CONFIG: Record<LotStatus, { dot: string; badge: string }> = {
-  ACTIVE: { dot: "bg-vaca-green", badge: "bg-vaca-green/10 text-vaca-green border-vaca-green/20" },
-  FUNDING: { dot: "bg-vaca-gold", badge: "bg-vaca-gold-light text-vaca-gold border-vaca-gold-border" },
-  COMPLETED: { dot: "bg-vaca-blue", badge: "bg-vaca-blue/10 text-vaca-blue-dark border-vaca-blue/20" },
-  SETTLING: { dot: "bg-vaca-warning", badge: "bg-vaca-warning-light text-vaca-warning border-vaca-warning/20" },
-  DRAFT: { dot: "bg-vaca-neutral-gray-400", badge: "bg-vaca-neutral-gray-100 text-vaca-neutral-gray-500 border-vaca-neutral-gray-200" },
-  PENDING_DEPLOY: { dot: "bg-vaca-neutral-gray-400", badge: "bg-vaca-neutral-gray-100 text-vaca-neutral-gray-500 border-vaca-neutral-gray-200" },
+  ACTIVE: {
+    dot: "bg-vaca-green",
+    badge: "bg-vaca-green/10 text-vaca-green border-vaca-green/20",
+  },
+  FUNDING: {
+    dot: "bg-vaca-gold",
+    badge: "bg-vaca-gold-light text-vaca-gold border-vaca-gold-border",
+  },
+  COMPLETED: {
+    dot: "bg-vaca-blue",
+    badge: "bg-vaca-blue/10 text-vaca-blue-dark border-vaca-blue/20",
+  },
+  SETTLING: {
+    dot: "bg-vaca-warning",
+    badge: "bg-vaca-warning-light text-vaca-warning border-vaca-warning/20",
+  },
+  DRAFT: {
+    dot: "bg-vaca-neutral-gray-400",
+    badge:
+      "bg-vaca-neutral-gray-100 text-vaca-neutral-gray-500 border-vaca-neutral-gray-200",
+  },
+  PENDING_DEPLOY: {
+    dot: "bg-vaca-neutral-gray-400",
+    badge:
+      "bg-vaca-neutral-gray-100 text-vaca-neutral-gray-500 border-vaca-neutral-gray-200",
+  },
 };
 
 const LOT_IMAGE = "/vaca-image-btc.png";
@@ -34,15 +54,20 @@ export function PositionCard({ lot, className }: PositionCardProps) {
   const config = STATUS_CONFIG[lot.status] ?? STATUS_CONFIG.ACTIVE;
 
   const statusLabel =
-    lot.status === "ACTIVE" ? tStatus("active") :
-    lot.status === "FUNDING" ? tStatus("pending") :
-    lot.status === "COMPLETED" ? tStatus("completed") :
-    lot.status;
+    lot.status === "ACTIVE"
+      ? tStatus("active")
+      : lot.status === "FUNDING"
+        ? tStatus("pending")
+        : lot.status === "COMPLETED"
+          ? tStatus("completed")
+          : lot.status;
 
   const productionLabel =
-    lot.productionType === "FEEDLOT" ? tCategories("fattening") :
-    lot.productionType === "PASTURE" ? tCategories("breeding") :
-    tCategories("dairy");
+    lot.productionType === "FEEDLOT"
+      ? tCategories("fattening")
+      : lot.productionType === "PASTURE"
+        ? tCategories("breeding")
+        : tCategories("dairy");
 
   const barWidth = Math.min(Math.abs(lot.returnPercent), 30);
   const barPercent = (barWidth / 30) * 100;
@@ -88,10 +113,15 @@ export function PositionCard({ lot, className }: PositionCardProps) {
                 <span
                   className={cn(
                     "inline-flex items-center gap-1 font-inter text-xs font-medium",
-                    config.badge.split(" ").filter(c => c.startsWith("text-")).join(" "),
+                    config.badge
+                      .split(" ")
+                      .filter((c) => c.startsWith("text-"))
+                      .join(" "),
                   )}
                 >
-                  <span className={cn("h-1.5 w-1.5 rounded-full", config.dot)} />
+                  <span
+                    className={cn("h-1.5 w-1.5 rounded-full", config.dot)}
+                  />
                   {statusLabel}
                 </span>
               </div>
@@ -107,11 +137,13 @@ export function PositionCard({ lot, className }: PositionCardProps) {
                   isPositive ? "text-vaca-green" : "text-vaca-error",
                 )}
               >
-                {isPositive
-                  ? <TrendingUp className="h-3 w-3" />
-                  : <TrendingDown className="h-3 w-3" />
-                }
-                {isPositive ? "+" : ""}{lot.returnPercent.toFixed(1)}%
+                {isPositive ? (
+                  <TrendingUp className="h-3 w-3" />
+                ) : (
+                  <TrendingDown className="h-3 w-3" />
+                )}
+                {isPositive ? "+" : ""}
+                {lot.returnPercent.toFixed(1)}%
               </div>
             </div>
           </div>

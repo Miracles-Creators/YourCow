@@ -68,17 +68,25 @@ export function InvestmentCard({
         : tCategories("dairy");
 
   const daysUntilClose = fundingDeadline
-    ? Math.max(0, Math.ceil((new Date(fundingDeadline).getTime() - Date.now()) / 86_400_000))
+    ? Math.max(
+        0,
+        Math.ceil(
+          (new Date(fundingDeadline).getTime() - Date.now()) / 86_400_000,
+        ),
+      )
     : null;
 
-  const progressNum = typeof fundingProgress === "number" ? fundingProgress : null;
+  const progressNum =
+    typeof fundingProgress === "number" ? fundingProgress : null;
 
   const formattedPrice =
     typeof pricePerShare === "number" ? `$${pricePerShare}` : pricePerShare;
 
   const sharesLabel = t("sharesAvailable").toLowerCase();
   const formattedShares =
-    typeof sharesAvailable === "number" ? `${sharesAvailable} ${sharesLabel}` : sharesAvailable;
+    typeof sharesAvailable === "number"
+      ? `${sharesAvailable} ${sharesLabel}`
+      : sharesAvailable;
   const fundedSideText =
     typeof formattedShares === "string" && formattedShares.trim().length > 0
       ? formattedShares

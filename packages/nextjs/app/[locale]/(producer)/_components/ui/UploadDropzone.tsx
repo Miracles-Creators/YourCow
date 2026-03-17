@@ -22,9 +22,7 @@ export function UploadDropzone({
   onFileSelect,
 }: UploadDropzoneProps) {
   const progressValue =
-    typeof progress === "number"
-      ? Math.min(100, Math.max(0, progress))
-      : null;
+    typeof progress === "number" ? Math.min(100, Math.max(0, progress)) : null;
 
   return (
     <div className="space-y-3">

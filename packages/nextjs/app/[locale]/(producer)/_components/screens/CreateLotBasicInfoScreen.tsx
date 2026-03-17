@@ -38,15 +38,15 @@ export function CreateLotBasicInfoScreen() {
   const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
   const [formState, setFormState] = useState<BasicInfoFormState>(INITIAL_STATE);
-  const draft = useLotDraftStore(state => state.draft);
-  const updateDraft = useLotDraftStore(state => state.updateDraft);
+  const draft = useLotDraftStore((state) => state.draft);
+  const updateDraft = useLotDraftStore((state) => state.updateDraft);
   const producerMe = useProducerMe();
   const [errors, setErrors] = useState<
     Partial<Record<keyof BasicInfoFormState, string>>
   >({});
 
   useEffect(() => {
-    setFormState(prev => ({
+    setFormState((prev) => ({
       ...prev,
       producerId: draft.producerId,
       lotName: draft.basicInfo.lotName,
@@ -74,8 +74,8 @@ export function CreateLotBasicInfoScreen() {
   );
 
   const handleChange = (field: keyof BasicInfoFormState, value: string) => {
-    setFormState(prev => ({ ...prev, [field]: value }));
-    setErrors(prev => ({ ...prev, [field]: "" }));
+    setFormState((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const validate = () => {
@@ -172,16 +172,13 @@ export function CreateLotBasicInfoScreen() {
                 errors.lotName && "border-vaca-brown",
               )}
               value={formState.lotName}
-              onChange={event => handleChange("lotName", event.target.value)}
+              onChange={(event) => handleChange("lotName", event.target.value)}
               aria-invalid={Boolean(errors.lotName)}
               aria-describedby={errors.lotName ? "lot-name-error" : undefined}
               required
             />
             {errors.lotName && (
-              <p
-                id="lot-name-error"
-                className="mt-1 text-xs text-vaca-brown"
-              >
+              <p id="lot-name-error" className="mt-1 text-xs text-vaca-brown">
                 {errors.lotName}
               </p>
             )}
@@ -202,16 +199,13 @@ export function CreateLotBasicInfoScreen() {
                 errors.farmName && "border-vaca-brown",
               )}
               value={formState.farmName}
-              onChange={event => handleChange("farmName", event.target.value)}
+              onChange={(event) => handleChange("farmName", event.target.value)}
               aria-invalid={Boolean(errors.farmName)}
               aria-describedby={errors.farmName ? "farm-name-error" : undefined}
               required
             />
             {errors.farmName && (
-              <p
-                id="farm-name-error"
-                className="mt-1 text-xs text-vaca-brown"
-              >
+              <p id="farm-name-error" className="mt-1 text-xs text-vaca-brown">
                 {errors.farmName}
               </p>
             )}
@@ -232,16 +226,13 @@ export function CreateLotBasicInfoScreen() {
                 errors.location && "border-vaca-brown",
               )}
               value={formState.location}
-              onChange={event => handleChange("location", event.target.value)}
+              onChange={(event) => handleChange("location", event.target.value)}
               aria-invalid={Boolean(errors.location)}
               aria-describedby={errors.location ? "location-error" : undefined}
               required
             />
             {errors.location && (
-              <p
-                id="location-error"
-                className="mt-1 text-xs text-vaca-brown"
-              >
+              <p id="location-error" className="mt-1 text-xs text-vaca-brown">
                 {errors.location}
               </p>
             )}
@@ -259,7 +250,7 @@ export function CreateLotBasicInfoScreen() {
                 errors.productionType && "border-vaca-brown",
               )}
               value={formState.productionType}
-              onChange={event =>
+              onChange={(event) =>
                 handleChange("productionType", event.target.value)
               }
               aria-invalid={Boolean(errors.productionType)}
@@ -301,16 +292,17 @@ export function CreateLotBasicInfoScreen() {
                 errors.startDate && "border-vaca-brown",
               )}
               value={formState.startDate}
-              onChange={event => handleChange("startDate", event.target.value)}
+              onChange={(event) =>
+                handleChange("startDate", event.target.value)
+              }
               aria-invalid={Boolean(errors.startDate)}
-              aria-describedby={errors.startDate ? "start-date-error" : undefined}
+              aria-describedby={
+                errors.startDate ? "start-date-error" : undefined
+              }
               required
             />
             {errors.startDate && (
-              <p
-                id="start-date-error"
-                className="mt-1 text-xs text-vaca-brown"
-              >
+              <p id="start-date-error" className="mt-1 text-xs text-vaca-brown">
                 {errors.startDate}
               </p>
             )}
@@ -318,7 +310,10 @@ export function CreateLotBasicInfoScreen() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <button type="button" className="btn btn-ghost text-vaca-neutral-gray-600">
+          <button
+            type="button"
+            className="btn btn-ghost text-vaca-neutral-gray-600"
+          >
             Save draft
           </button>
           <button

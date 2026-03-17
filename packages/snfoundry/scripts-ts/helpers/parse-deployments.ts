@@ -4,7 +4,10 @@ import prettier from "prettier";
 import { Abi, CompiledSierra } from "starknet";
 
 const TARGET_DIR = path.join(__dirname, "../../../nextjs/contracts");
-const BACKEND_TARGET_DIR = path.join(__dirname, "../../../backend/src/starknet/config");
+const BACKEND_TARGET_DIR = path.join(
+  __dirname,
+  "../../../backend/src/starknet/config"
+);
 const deploymentsDir = path.join(__dirname, "../../deployments");
 const files = fs.readdirSync(deploymentsDir);
 
@@ -129,7 +132,10 @@ const generateTsAbis = async () => {
     );
 
     // Copy external contracts if exists
-    const externalContractsPath = path.join(TARGET_DIR, "configExternalContracts.ts");
+    const externalContractsPath = path.join(
+      TARGET_DIR,
+      "configExternalContracts.ts"
+    );
     if (fs.existsSync(externalContractsPath)) {
       const externalContent = fs
         .readFileSync(externalContractsPath, "utf8")

@@ -124,7 +124,9 @@ pub mod NavOracle {
             assert(ars_usd_rate > 0, 'ARS/USD rate must be > 0');
 
             let updated_at = get_block_timestamp();
-            self.market_prices.write(MarketPrices { beef_price, corn_price, ars_usd_rate, updated_at });
+            self
+                .market_prices
+                .write(MarketPrices { beef_price, corn_price, ars_usd_rate, updated_at });
 
             self.emit(MarketPricesUpdated { beef_price, corn_price, ars_usd_rate, updated_at });
         }
@@ -158,10 +160,15 @@ pub mod NavOracle {
                 };
                 self.nav_data.write(lot_id, data_point);
 
-                self.emit(LotNavUpdated { lot_id, nav_value, nav_per_share, weight_grams: wg, updated_at });
+                self
+                    .emit(
+                        LotNavUpdated {
+                            lot_id, nav_value, nav_per_share, weight_grams: wg, updated_at,
+                        },
+                    );
 
                 i += 1;
-            };
+            }
 
             self.emit(NavBatchUpdated { count, updated_at });
         }

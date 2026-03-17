@@ -85,23 +85,22 @@ export function ProducerVerificationScreen() {
     router.push("/onboarding/complete");
   };
 
-  const handleInputChange = (field: keyof FormData) => (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    if (errors[field as keyof FormErrors]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+  const handleInputChange =
+    (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      if (errors[field as keyof FormErrors]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
 
-  const handleFileChange = (field: "registrationProof" | "ownershipProof" | "insurance") => (
-    file: File | null,
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: file }));
-    if (errors[field as keyof FormErrors]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+  const handleFileChange =
+    (field: "registrationProof" | "ownershipProof" | "insurance") =>
+    (file: File | null) => {
+      setFormData((prev) => ({ ...prev, [field]: file }));
+      if (errors[field as keyof FormErrors]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
 
   return (
     <OnboardingShell>

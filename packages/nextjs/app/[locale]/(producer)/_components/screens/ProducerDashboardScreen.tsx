@@ -172,7 +172,7 @@ export function ProducerDashboardScreen() {
             <StatusPill label={`${mockAlerts.length} open`} tone="warning" />
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {mockAlerts.map(alert => (
+            {mockAlerts.map((alert) => (
               <div
                 key={alert.id}
                 className={cn(
@@ -206,7 +206,7 @@ export function ProducerDashboardScreen() {
 
         {hasLots ? (
           <div className="space-y-4">
-            {combinedLots.map(lot => (
+            {combinedLots.map((lot) => (
               <LotRowCard
                 key={lot.id}
                 name={lot.name}

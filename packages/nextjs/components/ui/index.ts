@@ -39,7 +39,11 @@ export { Badge } from "./Badge";
 export type { BadgeProps, BadgeTone, BadgeSize } from "./Badge";
 
 export { ProgressBar } from "./ProgressBar";
-export type { ProgressBarProps, ProgressBarColor, ProgressBarSize } from "./ProgressBar";
+export type {
+  ProgressBarProps,
+  ProgressBarColor,
+  ProgressBarSize,
+} from "./ProgressBar";
 
 export { Section } from "./Section";
 export type { SectionProps, SectionAccent } from "./Section";

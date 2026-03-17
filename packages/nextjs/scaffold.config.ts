@@ -10,7 +10,8 @@ export type ScaffoldConfig = {
 };
 
 const environment = process.env.NEXT_PUBLIC_ENVIRONMENT || "devnet";
-const targetNetwork = environment === "sepolia" ? chains.sepolia : chains.devnet;
+const targetNetwork =
+  environment === "sepolia" ? chains.sepolia : chains.devnet;
 
 const scaffoldConfig = {
   targetNetworks: [targetNetwork],

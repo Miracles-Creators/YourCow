@@ -51,7 +51,10 @@ export function InvestorKycScreen() {
 
   const documentTypes = [
     { value: "", label: t("fields.documentType.placeholder") },
-    { value: "national_id", label: t("fields.documentType.options.nationalId") },
+    {
+      value: "national_id",
+      label: t("fields.documentType.options.nationalId"),
+    },
     { value: "passport", label: t("fields.documentType.options.passport") },
   ];
 
@@ -88,23 +91,22 @@ export function InvestorKycScreen() {
     router.push("/onboarding/complete");
   };
 
-  const handleInputChange = (field: keyof FormData) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    if (errors[field as keyof FormErrors]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+  const handleInputChange =
+    (field: keyof FormData) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      if (errors[field as keyof FormErrors]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
 
-  const handleFileChange = (field: "documentFront" | "documentBack") => (
-    file: File | null,
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: file }));
-    if (field === "documentFront" && errors.documentFront) {
-      setErrors((prev) => ({ ...prev, documentFront: undefined }));
-    }
-  };
+  const handleFileChange =
+    (field: "documentFront" | "documentBack") => (file: File | null) => {
+      setFormData((prev) => ({ ...prev, [field]: file }));
+      if (field === "documentFront" && errors.documentFront) {
+        setErrors((prev) => ({ ...prev, documentFront: undefined }));
+      }
+    };
 
   const isPassport = formData.documentType === "passport";
 

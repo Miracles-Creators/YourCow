@@ -1,5 +1,10 @@
 import { apiFetch } from "./client";
-import { AnimalSchema, ApproveAnimalsInputSchema, type AnimalDto, type ApproveAnimalsInput } from "./schemas";
+import {
+  AnimalSchema,
+  ApproveAnimalsInputSchema,
+  type AnimalDto,
+  type ApproveAnimalsInput,
+} from "./schemas";
 
 export type CreateAnimalInput = {
   eid: string;
@@ -17,7 +22,9 @@ export async function listAnimalsByLot(lotId: number): Promise<AnimalDto[]> {
   return AnimalSchema.array().parse(animals);
 }
 
-export async function createAnimal(input: CreateAnimalInput): Promise<AnimalDto> {
+export async function createAnimal(
+  input: CreateAnimalInput,
+): Promise<AnimalDto> {
   const animal = await apiFetch<AnimalDto>("/animals", {
     method: "POST",
     body: JSON.stringify(input),
@@ -34,10 +41,13 @@ export async function approveAnimalsBatch(
   input: ApproveAnimalsInput,
 ): Promise<ApproveAnimalsResult> {
   const parsed = ApproveAnimalsInputSchema.parse(input);
-  const result = await apiFetch<ApproveAnimalsResult>("/animals/approve-batch", {
-    method: "POST",
-    body: JSON.stringify(parsed),
-  });
+  const result = await apiFetch<ApproveAnimalsResult>(
+    "/animals/approve-batch",
+    {
+      method: "POST",
+      body: JSON.stringify(parsed),
+    },
+  );
   return {
     approved: result.approved,
     animals: AnimalSchema.array().parse(result.animals),

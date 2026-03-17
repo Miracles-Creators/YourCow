@@ -43,8 +43,10 @@ pub trait IAnimalRegistry<TContractState> {
         profile_hash: felt252,
         initial_weight_grams: u32,
     );
-    /// @notice Batch register animals with per-animal custodians, profile hashes, and initial weights.
-    /// @dev All input spans must have the same length. Animals are paired with their weights to prevent mismatch.
+    /// @notice Batch register animals with per-animal custodians, profile hashes, and initial
+    /// weights.
+    /// @dev All input spans must have the same length. Animals are paired with their weights to
+    /// prevent mismatch.
     fn register_animal_batch(
         ref self: TContractState,
         animals_with_weights: Span<(u256, u32)>, // (animal_id, initial_weight_grams)
@@ -311,13 +313,7 @@ pub mod AnimalRegistry {
             let mut i: u32 = 0;
             while i < count {
                 let (animal_id, weight) = *animals_with_weights.at(i);
-                self
-                    .register_animal(
-                        animal_id,
-                        *custodians.at(i),
-                        *profile_hashes.at(i),
-                        weight,
-                    );
+                self.register_animal(animal_id, *custodians.at(i), *profile_hashes.at(i), weight);
                 i += 1;
             }
         }

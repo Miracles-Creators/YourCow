@@ -3,7 +3,8 @@ import { OnboardingCompleteScreen } from "../../_components/screens/OnboardingCo
 
 export const metadata: Metadata = {
   title: "Onboarding Complete",
-  description: "Your YourCow account setup is complete. Start investing or listing cattle lots.",
+  description:
+    "Your YourCow account setup is complete. Start investing or listing cattle lots.",
 };
 
 // In a real app, you'd get the role from auth context or URL params

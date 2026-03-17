@@ -5,10 +5,7 @@ import { useLocalStorage } from "usehooks-ts";
 import dynamic from "next/dynamic";
 
 const ContractUI = dynamic(
-  () =>
-    import("./contract/ContractUI").then(
-      (mod) => mod.ContractUI,
-    ),
+  () => import("./contract/ContractUI").then((mod) => mod.ContractUI),
   { ssr: false },
 );
 

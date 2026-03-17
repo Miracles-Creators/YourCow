@@ -77,11 +77,12 @@ const deployYourCowProtocol = async (): Promise<void> => {
   const lotSharesToken = await declareContract({
     contract: "LotSharesToken",
     contractName: "LotSharesToken_ClassHash",
-  })
- 
+  });
 
   const lotSharesTokenClassHash = lotSharesToken.classHash;
-  console.log(yellow(`   LotSharesToken class hash: ${lotSharesTokenClassHash}`));
+  console.log(
+    yellow(`   LotSharesToken class hash: ${lotSharesTokenClassHash}`)
+  );
 
   // 2. Deploy LotFactory with the LotSharesToken class hash
   console.log(yellow("2/7 Deploying LotFactory..."));
@@ -148,9 +149,21 @@ const deployYourCowProtocol = async (): Promise<void> => {
 
   console.log(green("\n✅ YourCow Protocol deployed successfully!\n"));
   console.log(yellow("Note: After deployment, you need to:"));
-  console.log(yellow("  1. Call LotFactory.set_settlement_registry(settlement_registry_address)"));
-  console.log(yellow("  2. LotSharesToken will be deployed automatically when calling LotFactory.create_lot()"));
-  console.log(yellow("  3. Update NAV_ORACLE_STARKNET_ADDRESS in backend .env with the NavOracle address\n"));
+  console.log(
+    yellow(
+      "  1. Call LotFactory.set_settlement_registry(settlement_registry_address)"
+    )
+  );
+  console.log(
+    yellow(
+      "  2. LotSharesToken will be deployed automatically when calling LotFactory.create_lot()"
+    )
+  );
+  console.log(
+    yellow(
+      "  3. Update NAV_ORACLE_STARKNET_ADDRESS in backend .env with the NavOracle address\n"
+    )
+  );
 };
 
 const main = async (): Promise<void> => {

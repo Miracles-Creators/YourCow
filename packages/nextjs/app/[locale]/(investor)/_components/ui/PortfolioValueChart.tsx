@@ -8,13 +8,18 @@ interface PortfolioValueChartProps {
   totalValue: number;
 }
 
-export function PortfolioValueChart({ lots, totalValue }: PortfolioValueChartProps) {
+export function PortfolioValueChart({
+  lots,
+  totalValue,
+}: PortfolioValueChartProps) {
   const t = useTranslations("investor.dashboard.chart");
 
   if (lots.length === 0) {
     return (
       <div className="flex h-40 items-center justify-center">
-        <p className="font-inter text-sm text-vaca-neutral-gray-400">{t("noData")}</p>
+        <p className="font-inter text-sm text-vaca-neutral-gray-400">
+          {t("noData")}
+        </p>
       </div>
     );
   }
@@ -36,10 +41,7 @@ export function PortfolioValueChart({ lots, totalValue }: PortfolioValueChartPro
     })
     .join(" ");
 
-  const areaPath = [
-    linePath,
-    `L 416 160 L 0 160 Z`,
-  ].join(" ");
+  const areaPath = [linePath, `L 416 160 L 0 160 Z`].join(" ");
 
   return (
     <div className="relative h-40 w-full overflow-hidden rounded-3xl lg:h-full lg:min-h-[10rem]">
@@ -49,7 +51,13 @@ export function PortfolioValueChart({ lots, totalValue }: PortfolioValueChartPro
         preserveAspectRatio="none"
       >
         <defs>
-          <linearGradient id="dashboardChartGradient" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient
+            id="dashboardChartGradient"
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="1"
+          >
             <stop offset="0%" stopColor="#1B5E20" stopOpacity="0.2" />
             <stop offset="100%" stopColor="#1B5E20" stopOpacity="0" />
           </linearGradient>
@@ -69,11 +77,12 @@ export function PortfolioValueChart({ lots, totalValue }: PortfolioValueChartPro
         />
 
         {/* End dot */}
-        {mockPoints.length > 0 && (() => {
-          const last = mockPoints[mockPoints.length - 1];
-          const y = toY(last.value);
-          return <circle cx={416} cy={y} r="4" fill="#1B5E20" />;
-        })()}
+        {mockPoints.length > 0 &&
+          (() => {
+            const last = mockPoints[mockPoints.length - 1];
+            const y = toY(last.value);
+            return <circle cx={416} cy={y} r="4" fill="#1B5E20" />;
+          })()}
       </svg>
     </div>
   );

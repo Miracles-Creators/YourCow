@@ -35,8 +35,8 @@ export function CreateLotReviewSubmitScreen() {
   const [draft, setDraft] = useState<LotDraft | null>(null);
   const [submitError, setSubmitError] = useState("");
   const createLot = useCreateLot();
-  const storeDraft = useLotDraftStore(state => state.draft);
-  const resetDraft = useLotDraftStore(state => state.resetDraft);
+  const storeDraft = useLotDraftStore((state) => state.draft);
+  const resetDraft = useLotDraftStore((state) => state.resetDraft);
 
   const transition = useMemo(
     () =>
@@ -78,7 +78,8 @@ export function CreateLotReviewSubmitScreen() {
       // Location & Operation
       farmName: parsed.data.basicInfo.farmName,
       location: parsed.data.basicInfo.location,
-      productionType: productionTypeMap[parsed.data.basicInfo.productionType] ?? "FEEDLOT",
+      productionType:
+        productionTypeMap[parsed.data.basicInfo.productionType] ?? "FEEDLOT",
 
       // Herd data
       cattleCount: parsed.data.herdCycle.cattleCount,
@@ -146,9 +147,7 @@ export function CreateLotReviewSubmitScreen() {
             Herd & cycle
           </h2>
           <ul className="mt-3 space-y-2 text-sm text-vaca-neutral-gray-600">
-            <li>
-              Number of cattle: {summary.herdCycle.cattleCount || "—"}
-            </li>
+            <li>Number of cattle: {summary.herdCycle.cattleCount || "—"}</li>
             <li>
               Average weight: {summary.herdCycle.averageWeightKg || "—"} kg
             </li>
@@ -200,8 +199,7 @@ export function CreateLotReviewSubmitScreen() {
               {summary.documents.lotDocs ? "Uploaded" : "Missing"}
             </li>
             <li>
-              Insurance:{" "}
-              {summary.documents.insurance ? "Uploaded" : "Optional"}
+              Insurance: {summary.documents.insurance ? "Uploaded" : "Optional"}
             </li>
             <li>
               Producer intro video:{" "}
@@ -214,7 +212,7 @@ export function CreateLotReviewSubmitScreen() {
       <div className="rounded-xl border-l-4 border-vaca-green bg-vaca-neutral-white p-5 text-sm text-vaca-neutral-gray-600">
         <h3 className="font-semibold text-vaca-green">Submission checklist</h3>
         <ul className="mt-3 space-y-2">
-          {checklistItems.map(item => (
+          {checklistItems.map((item) => (
             <li key={item} className="flex items-center gap-2">
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vaca-green/10 text-vaca-green">
                 ✓
