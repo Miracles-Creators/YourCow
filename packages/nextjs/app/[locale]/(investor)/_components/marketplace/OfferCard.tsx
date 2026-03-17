@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { MapPin, Calendar, TrendingUp, Shield } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Card, CardContent } from "~~/components/ui/Card";
 import { Badge } from "~~/components/ui/Badge";
@@ -19,17 +20,20 @@ export interface OfferCardProps {
   className?: string;
 }
 
-const statusConfig = {
-  OPEN: { tone: "success" as const, label: "Open" },
-  PARTIALLY_FILLED: { tone: "info" as const, label: "Partially Filled" },
-  FILLED: { tone: "neutral" as const, label: "Sold Out" },
-  CANCELLED: { tone: "error" as const, label: "Cancelled" },
+const STATUS_TONE = {
+  OPEN: "success" as const,
+  PARTIALLY_FILLED: "info" as const,
+  FILLED: "neutral" as const,
+  CANCELLED: "error" as const,
 };
 
-/**
- * OfferCard - Displays a marketplace sell offer
- * Shows lot info, price, available shares, and action buttons
- */
+const STATUS_KEY = {
+  OPEN: "statusOpen",
+  PARTIALLY_FILLED: "statusPartiallyFilled",
+  FILLED: "statusSoldOut",
+  CANCELLED: "statusCancelled",
+} as const;
+
 export function OfferCard({
   offer,
   onAccept,
@@ -37,17 +41,19 @@ export function OfferCard({
   isOwner = false,
   className,
 }: OfferCardProps) {
+  const t = useTranslations("investor.trade");
+  const tCard = useTranslations("investor.trade.offerCard");
+
   const fallbackText = "no backend";
   const remainingShares = offer.sharesAmount - offer.sharesFilled;
   const fillPercentage = (offer.sharesFilled / offer.sharesAmount) * 100;
   const totalValue = remainingShares * offer.pricePerShare;
-  const status = statusConfig[offer.status];
   const lotName = offer.lot?.name || `Lot #${offer.lotId}`;
   const lotLocation = offer.lot?.location || fallbackText;
   const investorPercentLabel = fallbackText;
   const durationLabel =
     offer.lot?.durationWeeks != null
-      ? `${offer.lot.durationWeeks} weeks`
+      ? `${offer.lot.durationWeeks} ${t("weeks")}`
       : fallbackText;
 
   const isActive =
@@ -67,7 +73,6 @@ export function OfferCard({
       ? `${formatStrkWei((BigInt(offer.strkPricePerShare) * BigInt(remainingShares)).toString())} STRK`
       : fmtCurrency(totalValue);
 
-  // Format date
   const formatDate = (dateString: string) => {
     return new Intl.DateTimeFormat("es-AR", {
       day: "numeric",
@@ -87,7 +92,6 @@ export function OfferCard({
         padding="none"
         className="overflow-hidden h-full flex flex-col"
       >
-        {/* Header with status */}
         <div className="p-4 pb-0 flex items-start justify-between">
           <div className="flex-1">
             <h3 className="font-playfair text-lg font-semibold text-vaca-neutral-gray-900 line-clamp-1">
@@ -102,19 +106,17 @@ export function OfferCard({
             <Badge tone={isStrk ? "warning" : "success"} size="sm">
               {offer.currency}
             </Badge>
-            <Badge tone={status.tone} size="sm">
-              {status.label}
+            <Badge tone={STATUS_TONE[offer.status]} size="sm">
+              {tCard(STATUS_KEY[offer.status])}
             </Badge>
           </div>
         </div>
 
-        {/* Content */}
         <CardContent className="p-4 flex-1 flex flex-col">
-          {/* Price per share */}
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-1">
               <p className="text-xs text-vaca-neutral-gray-500">
-                Price per share
+                {tCard("pricePerShare")}
               </p>
               {isStrk && <Shield className="h-3.5 w-3.5 text-vaca-green" />}
             </div>
@@ -125,19 +127,18 @@ export function OfferCard({
             </p>
           </div>
 
-          {/* Stats grid */}
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="bg-vaca-neutral-gray-50 rounded-lg p-3">
               <p className="text-xs text-vaca-neutral-gray-500 mb-0.5">
-                Available
+                {tCard("available")}
               </p>
               <p className="text-sm font-semibold text-vaca-neutral-gray-900">
-                {remainingShares.toLocaleString()} shares
+                {remainingShares.toLocaleString()} {t("shares")}
               </p>
             </div>
             <div className="bg-vaca-neutral-gray-50 rounded-lg p-3">
               <p className="text-xs text-vaca-neutral-gray-500 mb-0.5">
-                Total Value
+                {tCard("totalValue")}
               </p>
               <p className="text-sm font-semibold text-vaca-neutral-gray-900">
                 {displayTotalValue}
@@ -145,19 +146,20 @@ export function OfferCard({
             </div>
           </div>
 
-          {/* Progress bar for partially filled */}
           {offer.sharesFilled > 0 && (
             <div className="mb-4">
               <ProgressBar
                 value={fillPercentage}
                 size="sm"
                 color="green"
-                label={`${offer.sharesFilled} of ${offer.sharesAmount} sold`}
+                label={tCard("soldProgress", {
+                  filled: offer.sharesFilled,
+                  total: offer.sharesAmount,
+                })}
               />
             </div>
           )}
 
-          {/* Lot info if available */}
           <div className="flex items-center gap-4 text-xs text-vaca-neutral-gray-500 mb-4">
             <div className="flex items-center gap-1">
               <TrendingUp className="h-3.5 w-3.5" />
@@ -169,18 +171,15 @@ export function OfferCard({
             </div>
           </div>
 
-          {/* Seller info */}
           <div className="flex items-center gap-2 text-xs text-vaca-neutral-gray-500 mb-4">
-            <span>Seller:</span>
+            <span>{tCard("seller")}</span>
             <span className="font-medium text-vaca-neutral-gray-700">
               {offer.seller?.name || `User #${offer.sellerId}`}
             </span>
           </div>
 
-          {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Actions */}
           <div className="pt-4 border-t border-vaca-neutral-gray-100">
             {isOwner && isActive ? (
               <Button
@@ -190,7 +189,7 @@ export function OfferCard({
                 fullWidth
                 onClick={() => onCancel?.(offer)}
               >
-                Cancel Offer
+                {tCard("cancelOffer")}
               </Button>
             ) : isActive ? (
               <Button
@@ -200,21 +199,20 @@ export function OfferCard({
                 fullWidth
                 onClick={() => onAccept?.(offer)}
               >
-                {isStrk ? "Buy with STRK" : "Buy Shares"}
+                {isStrk ? t("buyWithStrk") : t("buyShares")}
               </Button>
             ) : (
               <div className="text-center text-sm text-vaca-neutral-gray-400">
                 {offer.status === "FILLED"
-                  ? "Offer completed"
-                  : "Offer cancelled"}
+                  ? tCard("offerCompleted")
+                  : tCard("offerCancelled")}
               </div>
             )}
           </div>
         </CardContent>
 
-        {/* Footer with date */}
         <div className="px-4 py-2 bg-vaca-neutral-gray-50 text-xs text-vaca-neutral-gray-500 text-center">
-          Listed {formatDate(offer.createdAt)}
+          {tCard("listed", { date: formatDate(offer.createdAt) })}
         </div>
       </Card>
     </motion.div>

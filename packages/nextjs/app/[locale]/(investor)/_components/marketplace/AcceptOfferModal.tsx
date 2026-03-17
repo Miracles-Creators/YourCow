@@ -14,6 +14,7 @@ import {
   ExternalLink,
   Loader2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "~~/components/ui/Button";
 import { Input } from "~~/components/ui/Input";
@@ -40,13 +41,9 @@ export interface AcceptOfferModalProps {
   portfolio?: PortfolioDto | null;
 }
 
-const FEE_BPS = 100; // 1% fee
+const FEE_BPS = 100;
 const BPS_BASE = 10_000;
 
-/**
- * AcceptOfferModal - Confirmation dialog for buying shares
- * Shows offer details, calculates fees, and confirms the purchase
- */
 export function AcceptOfferModal({
   isOpen,
   onClose,
@@ -54,6 +51,9 @@ export function AcceptOfferModal({
   offer,
   portfolio,
 }: AcceptOfferModalProps) {
+  const t = useTranslations("investor.trade");
+  const ta = useTranslations("investor.trade.acceptOffer");
+
   const [sharesAmount, setSharesAmount] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [tradeSubmitted, setTradeSubmitted] = useState(false);
@@ -69,7 +69,6 @@ export function AcceptOfferModal({
   const remainingShares = offer ? offer.sharesAmount - offer.sharesFilled : 0;
   const parsedShares = parseInt(sharesAmount, 10) || 0;
 
-  // Fiat calculations
   const subtotalCents =
     offer && !isStrk ? parsedShares * offer.pricePerShare : 0;
   const buyerFeeCents = isStrk
@@ -77,7 +76,6 @@ export function AcceptOfferModal({
     : Math.floor((subtotalCents * FEE_BPS) / BPS_BASE);
   const totalCents = subtotalCents + buyerFeeCents;
 
-  // STRK calculations
   const strkPricePerShare = offer?.strkPricePerShare
     ? BigInt(offer.strkPricePerShare)
     : BigInt(0);
@@ -87,7 +85,6 @@ export function AcceptOfferModal({
     ? BigInt(tongoBalance.current)
     : BigInt(0);
 
-  // Get available fiat balance
   const currency = offer?.currency || "ARS";
   const availableFiatCents = Number(
     portfolio?.fiat?.find((balance) => balance.currency === currency)
@@ -152,7 +149,7 @@ export function AcceptOfferModal({
       }
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Failed to purchase shares",
+        error instanceof Error ? error.message : ta("purchaseFailed"),
       );
     }
   }, [
@@ -164,6 +161,7 @@ export function AcceptOfferModal({
     onSuccess,
     onClose,
     startPolling,
+    ta,
   ]);
 
   if (!offer) return null;
@@ -197,7 +195,6 @@ export function AcceptOfferModal({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             variants={overlayVariants}
             initial="hidden"
@@ -207,7 +204,6 @@ export function AcceptOfferModal({
             onClick={handleClose}
           />
 
-          {/* Modal */}
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4">
               <motion.div
@@ -231,7 +227,7 @@ export function AcceptOfferModal({
                       </div>
                       <div>
                         <h2 className="font-playfair text-lg font-semibold text-vaca-neutral-gray-900">
-                          Buy Shares
+                          {ta("title")}
                         </h2>
                         <p className="text-xs text-vaca-neutral-gray-500">
                           {offer.lot?.name || `Lot #${offer.lotId}`}
@@ -249,11 +245,10 @@ export function AcceptOfferModal({
 
                   {/* Content */}
                   <div className="px-4 py-3 space-y-3">
-                    {/* Offer summary */}
                     <div className="bg-vaca-neutral-gray-50 rounded-lg p-3">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-xs text-vaca-neutral-gray-600">
-                          Price per share
+                          {ta("pricePerShare")}
                         </span>
                         <span className="text-sm font-semibold text-vaca-green">
                           {isStrk && offer.strkPricePerShare
@@ -263,7 +258,7 @@ export function AcceptOfferModal({
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-xs text-vaca-neutral-gray-600">
-                          Available shares
+                          {ta("availableShares")}
                         </span>
                         <span className="text-sm font-medium text-vaca-neutral-gray-900">
                           {remainingShares.toLocaleString()}
@@ -271,10 +266,9 @@ export function AcceptOfferModal({
                       </div>
                     </div>
 
-                    {/* Your balance */}
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-vaca-neutral-gray-600">
-                        {isStrk ? "Tongo balance" : "Your balance"}
+                        {isStrk ? ta("tongoBalance") : ta("yourBalance")}
                       </span>
                       <Badge
                         tone={hasInsufficientFunds ? "error" : "success"}
@@ -286,18 +280,17 @@ export function AcceptOfferModal({
                       </Badge>
                     </div>
 
-                    {/* Shares amount input */}
                     <div>
                       <div className="flex justify-between items-center mb-1">
                         <label className="font-inter text-xs font-medium text-vaca-neutral-gray-700">
-                          Shares to buy
+                          {ta("sharesToBuy")}
                         </label>
                         <button
                           type="button"
                           onClick={handleBuyAll}
                           className="text-xs font-medium text-vaca-blue hover:underline"
                         >
-                          Buy all ({remainingShares})
+                          {ta("buyAll", { count: remainingShares })}
                         </button>
                       </div>
                       <Input
@@ -306,18 +299,17 @@ export function AcceptOfferModal({
                         fullWidth
                         value={sharesAmount}
                         onChange={(e) => setSharesAmount(e.target.value)}
-                        placeholder="Enter amount"
+                        placeholder={ta("enterAmount")}
                         min={1}
                         max={remainingShares}
                         error={
                           parsedShares > remainingShares
-                            ? "Exceeds available shares"
+                            ? ta("exceedsAvailable")
                             : undefined
                         }
                       />
                     </div>
 
-                    {/* Price breakdown */}
                     {parsedShares > 0 && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
@@ -326,7 +318,7 @@ export function AcceptOfferModal({
                       >
                         <div className="flex items-center gap-1.5 text-xs text-vaca-neutral-gray-600">
                           <Calculator className="h-3.5 w-3.5" />
-                          <span>Price breakdown</span>
+                          <span>{ta("priceBreakdown")}</span>
                         </div>
 
                         <div className="bg-vaca-neutral-gray-50 rounded-lg p-3 space-y-1.5">
@@ -334,7 +326,7 @@ export function AcceptOfferModal({
                             <>
                               <div className="flex justify-between text-xs">
                                 <span className="text-vaca-neutral-gray-600">
-                                  Total ({parsedShares} ×{" "}
+                                  {ta("total")} ({parsedShares} ×{" "}
                                   {offer.strkPricePerShare
                                     ? formatStrkWei(offer.strkPricePerShare)
                                     : "0"}{" "}
@@ -346,14 +338,14 @@ export function AcceptOfferModal({
                               </div>
                               <div className="flex items-center gap-1 text-xs text-vaca-green">
                                 <Shield className="h-3 w-3" />
-                                <span>Private transfer — no fees</span>
+                                <span>{ta("privateNoFees")}</span>
                               </div>
                             </>
                           ) : (
                             <>
                               <div className="flex justify-between text-xs">
                                 <span className="text-vaca-neutral-gray-600">
-                                  Subtotal ({parsedShares} ×{" "}
+                                  {ta("subtotal")} ({parsedShares} ×{" "}
                                   {fmtCurrency(offer.pricePerShare)})
                                 </span>
                                 <span className="text-vaca-neutral-gray-900">
@@ -362,7 +354,7 @@ export function AcceptOfferModal({
                               </div>
                               <div className="flex justify-between text-xs">
                                 <span className="text-vaca-neutral-gray-600">
-                                  Fee (1%)
+                                  {ta("fee")}
                                 </span>
                                 <span className="text-vaca-neutral-gray-900">
                                   {fmtCurrency(buyerFeeCents)}
@@ -371,7 +363,7 @@ export function AcceptOfferModal({
                               <div className="border-t border-vaca-neutral-gray-200 pt-1.5 mt-1.5">
                                 <div className="flex justify-between">
                                   <span className="text-xs font-semibold text-vaca-neutral-gray-900">
-                                    Total
+                                    {ta("total")}
                                   </span>
                                   <span className="text-sm font-bold text-vaca-green">
                                     {fmtCurrency(totalCents)}
@@ -382,18 +374,21 @@ export function AcceptOfferModal({
                           )}
                         </div>
 
-                        {/* Insufficient funds warning */}
                         {hasInsufficientFunds && (
                           <div className="flex items-start gap-2 rounded-lg border border-yellow-200 bg-yellow-50 px-3 py-2">
                             <Info className="h-4 w-4 text-yellow-600 flex-shrink-0 mt-0.5" />
                             <div>
                               <p className="text-xs text-yellow-700 font-medium">
-                                Insufficient funds
+                                {ta("insufficientFunds")}
                               </p>
                               <p className="text-xs text-yellow-600 mt-0.5">
                                 {isStrk
-                                  ? "Fund your Tongo balance to complete this purchase."
-                                  : `You need ${fmtCurrency(totalCents - availableFiatCents)} more.`}
+                                  ? ta("fundTongo")
+                                  : ta("needMore", {
+                                      amount: fmtCurrency(
+                                        totalCents - availableFiatCents,
+                                      ),
+                                    })}
                               </p>
                             </div>
                           </div>
@@ -401,7 +396,6 @@ export function AcceptOfferModal({
                       </motion.div>
                     )}
 
-                    {/* Error message */}
                     {errorMessage && (
                       <motion.div
                         initial={{ opacity: 0, y: -10 }}
@@ -416,7 +410,6 @@ export function AcceptOfferModal({
                     )}
                   </div>
 
-                  {/* Trade submitted — polling status + tx link */}
                   {tradeSubmitted && (
                     <div className="px-4 pb-3 space-y-3">
                       <motion.div
@@ -448,12 +441,12 @@ export function AcceptOfferModal({
                             }`}
                           >
                             {tradeStatus?.status === "COMPLETED"
-                              ? "Trade completed"
+                              ? ta("tradeCompleted")
                               : tradeStatus?.status === "TONGO_SETTLED"
-                                ? "Payment confirmed — transferring shares..."
+                                ? ta("paymentConfirmed")
                                 : tradeStatus?.status === "FAILED"
-                                  ? "Trade failed"
-                                  : "Processing private transfer..."}
+                                  ? ta("tradeFailed")
+                                  : ta("processingTransfer")}
                           </p>
                           <p
                             className={`text-xs mt-0.5 ${
@@ -465,15 +458,14 @@ export function AcceptOfferModal({
                             }`}
                           >
                             {tradeStatus?.status === "COMPLETED"
-                              ? "Shares are now in your portfolio."
+                              ? ta("sharesInPortfolio")
                               : tradeStatus?.status === "FAILED"
-                                ? "Payment could not be processed. Balance not charged."
-                                : "Encrypted payment settling on Starknet..."}
+                                ? ta("paymentFailed")
+                                : ta("settlingOnChain")}
                           </p>
                         </div>
                       </motion.div>
 
-                      {/* Starkscan link */}
                       {tradeStatus?.tongoTxHash && (
                         <motion.a
                           initial={{ opacity: 0 }}
@@ -484,7 +476,7 @@ export function AcceptOfferModal({
                           className="flex items-center justify-center gap-2 rounded-lg border border-vaca-neutral-gray-200 bg-vaca-neutral-gray-50 px-3 py-2 text-xs font-medium text-vaca-neutral-gray-700 hover:bg-vaca-neutral-gray-100 transition-colors"
                         >
                           <Shield className="h-3.5 w-3.5 text-vaca-green" />
-                          View transaction on Voyager
+                          {ta("viewOnVoyager")}
                           <ExternalLink className="h-3 w-3" />
                         </motion.a>
                       )}
@@ -498,13 +490,12 @@ export function AcceptOfferModal({
                       >
                         {tradeStatus?.status === "COMPLETED" ||
                         tradeStatus?.status === "FAILED"
-                          ? "Done"
-                          : "Close"}
+                          ? t("done")
+                          : t("close")}
                       </Button>
                     </div>
                   )}
 
-                  {/* Footer */}
                   {!tradeSubmitted && (
                     <div className="flex gap-2 px-4 py-3 border-t border-vaca-neutral-gray-100">
                       <Button
@@ -514,7 +505,7 @@ export function AcceptOfferModal({
                         onClick={handleClose}
                         className="flex-1"
                       >
-                        Cancel
+                        {t("cancel")}
                       </Button>
                       <Button
                         variant="primary"
@@ -526,8 +517,8 @@ export function AcceptOfferModal({
                         className="flex-1"
                       >
                         {acceptOffer.isPending
-                          ? "Processing..."
-                          : "Confirm Purchase"}
+                          ? t("processing")
+                          : ta("confirmPurchase")}
                       </Button>
                     </div>
                   )}

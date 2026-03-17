@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, AlertCircle, Tag, Shield } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "~~/components/ui/Button";
 import { Input } from "~~/components/ui/Input";
@@ -25,10 +26,6 @@ export interface CreateOfferModalProps {
   defaultCurrency?: OfferCurrency;
 }
 
-/**
- * CreateOfferModal - Form to create a new sell offer
- * Allows users to specify shares amount and price per share
- */
 export function CreateOfferModal({
   isOpen,
   onClose,
@@ -38,6 +35,9 @@ export function CreateOfferModal({
   position,
   defaultCurrency = "STRK",
 }: CreateOfferModalProps) {
+  const t = useTranslations("investor.trade");
+  const tc = useTranslations("investor.trade.createOffer");
+
   const [sharesAmount, setSharesAmount] = useState("");
   const [pricePerShare, setPricePerShare] = useState("");
   const [currency, setCurrency] = useState<OfferCurrency>(defaultCurrency);
@@ -52,7 +52,6 @@ export function CreateOfferModal({
   const totalValue = parsedShares * parsedPrice;
   const sellerFee = isStrk ? 0 : Math.floor((totalValue * 100) / 10_000);
 
-  // Convert human-readable STRK to wei string
   const strkPriceWei =
     isStrk && parsedPrice > 0
       ? (BigInt(Math.floor(parsedPrice * 10000)) * BigInt(10 ** 14)).toString()
@@ -70,7 +69,7 @@ export function CreateOfferModal({
       await createOffer.mutateAsync({
         lotId,
         sharesAmount: parsedShares,
-        pricePerShare: isStrk ? 0 : parsedPrice * 100, // cents for fiat, 0 for STRK
+        pricePerShare: isStrk ? 0 : parsedPrice * 100,
         strkPricePerShare: strkPriceWei,
         currency,
         idempotencyKey: createIdempotencyKey(),
@@ -81,7 +80,7 @@ export function CreateOfferModal({
       resetForm();
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : "Failed to create offer",
+        error instanceof Error ? error.message : tc("createFailed"),
       );
     }
   }, [
@@ -95,6 +94,7 @@ export function CreateOfferModal({
     currency,
     onSuccess,
     onClose,
+    tc,
   ]);
 
   const resetForm = () => {
@@ -119,7 +119,6 @@ export function CreateOfferModal({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             variants={overlayVariants}
             initial="hidden"
@@ -129,7 +128,6 @@ export function CreateOfferModal({
             onClick={handleClose}
           />
 
-          {/* Modal */}
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex min-h-full items-center justify-center p-4">
               <motion.div
@@ -149,10 +147,10 @@ export function CreateOfferModal({
                   <div className="flex items-center justify-between px-4 py-3 border-b border-vaca-neutral-gray-100">
                     <div>
                       <h2 className="font-playfair text-lg font-semibold text-vaca-neutral-gray-900">
-                        Create Sell Offer
+                        {tc("title")}
                       </h2>
                       <p className="text-xs text-vaca-neutral-gray-500 mt-0.5">
-                        {lotName || "no backend"}
+                        {lotName}
                       </p>
                     </div>
                     <button
@@ -166,51 +164,48 @@ export function CreateOfferModal({
 
                   {/* Content */}
                   <div className="px-4 py-3 space-y-3">
-                    {/* Available shares info */}
                     <div className="bg-vaca-green/5 rounded-lg p-3 flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-full bg-vaca-green/10 flex items-center justify-center">
                         <Tag className="h-4 w-4 text-vaca-green" />
                       </div>
                       <div>
                         <p className="text-xs text-vaca-neutral-gray-600">
-                          Available to sell
+                          {tc("availableToSell")}
                         </p>
                         <p className="text-sm font-semibold text-vaca-neutral-gray-900">
-                          {availableShares.toLocaleString()} shares
+                          {availableShares.toLocaleString()} {t("shares")}
                         </p>
                       </div>
                     </div>
 
-                    {/* Shares amount input */}
                     <div>
                       <Input
-                        label="Number of shares to sell"
+                        label={tc("sharesToSell")}
                         type="number"
                         inputSize="sm"
                         fullWidth
                         value={sharesAmount}
                         onChange={(e) => setSharesAmount(e.target.value)}
-                        placeholder="Enter amount"
+                        placeholder={tc("enterAmount")}
                         min={1}
                         max={availableShares}
                         error={
                           parsedShares > availableShares
-                            ? "Exceeds available shares"
+                            ? tc("exceedsAvailable")
                             : undefined
                         }
                       />
                       {parsedShares > 0 && parsedShares <= availableShares && (
                         <p className="mt-0.5 text-xs text-vaca-neutral-gray-500">
-                          {((parsedShares / availableShares) * 100).toFixed(1)}%
-                          of your position
+                          {((parsedShares / availableShares) * 100).toFixed(1)}%{" "}
+                          {tc("ofPosition")}
                         </p>
                       )}
                     </div>
 
-                    {/* Currency selector */}
                     <div>
                       <label className="font-inter text-xs font-medium text-vaca-neutral-gray-700 mb-1.5 block">
-                        Payment currency
+                        {tc("paymentCurrency")}
                       </label>
                       <div className="flex gap-2">
                         <button
@@ -226,7 +221,7 @@ export function CreateOfferModal({
                           }`}
                         >
                           <Shield className="h-3.5 w-3.5" />
-                          STRK (Private)
+                          {tc("strkPrivate")}
                         </button>
                         <button
                           type="button"
@@ -240,34 +235,30 @@ export function CreateOfferModal({
                               : "border-vaca-neutral-gray-200 text-vaca-neutral-gray-500 hover:border-vaca-neutral-gray-300"
                           }`}
                         >
-                          ARS (Fiat)
+                          {tc("arsFiat")}
                         </button>
                       </div>
                     </div>
 
-                    {/* Price per share input */}
                     <Input
                       label={
                         isStrk
-                          ? "Price per share (STRK)"
-                          : "Price per share (ARS)"
+                          ? tc("pricePerShareStrk")
+                          : tc("pricePerShareArs")
                       }
                       type="number"
                       inputSize="sm"
                       fullWidth
                       value={pricePerShare}
                       onChange={(e) => setPricePerShare(e.target.value)}
-                      placeholder={isStrk ? "0.00" : "Enter price"}
+                      placeholder={isStrk ? "0.00" : tc("enterAmount")}
                       min={isStrk ? 0 : 1}
                       step={isStrk ? "0.0001" : "1"}
                       helperText={
-                        isStrk
-                          ? "STRK per share (private)"
-                          : "Set your asking price per share"
+                        isStrk ? tc("strkHelperText") : tc("arsHelperText")
                       }
                     />
 
-                    {/* Summary */}
                     {isValidForm && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
@@ -276,7 +267,7 @@ export function CreateOfferModal({
                       >
                         <div className="flex justify-between items-center">
                           <span className="text-xs text-vaca-neutral-gray-600">
-                            Total offer value
+                            {tc("totalOfferValue")}
                           </span>
                           <span className="text-lg font-bold text-vaca-green">
                             {formatValue(totalValue)}
@@ -285,17 +276,16 @@ export function CreateOfferModal({
                         {isStrk ? (
                           <div className="flex items-center gap-1.5 mt-1 text-xs text-vaca-green">
                             <Shield className="h-3 w-3" />
-                            <span>Private transfer via Tongo — no fees</span>
+                            <span>{tc("privateNoFees")}</span>
                           </div>
                         ) : (
                           <p className="text-xs text-vaca-neutral-gray-500 mt-1">
-                            1% fee ({formatValue(sellerFee)}) deducted upon sale
+                            {tc("feeDeducted", { fee: formatValue(sellerFee) })}
                           </p>
                         )}
                       </motion.div>
                     )}
 
-                    {/* Error message */}
                     {errorMessage && (
                       <motion.div
                         initial={{ opacity: 0, y: -10 }}
@@ -319,7 +309,7 @@ export function CreateOfferModal({
                       onClick={handleClose}
                       className="flex-1"
                     >
-                      Cancel
+                      {t("cancel")}
                     </Button>
                     <Button
                       variant="primary"
@@ -329,7 +319,9 @@ export function CreateOfferModal({
                       disabled={!isValidForm || createOffer.isPending}
                       className="flex-1"
                     >
-                      {createOffer.isPending ? "Creating..." : "Create Offer"}
+                      {createOffer.isPending
+                        ? tc("creating")
+                        : tc("createButton")}
                     </Button>
                   </div>
                 </Card>
