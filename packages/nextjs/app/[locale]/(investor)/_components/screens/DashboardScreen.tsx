@@ -252,6 +252,7 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
 
 function EmptyDashboard() {
   const t = useTranslations("investor.dashboard.empty");
+  const dashboardT = useTranslations("investor.dashboard");
 
   return (
     <motion.div
@@ -259,6 +260,13 @@ function EmptyDashboard() {
       animate={{ opacity: 1, y: 0 }}
       className="mx-auto flex max-w-md flex-col items-center px-4 py-20 text-center"
     >
+      <div className="mb-6 w-full rounded-3xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white p-4 text-left shadow-sm">
+        <p className="mb-3 font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-vaca-neutral-gray-400">
+          {dashboardT("chart.title")}
+        </p>
+        <PortfolioValueChart lots={[]} totalValue={0} />
+      </div>
+
       <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-vaca-gold-light">
         <TrendingUp className="h-10 w-10 text-vaca-gold" />
       </div>
