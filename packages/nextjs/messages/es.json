@@ -135,6 +135,36 @@
         "daysLeft": "{count} días restantes",
         "noEvents": "Sin eventos próximos"
       },
+      "offers": {
+        "eyebrow": "Ofertas de Acciones",
+        "title": "Ofertas de Acciones",
+        "subtitle": "Administra las acciones que publicaste en el mercado P2P sin salir de tu dashboard.",
+        "count": "{count} ofertas activas",
+        "status": {
+          "open": "Abierta",
+          "partiallyFilled": "Parcialmente Completada",
+          "filled": "Completada",
+          "cancelled": "Cancelada"
+        },
+        "card": {
+          "selling": "Vendiendo",
+          "shares": "acciones",
+          "pricePerShare": "Precio / Acción",
+          "availableShares": "Disponibles",
+          "filledShares": "Completadas",
+          "liveValue": "Valor Activo",
+          "fulfillment": "Cumplimiento de la oferta",
+          "totalShares": "{count} acciones totales",
+          "remainingShares": "{count} restantes",
+          "listedOn": "Publicada el {date}",
+          "shareCount": "{count} acciones"
+        },
+        "actions": {
+          "viewLot": "Ver lote",
+          "cancel": "Cancelar oferta",
+          "canceling": "Cancelando..."
+        }
+      },
       "empty": {
         "title": "Comenzá tu Viaje de Inversión",
         "description": "Explorá los lotes de ganado disponibles y hacé tu primera inversión.",
@@ -181,6 +211,44 @@
       "emptyState": {
         "description": "No hay ofertas disponibles por ahora. Vuelve pronto."
       }
+    },
+    "trade": {
+      "title": "Mercado",
+      "fiatTab": "💵 Fiat (ARS)",
+      "cryptoTab": "⚡ Crypto",
+      "buy": "Comprar",
+      "sell": "Vender",
+      "buyShares": "Comprar Acciones",
+      "buyWithStrk": "Comprar con STRK",
+      "balance": "Saldo",
+      "custody": "Custodia",
+      "private": "Privado",
+      "deposit": "Depositar",
+      "withdraw": "Retirar",
+      "comingSoon": "Próximamente",
+      "feeInfo": "1% de comisión por lado",
+      "feeInfoCrypto": "0% comisión · Transferencias privadas",
+      "availableOffers": "Ofertas disponibles",
+      "yourPositions": "Tus posiciones",
+      "noFiatOffers": "No hay ofertas fiat aún. Sé el primero en listar acciones por ARS.",
+      "noCryptoOffers": "No hay ofertas crypto aún. Lista acciones por STRK con liquidación privada.",
+      "sellShares": "Vender Acciones",
+      "noSharesToSell": "Sin acciones para vender",
+      "noSharesDescription": "Comprá acciones en el mercado primero, luego vení acá para listarlas.",
+      "available": "disponibles",
+      "locked": "bloqueadas",
+      "depositArs": "Depositar ARS",
+      "addFunds": "Agregar fondos a tu saldo de trading",
+      "depositSuccess": "Depósito exitoso",
+      "depositAdded": "{amount} ARS agregados a tu saldo de trading.",
+      "depositAmount": "Monto (ARS)",
+      "depositButton": "Depositar",
+      "processing": "Procesando depósito...",
+      "depositFailed": "El depósito falló",
+      "somethingWrong": "Algo salió mal",
+      "retry": "Reintentar",
+      "done": "Listo",
+      "cancel": "Cancelar"
     },
     "portfolio": {
       "pill": "Detalle de posiciones",

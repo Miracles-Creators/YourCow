@@ -135,6 +135,36 @@
         "daysLeft": "{count} days left",
         "noEvents": "No upcoming events"
       },
+      "offers": {
+        "eyebrow": "Offer Shares",
+        "title": "Offer Shares",
+        "subtitle": "Manage the share lots you have listed on the P2P market without leaving your dashboard.",
+        "count": "{count} active offers",
+        "status": {
+          "open": "Open",
+          "partiallyFilled": "Partially Filled",
+          "filled": "Filled",
+          "cancelled": "Cancelled"
+        },
+        "card": {
+          "selling": "Selling",
+          "shares": "shares",
+          "pricePerShare": "Price / Share",
+          "availableShares": "Available",
+          "filledShares": "Filled",
+          "liveValue": "Live Value",
+          "fulfillment": "Offer fulfillment",
+          "totalShares": "{count} total shares",
+          "remainingShares": "{count} remaining",
+          "listedOn": "Listed on {date}",
+          "shareCount": "{count} shares"
+        },
+        "actions": {
+          "viewLot": "View lot",
+          "cancel": "Cancel offer",
+          "canceling": "Canceling..."
+        }
+      },
       "empty": {
         "title": "Start Your Investment Journey",
         "description": "Browse available cattle lots and make your first investment.",
@@ -181,6 +211,44 @@
       "emptyState": {
         "description": "No offers available right now. Check back soon."
       }
+    },
+    "trade": {
+      "title": "Trade",
+      "fiatTab": "💵 Fiat (ARS)",
+      "cryptoTab": "⚡ Crypto",
+      "buy": "Buy",
+      "sell": "Sell",
+      "buyShares": "Buy Shares",
+      "buyWithStrk": "Buy with STRK",
+      "balance": "Balance",
+      "custody": "Custody",
+      "private": "Private",
+      "deposit": "Deposit",
+      "withdraw": "Withdraw",
+      "comingSoon": "Coming soon",
+      "feeInfo": "1% fee per side",
+      "feeInfoCrypto": "0% fee · Private transfers",
+      "availableOffers": "Available offers",
+      "yourPositions": "Your positions",
+      "noFiatOffers": "No fiat offers yet. Be the first to list shares for ARS.",
+      "noCryptoOffers": "No crypto offers yet. List shares for STRK with private settlement.",
+      "sellShares": "Sell Shares",
+      "noSharesToSell": "No shares to sell",
+      "noSharesDescription": "Buy shares from the marketplace first, then come here to list them for sale.",
+      "available": "available",
+      "locked": "locked",
+      "depositArs": "Deposit ARS",
+      "addFunds": "Add funds to your trading balance",
+      "depositSuccess": "Deposit successful",
+      "depositAdded": "{amount} ARS added to your trading balance.",
+      "depositAmount": "Amount (ARS)",
+      "depositButton": "Deposit",
+      "processing": "Processing deposit...",
+      "depositFailed": "Deposit failed",
+      "somethingWrong": "Something went wrong",
+      "retry": "Retry",
+      "done": "Done",
+      "cancel": "Cancel"
     },
     "portfolio": {
       "pill": "Positions detail",
