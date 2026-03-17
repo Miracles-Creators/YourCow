@@ -95,8 +95,9 @@ export class MarketplaceController {
     @Query("lotId") lotId?: string,
     @Query("status") status?: string,
     @Query("sellerId") sellerId?: string,
+    @Query("currency") currency?: string,
   ) {
-    const filters: { lotId?: number; status?: string; sellerId?: number } = {};
+    const filters: { lotId?: number; status?: string; sellerId?: number; currency?: string } = {};
 
     if (lotId) {
       const parsed = Number(lotId);
@@ -116,6 +117,10 @@ export class MarketplaceController {
 
     if (status) {
       filters.status = status;
+    }
+
+    if (currency) {
+      filters.currency = currency;
     }
 
     return this.marketplaceService.getOffers(filters);

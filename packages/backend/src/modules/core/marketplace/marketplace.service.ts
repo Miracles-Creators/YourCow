@@ -27,6 +27,7 @@ type OfferFilters = {
   lotId?: number;
   status?: string;
   sellerId?: number;
+  currency?: string;
 };
 
 type FiatAssetType = "FIAT_ARS" | "FIAT_USD";
@@ -594,7 +595,11 @@ export class MarketplaceService {
       }
       where.status = normalized as OfferStatus;
     } else {
-      where.status = OfferStatus.OPEN;
+      where.status = { in: [OfferStatus.OPEN, OfferStatus.PARTIALLY_FILLED] };
+    }
+
+    if (filters.currency) {
+      where.currency = filters.currency.trim().toUpperCase();
     }
 
     return this.prisma.offer.findMany({
