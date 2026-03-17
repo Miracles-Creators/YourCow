@@ -15,7 +15,6 @@ import {
 import { Button, Card } from "~~/components/ui";
 
 interface FormData {
-  senasaNumber: string;
   taxId: string;
   registrationProof: File | null;
   ownershipProof: File | null;
@@ -23,7 +22,6 @@ interface FormData {
 }
 
 interface FormErrors {
-  senasaNumber?: string;
   registrationProof?: string;
   ownershipProof?: string;
 }
@@ -38,7 +36,6 @@ export function ProducerVerificationScreen() {
   const router = useRouter();
 
   const [formData, setFormData] = useState<FormData>({
-    senasaNumber: "",
     taxId: "",
     registrationProof: null,
     ownershipProof: null,
@@ -54,10 +51,6 @@ export function ProducerVerificationScreen() {
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-
-    if (!formData.senasaNumber.trim()) {
-      newErrors.senasaNumber = t("errors.senasaRequired");
-    }
 
     if (!formData.registrationProof) {
       newErrors.registrationProof = t("errors.registrationProofRequired");
@@ -82,7 +75,7 @@ export function ProducerVerificationScreen() {
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // Navigate to completion screen
-    router.push("/onboarding/complete");
+    router.push("/onboarding/complete?role=producer");
   };
 
   const handleInputChange =
@@ -127,15 +120,6 @@ export function ProducerVerificationScreen() {
       >
         {/* Registration Numbers */}
         <div className="space-y-4">
-          <FormRow
-            label={t("fields.senasaNumber.label")}
-            placeholder={t("fields.senasaNumber.placeholder")}
-            value={formData.senasaNumber}
-            onChange={handleInputChange("senasaNumber")}
-            error={errors.senasaNumber}
-            disabled={isSubmitting}
-          />
-
           <FormRow
             label={t("fields.taxId.label")}
             placeholder={t("fields.taxId.placeholder")}

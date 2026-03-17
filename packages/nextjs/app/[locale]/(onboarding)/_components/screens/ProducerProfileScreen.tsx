@@ -16,10 +16,9 @@ import { Button, Card } from "~~/components/ui";
 import { useLogin } from "~~/hooks/auth/useLogin";
 import { useCreateProducer } from "~~/hooks/producers/useCreateProducer";
 import { useLotDraftStore } from "~~/services/store/lotDraft";
+import { useOnboardingStore } from "~~/services/store/onboarding";
 
 interface FormData {
-  name: string;
-  email: string;
   senasaId: string;
   farmName: string;
   country: string;
@@ -30,8 +29,6 @@ interface FormData {
 }
 
 interface FormErrors {
-  name?: string;
-  email?: string;
   senasaId?: string;
   farmName?: string;
   country?: string;
@@ -51,10 +48,9 @@ export function ProducerProfileScreen() {
   const login = useLogin();
   const createProducer = useCreateProducer();
   const updateDraft = useLotDraftStore((state) => state.updateDraft);
+  const { register } = useOnboardingStore();
 
   const [formData, setFormData] = useState<FormData>({
-    name: "",
-    email: "",
     senasaId: "",
     farmName: "",
     country: "",
@@ -74,12 +70,6 @@ export function ProducerProfileScreen() {
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required.";
-    }
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required.";
-    }
     if (!formData.senasaId.trim()) {
       newErrors.senasaId = "SENASA ID is required.";
     }
@@ -119,8 +109,8 @@ export function ProducerProfileScreen() {
 
     try {
       await login.mutateAsync({
-        email: formData.email,
-        name: formData.name,
+        email: register.email,
+        name: register.fullName,
         role: "PRODUCER",
       });
       const locationParts = [
@@ -129,8 +119,8 @@ export function ProducerProfileScreen() {
         formData.country.trim(),
       ].filter(Boolean);
       const producer = await createProducer.mutateAsync({
-        name: formData.name,
-        email: formData.email,
+        name: register.fullName,
+        email: register.email,
         senasaId: formData.senasaId,
         location:
           locationParts.length > 0 ? locationParts.join(", ") : undefined,
@@ -190,26 +180,6 @@ export function ProducerProfileScreen() {
         onSubmit={handleSubmit}
         className="space-y-5"
       >
-        <FormRow
-          label="Contact name"
-          placeholder="Full name"
-          value={formData.name}
-          onChange={handleInputChange("name")}
-          error={errors.name}
-          autoComplete="name"
-          disabled={isSubmitting}
-        />
-
-        <FormRow
-          label="Email"
-          placeholder="you@example.com"
-          value={formData.email}
-          onChange={handleInputChange("email")}
-          error={errors.email}
-          autoComplete="email"
-          disabled={isSubmitting}
-        />
-
         <FormRow
           label="SENASA ID"
           placeholder="Enter SENASA ID"

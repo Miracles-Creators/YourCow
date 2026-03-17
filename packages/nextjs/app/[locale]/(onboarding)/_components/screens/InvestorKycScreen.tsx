@@ -88,7 +88,7 @@ export function InvestorKycScreen() {
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // Navigate to completion screen
-    router.push("/onboarding/complete");
+    router.push("/onboarding/complete?role=investor");
   };
 
   const handleInputChange =
