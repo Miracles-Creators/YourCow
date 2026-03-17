@@ -9,6 +9,7 @@ import { Button } from "~~/components/ui/Button";
 import { ProgressBar } from "~~/components/ui/ProgressBar";
 import type { OfferDto } from "~~/lib/api/schemas";
 import { formatStrkWei } from "~~/utils/scaffold-stark/common";
+import { formatCurrency } from "~~/lib/utils/formatCurrency";
 
 export interface OfferCardProps {
   offer: OfferDto;
@@ -49,26 +50,22 @@ export function OfferCard({
       ? `${offer.lot.durationWeeks} weeks`
       : fallbackText;
 
-  const isActive = offer.status === "OPEN" || offer.status === "PARTIALLY_FILLED";
+  const isActive =
+    offer.status === "OPEN" || offer.status === "PARTIALLY_FILLED";
   const isStrk = offer.currency === "STRK";
 
-  // Format currency
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("es-AR", {
-      style: "currency",
-      currency: offer.currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value / 100); // Convert from cents
-  };
+  const fmtCurrency = (centavos: number) =>
+    formatCurrency(centavos, offer.currency);
 
-  const displayPrice = isStrk && offer.strkPricePerShare
-    ? `${formatStrkWei(offer.strkPricePerShare)} STRK`
-    : formatCurrency(offer.pricePerShare);
+  const displayPrice =
+    isStrk && offer.strkPricePerShare
+      ? `${formatStrkWei(offer.strkPricePerShare)} STRK`
+      : fmtCurrency(offer.pricePerShare);
 
-  const displayTotalValue = isStrk && offer.strkPricePerShare
-    ? `${formatStrkWei((BigInt(offer.strkPricePerShare) * BigInt(remainingShares)).toString())} STRK`
-    : formatCurrency(totalValue);
+  const displayTotalValue =
+    isStrk && offer.strkPricePerShare
+      ? `${formatStrkWei((BigInt(offer.strkPricePerShare) * BigInt(remainingShares)).toString())} STRK`
+      : fmtCurrency(totalValue);
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -85,7 +82,11 @@ export function OfferCard({
       transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] as const }}
       className={className}
     >
-      <Card variant="elevated" padding="none" className="overflow-hidden h-full flex flex-col">
+      <Card
+        variant="elevated"
+        padding="none"
+        className="overflow-hidden h-full flex flex-col"
+      >
         {/* Header with status */}
         <div className="p-4 pb-0 flex items-start justify-between">
           <div className="flex-1">
@@ -97,9 +98,14 @@ export function OfferCard({
               <span className="line-clamp-1">{lotLocation}</span>
             </div>
           </div>
-          <Badge tone={status.tone} size="sm">
-            {status.label}
-          </Badge>
+          <div className="flex items-center gap-1.5">
+            <Badge tone={isStrk ? "warning" : "success"} size="sm">
+              {offer.currency}
+            </Badge>
+            <Badge tone={status.tone} size="sm">
+              {status.label}
+            </Badge>
+          </div>
         </div>
 
         {/* Content */}
@@ -107,10 +113,14 @@ export function OfferCard({
           {/* Price per share */}
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-1">
-              <p className="text-xs text-vaca-neutral-gray-500">Price per share</p>
+              <p className="text-xs text-vaca-neutral-gray-500">
+                Price per share
+              </p>
               {isStrk && <Shield className="h-3.5 w-3.5 text-vaca-green" />}
             </div>
-            <p className="text-2xl font-bold text-vaca-green">
+            <p
+              className={`text-2xl font-bold ${isStrk ? "text-vaca-brown" : "text-vaca-green"}`}
+            >
               {displayPrice}
             </p>
           </div>
@@ -118,13 +128,17 @@ export function OfferCard({
           {/* Stats grid */}
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="bg-vaca-neutral-gray-50 rounded-lg p-3">
-              <p className="text-xs text-vaca-neutral-gray-500 mb-0.5">Available</p>
+              <p className="text-xs text-vaca-neutral-gray-500 mb-0.5">
+                Available
+              </p>
               <p className="text-sm font-semibold text-vaca-neutral-gray-900">
                 {remainingShares.toLocaleString()} shares
               </p>
             </div>
             <div className="bg-vaca-neutral-gray-50 rounded-lg p-3">
-              <p className="text-xs text-vaca-neutral-gray-500 mb-0.5">Total Value</p>
+              <p className="text-xs text-vaca-neutral-gray-500 mb-0.5">
+                Total Value
+              </p>
               <p className="text-sm font-semibold text-vaca-neutral-gray-900">
                 {displayTotalValue}
               </p>
@@ -181,16 +195,18 @@ export function OfferCard({
             ) : isActive ? (
               <Button
                 variant="primary"
-                colorScheme="green"
+                colorScheme={isStrk ? "brown" : "green"}
                 size="sm"
                 fullWidth
                 onClick={() => onAccept?.(offer)}
               >
-                Buy Shares
+                {isStrk ? "Buy with STRK" : "Buy Shares"}
               </Button>
             ) : (
               <div className="text-center text-sm text-vaca-neutral-gray-400">
-                {offer.status === "FILLED" ? "Offer completed" : "Offer cancelled"}
+                {offer.status === "FILLED"
+                  ? "Offer completed"
+                  : "Offer cancelled"}
               </div>
             )}
           </div>

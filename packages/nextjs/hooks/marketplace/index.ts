@@ -12,7 +12,11 @@ import {
   getPortfolioByLot,
   getPortfolioSummary,
 } from "~~/lib/api/marketplace";
-import type { AcceptOfferInput, BuyPrimaryInput, OfferFilters } from "~~/lib/api/schemas";
+import type {
+  AcceptOfferInput,
+  BuyPrimaryInput,
+  OfferFilters,
+} from "~~/lib/api/schemas";
 
 type AcceptOfferParams = {
   offerId: number;
@@ -74,10 +78,14 @@ export function useAcceptOffer() {
     mutationFn: ({ offerId, input }: AcceptOfferParams) =>
       acceptOffer(offerId, input),
     onSuccess: (_, variables) => {
-      // Invalidate the specific offer, offers list, and portfolio
-      queryClient.invalidateQueries({ queryKey: ["offers", variables.offerId] });
+      queryClient.invalidateQueries({
+        queryKey: ["offers", variables.offerId],
+      });
       queryClient.invalidateQueries({ queryKey: ["offers"] });
       queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+    },
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: ["offers"] });
     },
   });
 }
