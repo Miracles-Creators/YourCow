@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { LanguageSwitcher } from "~~/components/LanguageSwitcher";
 import { cn } from "~~/lib/utils/cn";
 import { BottomNav } from "../ui/BottomNav";
 import { SideNav } from "../ui/SideNav";
@@ -35,6 +36,7 @@ export function InvestorLayout({ children, className }: InvestorLayoutProps) {
   const isImmersive = IMMERSIVE_ROUTES.some((r) =>
     pathWithoutLocale.startsWith(r),
   );
+  const showFloatingLanguageSwitcher = !showBottomNav || isImmersive;
 
   return (
     <div
@@ -43,6 +45,17 @@ export function InvestorLayout({ children, className }: InvestorLayoutProps) {
         className,
       )}
     >
+      {showFloatingLanguageSwitcher && (
+        <div
+          className={cn(
+            "fixed right-4 top-4 z-40",
+            showBottomNav && isImmersive && "lg:hidden",
+          )}
+        >
+          <LanguageSwitcher />
+        </div>
+      )}
+
       {showBottomNav && <SideNav />}
 
       <div

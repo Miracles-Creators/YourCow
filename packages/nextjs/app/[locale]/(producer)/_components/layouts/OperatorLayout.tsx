@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { LanguageSwitcher } from "~~/components/LanguageSwitcher";
 import { cn } from "~~/lib/utils/cn";
 
 interface ProducerLayoutProps {
@@ -19,6 +20,9 @@ export function ProducerLayout({ children, className }: ProducerLayoutProps) {
         className,
       )}
     >
+      <div className="mx-auto mb-6 flex w-full max-w-6xl justify-end">
+        <LanguageSwitcher />
+      </div>
       <main className="mx-auto w-full max-w-6xl">{children}</main>
     </div>
   );
