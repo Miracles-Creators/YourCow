@@ -110,7 +110,7 @@ export class TongoService {
 
         const tx = await operator.execute(calls);
         await this.starknetService
-          .getProvider()
+          .getSepoliaProvider()
           .waitForTransaction(tx.transaction_hash);
         return tx.transaction_hash;
       });
@@ -141,7 +141,7 @@ export class TongoService {
 
         const tx = await operator.execute([op.toCalldata()]);
         await this.starknetService
-          .getProvider()
+          .getSepoliaProvider()
           .waitForTransaction(tx.transaction_hash);
         return tx.transaction_hash;
       });
@@ -160,7 +160,7 @@ export class TongoService {
 
         const tx = await operator.execute([op.toCalldata()]);
         await this.starknetService
-          .getProvider()
+          .getSepoliaProvider()
           .waitForTransaction(tx.transaction_hash);
         return tx.transaction_hash;
       });
@@ -186,7 +186,7 @@ export class TongoService {
 
         const tx = await operator.execute([op.toCalldata()]);
         await this.starknetService
-          .getProvider()
+          .getSepoliaProvider()
           .waitForTransaction(tx.transaction_hash);
         return tx.transaction_hash;
       });

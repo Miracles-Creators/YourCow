@@ -155,7 +155,7 @@ export class AuthService {
       throw new BadRequestException("Wallet already linked to this user");
     }
 
-    const provider = this.starknetService.getProvider();
+    const provider = this.starknetService.getSepoliaProvider();
     const chainId = await this.getChainId(provider);
     const nonce = Date.now() + Math.floor(Math.random() * 1_000_000);
     const issuedAt = new Date().toISOString();
@@ -192,8 +192,15 @@ export class AuthService {
       throw new BadRequestException("Wallet link challenge expired");
     }
 
+    const existing = await this.prisma.user.findFirst({
+      where: { walletAddress: normalizedAddress },
+    });
+    if (existing && existing.id !== userId) {
+      throw new BadRequestException("Wallet already linked to another user");
+    }
+
     const typedData = this.buildWalletLinkTypedData(challenge);
-    const provider = this.starknetService.getProvider();
+    const provider = this.starknetService.getSepoliaProvider();
     const messageHash = starknetTypedData.getMessageHash(
       typedData as never,
       normalizedAddress,
@@ -208,13 +215,6 @@ export class AuthService {
     const isValid = await this.verifySignature(provider, normalizedAddress, calldata);
     if (!isValid) {
       throw new BadRequestException("Invalid wallet signature");
-    }
-
-    const existing = await this.prisma.user.findFirst({
-      where: { walletAddress: normalizedAddress },
-    });
-    if (existing && existing.id !== userId) {
-      throw new BadRequestException("Wallet already linked to another user");
     }
 
     const user = await this.prisma.user.update({
