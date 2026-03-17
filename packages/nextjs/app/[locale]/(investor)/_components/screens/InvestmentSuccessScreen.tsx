@@ -12,12 +12,14 @@ interface InvestmentSuccessScreenProps {
   lotId: number;
   investmentAmount: number;
   shares: number;
+  txHash?: string;
 }
 
 export function InvestmentSuccessScreen({
   lotId,
   investmentAmount,
   shares,
+  txHash,
 }: InvestmentSuccessScreenProps) {
   const t = useTranslations("investor.investmentSuccess");
   const tCommon = useTranslations("common");
@@ -160,6 +162,19 @@ export function InvestmentSuccessScreen({
             {tCommon("status.active")}
           </span>
         </div>
+
+        {txHash && (
+          <div className="mt-3 text-center">
+            <a
+              href={`https://sepolia.voyager.online/tx/${txHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-inter text-xs text-vaca-sky underline transition-colors hover:text-vaca-green"
+            >
+              {t("viewTransaction")}
+            </a>
+          </div>
+        )}
       </motion.div>
 
       {/* Next steps */}

@@ -26,8 +26,11 @@ export class GaragaController {
     @Req() req: AuthenticatedRequest,
     @Body() dto: ProveThresholdDto,
   ) {
-    if (!req.user || req.user.role !== UserRole.ADMIN) {
-      throw new ForbiddenException("Admin role required");
+    if (
+      !req.user ||
+      (req.user.role !== UserRole.ADMIN && req.user.role !== UserRole.INVESTOR)
+    ) {
+      throw new ForbiddenException("Investor or admin role required");
     }
     if (!dto.lotId) {
       throw new BadRequestException("lotId is required");
@@ -49,8 +52,11 @@ export class GaragaController {
     @Req() req: AuthenticatedRequest,
     @Param("jobId") jobId: string,
   ) {
-    if (!req.user || req.user.role !== UserRole.ADMIN) {
-      throw new ForbiddenException("Admin role required");
+    if (
+      !req.user ||
+      (req.user.role !== UserRole.ADMIN && req.user.role !== UserRole.INVESTOR)
+    ) {
+      throw new ForbiddenException("Investor or admin role required");
     }
     const job = this.garagaService.getJobStatus(jobId);
     if (!job) throw new NotFoundException(`Job ${jobId} not found`);

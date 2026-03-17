@@ -21,7 +21,7 @@ import type { OfferDto, ProductionType } from "~~/lib/api/schemas";
 import { formatStrkWei } from "~~/utils/scaffold-stark/common";
 import { containerVariants, itemVariants } from "../animations";
 import { AcceptOfferModal } from "../marketplace/AcceptOfferModal";
-import { FundraisingProofBadge } from "../garaga/FundraisingProofBadge";
+import { PrivacyProofCard } from "../ui/PrivacyProofCard";
 
 const LOT_IMAGES = [
   "/images/cattle-angus.jpg",
@@ -161,29 +161,6 @@ function FundingProgressBar({
   );
 }
 
-function PrivacyMetricCard({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value: string;
-  hint: string;
-}) {
-  return (
-    <div className="rounded-2xl bg-vaca-green/5 p-5">
-      <p className="font-inter text-[9px] font-bold uppercase tracking-[0.2em] text-vaca-neutral-gray-400">
-        {label}
-      </p>
-      <p className="mt-2 font-inter text-2xl font-bold text-vaca-neutral-gray-900">
-        {value}
-      </p>
-      <p className="mt-1 font-inter text-xs text-vaca-neutral-gray-500">
-        {hint}
-      </p>
-    </div>
-  );
-}
 
 function P2POfferRow({ offer, onBuy }: { offer: OfferDto; onBuy: () => void }) {
   const remainingShares = offer.sharesAmount - offer.sharesFilled;
@@ -558,11 +535,6 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                   progress={fundingProgress}
                   label={t("fundingProgress")}
                 />
-                {fundraisingProof && (
-                  <div className="mt-3">
-                    <FundraisingProofBadge proof={fundraisingProof} />
-                  </div>
-                )}
               </motion.div>
             )}
 
@@ -631,12 +603,11 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
             {/* Private funding summary — mobile only */}
             <motion.div
               variants={itemVariants}
-              className="mt-10 rounded-2xl bg-vaca-green/5 p-5 lg:hidden"
+              className="mt-10 lg:hidden"
             >
-              <PrivacyMetricCard
-                label={t("privateMetrics.title")}
-                value={t("privateMetrics.hidden")}
-                hint={t("privateMetrics.hint")}
+              <PrivacyProofCard
+                lotId={lotId}
+                fundraisingProof={fundraisingProof}
               />
             </motion.div>
 
@@ -690,10 +661,9 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
 
                   <div className="my-5 border-t border-vaca-neutral-gray-50" />
 
-                  <PrivacyMetricCard
-                    label={t("privateMetrics.title")}
-                    value={t("privateMetrics.hidden")}
-                    hint={t("privateMetrics.hint")}
+                  <PrivacyProofCard
+                    lotId={lotId}
+                    fundraisingProof={fundraisingProof}
                   />
 
                   {fundingProgress !== null && (
@@ -702,11 +672,6 @@ export function LotDetailScreen({ lotId }: LotDetailScreenProps) {
                         progress={fundingProgress}
                         label={t("fundingProgress")}
                       />
-                      {fundraisingProof && (
-                        <div className="mt-3">
-                          <FundraisingProofBadge proof={fundraisingProof} />
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>

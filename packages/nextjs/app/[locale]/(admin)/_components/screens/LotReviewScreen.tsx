@@ -270,7 +270,22 @@ export function LotReviewScreen() {
           },
         });
         if (notificationId) notification.remove(notificationId);
-        notification.success("Lot approved and published.");
+        notification.success(
+          <div>
+            <p>Lot approved and deployed on-chain.</p>
+            {updatedLot.txHash && (
+              <a
+                href={`https://sepolia.voyager.online/tx/${updatedLot.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline text-sm"
+              >
+                View transaction on Voyager
+              </a>
+            )}
+          </div>,
+          { duration: 8000 },
+        );
         queryClient.setQueryData(["lots", lotId], updatedLot);
       } catch (err) {
         if (notificationId) notification.remove(notificationId);

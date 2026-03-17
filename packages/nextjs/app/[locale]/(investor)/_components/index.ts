@@ -30,6 +30,7 @@ export { InvestorLayout } from "./layouts/InvestorLayout";
 
 // Garaga Components
 export { FundraisingProofBadge } from "./garaga/FundraisingProofBadge";
+export { PrivacyProofCard } from "./ui/PrivacyProofCard";
 
 // Tongo Components
 export { TongoBalanceCard } from "./tongo/TongoBalanceCard";

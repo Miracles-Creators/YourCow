@@ -68,14 +68,14 @@ export function ConfirmInvestmentScreen({
 
       await confirmPayment.mutateAsync({ id: payment.id });
       await fiatDeposit.mutateAsync({ id: payment.id });
-      await buyPrimary.mutateAsync({
+      const result = await buyPrimary.mutateAsync({
         lotId: lot.id,
         sharesAmount: shares,
         idempotencyKey: `primary_${payment.id}`,
       });
 
       router.push(
-        `/investment-success/${lot.id}?amount=${investmentAmount}&shares=${shares}`,
+        `/investment-success/${lot.id}?amount=${investmentAmount}&shares=${shares}&txHash=${result.txHash}`,
       );
     } catch (error) {
       console.error(error);

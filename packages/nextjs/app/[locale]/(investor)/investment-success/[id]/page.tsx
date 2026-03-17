@@ -14,6 +14,7 @@ interface Props {
   searchParams: Promise<{
     amount?: string;
     shares?: string;
+    txHash?: string;
   }>;
 }
 
@@ -22,7 +23,7 @@ export default async function InvestmentSuccessPage({
   searchParams,
 }: Props) {
   const { id } = await params;
-  const { amount, shares } = await searchParams;
+  const { amount, shares, txHash } = await searchParams;
 
   // Parse investment details from query params (should come from previous step)
   // In production, these would come from the backend/database
@@ -34,6 +35,7 @@ export default async function InvestmentSuccessPage({
       lotId={Number(id)}
       investmentAmount={investmentAmount}
       shares={sharesAmount}
+      txHash={txHash}
     />
   );
 }

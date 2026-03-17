@@ -363,7 +363,13 @@
       "privateMetrics": {
         "title": "Capacidad del lote",
         "hidden": "Privada",
-        "hint": "El progress bar sigue visible sin revelar el total de acciones del productor."
+        "hint": "El progress bar sigue visible sin revelar el total de acciones del productor.",
+        "verifyButton": "Verificar con ZK Proof",
+        "verifyFailed": "Falló la generación del proof",
+        "retryButton": "Reintentar",
+        "statusPending": "Iniciando trabajo de prueba...",
+        "statusProving": "Generando prueba (~2 min)...",
+        "statusVerifying": "Verificando en Starknet..."
       },
       "investButton": "Invertir en este Lote",
       "categories": {
