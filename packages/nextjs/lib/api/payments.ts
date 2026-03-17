@@ -1,7 +1,9 @@
 import { apiFetch } from "./client";
 import {
   PaymentSchema,
+  SimulateDepositResponseSchema,
   type PaymentDto,
+  type SimulateDepositResponse,
 } from "./schemas";
 
 export type CreatePaymentInput = {
@@ -58,4 +60,17 @@ export async function listPaymentsByInvestor(
 export async function listPaymentsByLot(lotId: number): Promise<PaymentDto[]> {
   const payments = await apiFetch<PaymentDto[]>(`/payments/lot/${lotId}`);
   return PaymentSchema.array().parse(payments);
+}
+
+export async function simulateDeposit(
+  amountFiat: number,
+): Promise<SimulateDepositResponse> {
+  const result = await apiFetch<SimulateDepositResponse>(
+    "/payments/simulate-deposit",
+    {
+      method: "POST",
+      body: JSON.stringify({ amountFiat }),
+    },
+  );
+  return SimulateDepositResponseSchema.parse(result);
 }

@@ -9,6 +9,8 @@ export {
   itemVariants,
   slowContainerVariants,
   slowItemVariants,
+  overlayVariants,
+  modalVariants,
 } from "./animations";
 
 // UI Components
@@ -39,11 +41,19 @@ export { WelcomeScreen } from "./screens/WelcomeScreen";
 export { LoginScreen } from "./screens/LoginScreen";
 export { DashboardScreen } from "./screens/DashboardScreen";
 export { MarketplaceScreen } from "./screens/MarketplaceScreen";
-export { P2PScreen } from "./screens/P2PScreen";
-export { P2PMarketplaceV2Screen } from "./screens/P2PMarketplaceV2Screen";
-export { P2PPrivateBalanceFundScreen } from "./screens/P2PPrivateBalanceFundScreen";
 export { LotDetailScreen } from "./screens/LotDetailScreen";
 export { InvestAmountScreen } from "./screens/InvestAmountScreen";
 export { PositionDetailScreen } from "./screens/PositionDetailScreen";
 export { ConfirmInvestmentScreen } from "./screens/ConfirmInvestmentScreen";
 export { InvestmentSuccessScreen } from "./screens/InvestmentSuccessScreen";
+export { TradeScreen } from "./screens/TradeScreen";
+
+// Marketplace Components
+export { OfferList } from "./marketplace/OfferList";
+export { OfferCard } from "./marketplace/OfferCard";
+export { AcceptOfferModal } from "./marketplace/AcceptOfferModal";
+export { CreateOfferModal } from "./marketplace/CreateOfferModal";
+export { BalanceCard } from "./marketplace/BalanceCard";
+export { SegmentedToggle } from "./marketplace/SegmentedToggle";
+export { SellPositionList } from "./marketplace/SellPositionList";
+export { FiatDepositModal } from "./marketplace/FiatDepositModal";
