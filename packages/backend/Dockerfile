@@ -12,7 +12,7 @@ RUN yarn install --immutable --mode=skip-build
 FROM base AS builder
 COPY --from=deps /app /app
 COPY packages/backend packages/backend
-RUN cd packages/backend && npx prisma generate
+RUN cd packages/backend && DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx prisma generate
 RUN cd packages/backend && yarn build
 
 FROM base AS runner
