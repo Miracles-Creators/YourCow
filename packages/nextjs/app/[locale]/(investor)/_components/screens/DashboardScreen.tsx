@@ -5,14 +5,21 @@ import { TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useMe } from "~~/hooks/auth/useMe";
-import { useCancelOffer, useOffers, usePortfolioSummary } from "~~/hooks/marketplace";
+import {
+  useCancelOffer,
+  useOffers,
+  usePortfolioSummary,
+} from "~~/hooks/marketplace";
 import { cn } from "~~/lib/utils/cn";
 import type { OfferDto } from "~~/lib/api/schemas";
 import { PortfolioValueChart } from "../ui/PortfolioValueChart";
 import { OfferShareCard } from "../ui/OfferShareCard";
 import { PositionCard } from "../ui/PositionCard";
 import { PrimaryButton } from "../ui/PrimaryButton";
-import { slowContainerVariants as containerVariants, slowItemVariants as itemVariants } from "../animations";
+import {
+  slowContainerVariants as containerVariants,
+  slowItemVariants as itemVariants,
+} from "../animations";
 
 export function DashboardScreen() {
   const t = useTranslations("investor.dashboard");
@@ -23,17 +30,25 @@ export function DashboardScreen() {
     { enabled: Boolean(me?.id) },
   );
   const cancelOffer = useCancelOffer();
-  const [cancellingOfferId, setCancellingOfferId] = useState<number | null>(null);
+  const [cancellingOfferId, setCancellingOfferId] = useState<number | null>(
+    null,
+  );
 
   const activeOffers = useMemo(
-    () => (offers ?? []).filter(
-      offer => offer.status === "OPEN" || offer.status === "PARTIALLY_FILLED",
-    ),
+    () =>
+      (offers ?? []).filter(
+        (offer) =>
+          offer.status === "OPEN" || offer.status === "PARTIALLY_FILLED",
+      ),
     [offers],
   );
 
   const handleCancelOffer = async (offerId: number) => {
-    if (!window.confirm("Cancel this offer? The unsold shares will be available in your portfolio again.")) {
+    if (
+      !window.confirm(
+        "Cancel this offer? The unsold shares will be available in your portfolio again.",
+      )
+    ) {
       return;
     }
 
@@ -49,7 +64,10 @@ export function DashboardScreen() {
     return <DashboardSkeleton />;
   }
 
-  if (!summary || (summary.activePositions === 0 && summary.settledPositions === 0)) {
+  if (
+    !summary ||
+    (summary.activePositions === 0 && summary.settledPositions === 0)
+  ) {
     return <EmptyDashboard />;
   }
 
@@ -88,10 +106,12 @@ export function DashboardScreen() {
                 isPositive ? "text-vaca-green" : "text-vaca-error",
               )}
             >
-              {isPositive ? "+" : ""}${Math.abs(summary.totalGain).toLocaleString()} ({isPositive ? "+" : ""}{summary.returnPercent.toFixed(1)}%)
+              {isPositive ? "+" : ""}$
+              {Math.abs(summary.totalGain).toLocaleString()} (
+              {isPositive ? "+" : ""}
+              {summary.returnPercent.toFixed(1)}%)
             </span>
           </div>
-
         </motion.div>
 
         {/* Chart */}
@@ -103,13 +123,19 @@ export function DashboardScreen() {
             {t("chart.title")}
           </h3>
           <div className="lg:h-56">
-            <PortfolioValueChart lots={summary.lots} totalValue={summary.currentValue} />
+            <PortfolioValueChart
+              lots={summary.lots}
+              totalValue={summary.currentValue}
+            />
           </div>
         </motion.div>
       </div>
 
       {/* Mobile-only Summary Grid (2x2) — hidden on desktop (shown inside hero card) */}
-      <motion.div variants={itemVariants} className="grid grid-cols-2 gap-2.5 py-4 lg:hidden">
+      <motion.div
+        variants={itemVariants}
+        className="grid grid-cols-2 gap-2.5 py-4 lg:hidden"
+      >
         <SummaryCard
           label={t("stats.totalInvested")}
           value={`$${summary.totalInvested.toLocaleString()}`}
@@ -129,7 +155,10 @@ export function DashboardScreen() {
       </motion.div>
 
       {/* Desktop-only: expanded stats row */}
-      <motion.div variants={itemVariants} className="hidden py-5 lg:grid lg:grid-cols-4 lg:gap-4">
+      <motion.div
+        variants={itemVariants}
+        className="hidden py-5 lg:grid lg:grid-cols-4 lg:gap-4"
+      >
         <SummaryCard
           label={t("stats.totalInvested")}
           value={`$${summary.totalInvested.toLocaleString()}`}
@@ -194,7 +223,9 @@ export function DashboardScreen() {
                 <OfferShareCard
                   key={offer.id}
                   offer={offer}
-                  isCancelling={cancelOffer.isPending && cancellingOfferId === offer.id}
+                  isCancelling={
+                    cancelOffer.isPending && cancellingOfferId === offer.id
+                  }
                   onCancel={handleCancelOffer}
                 />
               ))}
@@ -221,6 +252,7 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
 
 function EmptyDashboard() {
   const t = useTranslations("investor.dashboard.empty");
+  const dashboardT = useTranslations("investor.dashboard");
 
   return (
     <motion.div
@@ -228,6 +260,13 @@ function EmptyDashboard() {
       animate={{ opacity: 1, y: 0 }}
       className="mx-auto flex max-w-md flex-col items-center px-4 py-20 text-center"
     >
+      <div className="mb-6 w-full rounded-3xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white p-4 text-left shadow-sm">
+        <p className="mb-3 font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-vaca-neutral-gray-400">
+          {dashboardT("chart.title")}
+        </p>
+        <PortfolioValueChart lots={[]} totalValue={0} />
+      </div>
+
       <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-vaca-gold-light">
         <TrendingUp className="h-10 w-10 text-vaca-gold" />
       </div>
@@ -259,7 +298,10 @@ function DashboardSkeleton() {
       </div>
       <div className="mb-4 grid grid-cols-2 gap-2.5 lg:grid-cols-4 lg:gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-16 rounded-2xl bg-vaca-neutral-gray-100 lg:h-20" />
+          <div
+            key={i}
+            className="h-16 rounded-2xl bg-vaca-neutral-gray-100 lg:h-20"
+          />
         ))}
       </div>
       <div className="space-y-2 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0 xl:grid-cols-3">

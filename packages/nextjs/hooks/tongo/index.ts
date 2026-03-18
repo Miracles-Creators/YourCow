@@ -1,7 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { getTongoBalance, getTongoConfig, confirmDeposit, withdrawTongo } from "~~/lib/api/tongo";
-
+import {
+  getTongoBalance,
+  getTongoConfig,
+  confirmDeposit,
+  withdrawTongo,
+} from "~~/lib/api/tongo";
 
 export function useTongoBalance() {
   return useQuery({

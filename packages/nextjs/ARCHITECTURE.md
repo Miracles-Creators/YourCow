@@ -7,19 +7,19 @@
 
 ## Tech Stack
 
-| Layer | Technology | Version |
-|-------|-----------|---------|
-| Framework | Next.js (App Router) | 15 |
-| Language | TypeScript (strict) | 5.x |
-| Styling | Tailwind CSS | 4.x |
-| State (server) | TanStack React Query | 5.x |
-| State (client) | Zustand | 4.x |
-| Animations | Framer Motion | 12.x |
-| Validation | Zod | 3.x |
-| i18n | next-intl | 4.x |
-| Blockchain | starknet.js + @starknet-react | 8.5.3 / 5.x |
-| Icons | lucide-react, @heroicons/react | — |
-| Fonts | Inter (body), Playfair Display (headings) via next/font | — |
+| Layer          | Technology                                              | Version     |
+| -------------- | ------------------------------------------------------- | ----------- |
+| Framework      | Next.js (App Router)                                    | 15          |
+| Language       | TypeScript (strict)                                     | 5.x         |
+| Styling        | Tailwind CSS                                            | 4.x         |
+| State (server) | TanStack React Query                                    | 5.x         |
+| State (client) | Zustand                                                 | 4.x         |
+| Animations     | Framer Motion                                           | 12.x        |
+| Validation     | Zod                                                     | 3.x         |
+| i18n           | next-intl                                               | 4.x         |
+| Blockchain     | starknet.js + @starknet-react                           | 8.5.3 / 5.x |
+| Icons          | lucide-react, @heroicons/react                          | —           |
+| Fonts          | Inter (body), Playfair Display (headings) via next/font | —           |
 
 ---
 
@@ -133,7 +133,6 @@ packages/nextjs/
 │   │   ├── store.ts                  # Global state (network, currency price)
 │   │   ├── lotDraft.ts               # Lot creation wizard state
 │   │   ├── onboarding.ts             # Onboarding flow state
-│   │   ├── p2pPreview.ts             # P2P preview state
 │   │   └── history.ts
 │   └── web3/                         # Blockchain client-side services
 │       ├── connectors.tsx            # Wallet connectors
@@ -211,6 +210,7 @@ function EmptyDashboard() { ... }
 ```
 
 **Rules**:
+
 - Pages: NO `"use client"`, NO hooks, NO state. Only metadata + `<ScreenComponent />`
 - Screens: named `*Screen.tsx`, always `"use client"`, always in `_components/screens/`
 - Every screen handles its own loading, empty, and error states **inline** (as private functions in same file)
@@ -222,16 +222,22 @@ Route groups `(investor)`, `(admin)`, `(producer)`, `(onboarding)` are feature b
 They do NOT appear in the URL (`/dashboard` not `/investor/dashboard`).
 
 Each route group owns:
+
 - Its own `layout.tsx` (wraps with feature-specific layout component)
 - Its own `_components/` directory (PRIVATE — not importable outside the group)
 - Its own barrel `index.ts` that exports everything
 
 **Layout pattern**:
+
 ```tsx
 // app/[locale]/(investor)/layout.tsx
 import { InvestorLayout } from "./_components/layouts/InvestorLayout";
 
-export default function InvestorRootLayout({ children }: { children: React.ReactNode }) {
+export default function InvestorRootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div className={`${inter.variable} ${playfair.variable} font-inter`}>
       <InvestorLayout>{children}</InvestorLayout>
@@ -253,6 +259,7 @@ _components/
 ```
 
 **Import rule**: Always import from the barrel, never deep-path.
+
 ```tsx
 // CORRECT
 import { DashboardScreen, PrimaryButton, Logo } from "../_components";
@@ -263,13 +270,13 @@ import { Logo } from "../_components/ui/Logo";
 
 ### 4. Shared vs Feature-Specific Components
 
-| Question | Location |
-|----------|----------|
-| Used by 2+ route groups? | `components/ui/` |
-| Used by only one route group? | `app/(feature)/_components/ui/` |
-| Is it a full page? | `app/(feature)/_components/screens/` |
-| Is it a layout shell? | `app/(feature)/_components/layouts/` |
-| Is it a sub-feature cluster? | `app/(feature)/_components/<sub-feature>/` |
+| Question                      | Location                                   |
+| ----------------------------- | ------------------------------------------ |
+| Used by 2+ route groups?      | `components/ui/`                           |
+| Used by only one route group? | `app/(feature)/_components/ui/`            |
+| Is it a full page?            | `app/(feature)/_components/screens/`       |
+| Is it a layout shell?         | `app/(feature)/_components/layouts/`       |
+| Is it a sub-feature cluster?  | `app/(feature)/_components/<sub-feature>/` |
 
 `components/ui/` contains **unbranded primitives**: Button, Card, Badge, Input, ProgressBar, Section.
 Feature components compose these with brand styling.
@@ -286,9 +293,13 @@ screens/              → Consume hooks, render UI
 ```
 
 **API client** (`lib/api/client.ts`):
+
 ```tsx
 // Thin wrapper — all API calls go through this
-export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+export async function apiFetch<T>(
+  path: string,
+  options: RequestInit = {},
+): Promise<T> {
   const response = await fetch(`${baseUrl}${path}`, {
     ...options,
     cache: "no-store",
@@ -301,17 +312,19 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
 ```
 
 **API domain file** (`lib/api/lots.ts`):
+
 ```tsx
 import { apiFetch } from "./client";
 import { LotSchema, type LotDto } from "./schemas";
 
 export async function listLots(): Promise<LotDto[]> {
   const lots = await apiFetch<LotDto[]>("/lots");
-  return LotSchema.array().parse(lots);  // Always validate with Zod
+  return LotSchema.array().parse(lots); // Always validate with Zod
 }
 ```
 
 **Hook** (`hooks/lots/useLots.ts`):
+
 ```tsx
 export function useLots() {
   const { isPending, data, error } = useQuery({
@@ -324,6 +337,7 @@ export function useLots() {
 ```
 
 **Mutations invalidate related queries**:
+
 ```tsx
 export function useCreateOffer() {
   const queryClient = useQueryClient();
@@ -338,6 +352,7 @@ export function useCreateOffer() {
 ```
 
 **Schema rules** (`lib/api/schemas.ts`):
+
 - ALL Zod schemas live in this ONE file
 - Types are inferred: `export type LotDto = z.infer<typeof LotSchema>`
 - API functions always parse responses through schemas
@@ -348,6 +363,7 @@ export function useCreateOffer() {
 **Tailwind only** — no CSS modules, no styled-components, no inline styles.
 
 **Brand color tokens** (defined in `tailwind.config.ts`):
+
 ```
 vaca-green           #1B5E20    primary, trust
 vaca-green-dark      #0D4715    hover states
@@ -370,6 +386,7 @@ vaca-neutral-gray-{50-900}      text, borders, surfaces
 **Fonts**: `font-inter` (body), `font-playfair` (headings) — applied via CSS variables from `lib/fonts.ts`.
 
 **Rules**:
+
 - NEVER hardcode hex colors — use `vaca-*` tokens
 - Mobile-first: base styles for mobile, `lg:` for desktop
 - Use `cn()` for conditional classes
@@ -378,10 +395,12 @@ vaca-neutral-gray-{50-900}      text, borders, surfaces
 ### 7. Animations
 
 Standard variants defined in `_components/animations.ts`:
+
 - `containerVariants` / `slowContainerVariants` — stagger children
 - `itemVariants` / `slowItemVariants` — fade in + slide up
 
 Apply to screens:
+
 ```tsx
 <motion.div variants={containerVariants} initial="hidden" animate="visible">
   <motion.div variants={itemVariants}>...</motion.div>
@@ -402,12 +421,12 @@ Standard easing: `[0.4, 0, 0.2, 1]`.
 
 ### 9. State Management
 
-| Type | Tool | Location |
-|------|------|----------|
-| Server data | React Query | `hooks/<domain>/` |
-| Global client state | Zustand | `services/store/store.ts` |
-| Feature wizard state | Zustand | `services/store/lotDraft.ts`, `onboarding.ts` |
-| URL state | Next.js searchParams | In page/screen components |
+| Type                 | Tool                 | Location                                      |
+| -------------------- | -------------------- | --------------------------------------------- |
+| Server data          | React Query          | `hooks/<domain>/`                             |
+| Global client state  | Zustand              | `services/store/store.ts`                     |
+| Feature wizard state | Zustand              | `services/store/lotDraft.ts`, `onboarding.ts` |
+| URL state            | Next.js searchParams | In page/screen components                     |
 
 React Query is the primary state manager. Zustand is used sparingly for cross-component client state that doesn't come from the server.
 
@@ -421,6 +440,7 @@ React Query is the primary state manager. Zustand is used sparingly for cross-co
 ### 11. Provider Stack
 
 The `[locale]/layout.tsx` wraps children with this provider hierarchy:
+
 ```
 ReactQueryProvider
   └── NextIntlClientProvider
@@ -529,17 +549,17 @@ Is it a constant/config?
 
 ## Naming Conventions
 
-| Thing | Convention | Example |
-|-------|-----------|---------|
-| Component files | PascalCase.tsx | `DashboardScreen.tsx` |
-| Hook files | camelCase.ts | `useLots.ts` |
-| Utility files | camelCase.ts | `cn.ts` |
-| Route folders | kebab-case | `lot-detail/` |
-| Barrel exports | index.ts | `_components/index.ts` |
-| Zod schemas | PascalCase + Schema suffix | `LotSchema` |
-| Types | PascalCase + Dto suffix | `LotDto` |
-| Hooks | use + PascalCase | `useLots()` |
-| Screens | PascalCase + Screen suffix | `DashboardScreen` |
+| Thing           | Convention                 | Example                |
+| --------------- | -------------------------- | ---------------------- |
+| Component files | PascalCase.tsx             | `DashboardScreen.tsx`  |
+| Hook files      | camelCase.ts               | `useLots.ts`           |
+| Utility files   | camelCase.ts               | `cn.ts`                |
+| Route folders   | kebab-case                 | `lot-detail/`          |
+| Barrel exports  | index.ts                   | `_components/index.ts` |
+| Zod schemas     | PascalCase + Schema suffix | `LotSchema`            |
+| Types           | PascalCase + Dto suffix    | `LotDto`               |
+| Hooks           | use + PascalCase           | `useLots()`            |
+| Screens         | PascalCase + Screen suffix | `DashboardScreen`      |
 
 ---
 
@@ -557,18 +577,18 @@ yarn test           # Vitest
 
 ## Anti-Patterns — NEVER Do These
 
-| Anti-Pattern | Correct Pattern |
-|-------------|----------------|
-| Put feature components in `components/` | Use `app/(feature)/_components/` |
-| Import from deep paths | Import from barrel `_components/index.ts` |
-| Hardcode hex colors | Use `vaca-*` Tailwind tokens |
-| Use `any` type | Define proper interfaces |
-| Add `"use client"` to page.tsx | Pages are server components; screen is client |
-| Skip loading/empty states | Every screen handles isPending + empty |
-| Create new CSS files | Use Tailwind classes only |
-| Put API types next to hooks | Types live in `lib/api/schemas.ts` |
-| Use fetch directly in components | Go through `lib/api/` → `hooks/` → component |
-| Mix route group concerns | Each `(group)` owns its own `_components/` |
-| Create default exports for components | Use named exports: `export function Name()` |
-| Put skeleton/empty in separate files | Define them as private functions in the screen file |
-| Skip Zod parsing in API functions | Always validate: `Schema.parse(response)` |
+| Anti-Pattern                            | Correct Pattern                                     |
+| --------------------------------------- | --------------------------------------------------- |
+| Put feature components in `components/` | Use `app/(feature)/_components/`                    |
+| Import from deep paths                  | Import from barrel `_components/index.ts`           |
+| Hardcode hex colors                     | Use `vaca-*` Tailwind tokens                        |
+| Use `any` type                          | Define proper interfaces                            |
+| Add `"use client"` to page.tsx          | Pages are server components; screen is client       |
+| Skip loading/empty states               | Every screen handles isPending + empty              |
+| Create new CSS files                    | Use Tailwind classes only                           |
+| Put API types next to hooks             | Types live in `lib/api/schemas.ts`                  |
+| Use fetch directly in components        | Go through `lib/api/` → `hooks/` → component        |
+| Mix route group concerns                | Each `(group)` owns its own `_components/`          |
+| Create default exports for components   | Use named exports: `export function Name()`         |
+| Put skeleton/empty in separate files    | Define them as private functions in the screen file |
+| Skip Zod parsing in API functions       | Always validate: `Schema.parse(response)`           |

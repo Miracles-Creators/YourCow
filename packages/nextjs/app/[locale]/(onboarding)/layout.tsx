@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { LanguageSwitcher } from "~~/components/LanguageSwitcher";
 import { cn } from "~~/lib/utils/cn";
 
 interface OnboardingLayoutProps {
@@ -25,6 +26,10 @@ export default function OnboardingLayout({ children }: OnboardingLayoutProps) {
         "px-4 py-8 sm:px-6 lg:px-8",
       )}
     >
+      <div className="absolute right-4 top-4 z-20 sm:right-6 sm:top-6">
+        <LanguageSwitcher />
+      </div>
+
       {/* Floating Background Orbs - Nature-inspired ambient gradients */}
       <div
         className="pointer-events-none absolute -left-48 -top-48 h-96 w-96 animate-float rounded-full opacity-15 blur-3xl"

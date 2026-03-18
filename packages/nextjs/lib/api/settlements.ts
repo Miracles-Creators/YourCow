@@ -15,7 +15,9 @@ export async function listSettlements(): Promise<SettlementDto[]> {
   return SettlementSchema.array().parse(settlements);
 }
 
-export async function getSettlementByLot(lotId: number): Promise<SettlementDto> {
+export async function getSettlementByLot(
+  lotId: number,
+): Promise<SettlementDto> {
   const settlement = await apiFetch<SettlementDto>(`/settlements/lot/${lotId}`);
   return SettlementSchema.parse(settlement);
 }
@@ -31,8 +33,11 @@ export async function createSettlement(
 }
 
 export async function confirmSettlement(id: number): Promise<SettlementDto> {
-  const settlement = await apiFetch<SettlementDto>(`/settlements/${id}/confirm`, {
-    method: "POST",
-  });
+  const settlement = await apiFetch<SettlementDto>(
+    `/settlements/${id}/confirm`,
+    {
+      method: "POST",
+    },
+  );
   return SettlementSchema.parse(settlement);
 }

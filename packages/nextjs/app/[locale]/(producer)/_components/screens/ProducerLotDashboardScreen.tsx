@@ -45,9 +45,10 @@ function getApprovalStatusDisplay(status?: AnimalApprovalStatus): {
   }
 }
 
-function getLotStatusDisplay(
-  status?: string,
-): { label: string; tone: StatusTone } {
+function getLotStatusDisplay(status?: string): {
+  label: string;
+  tone: StatusTone;
+} {
   switch (status) {
     case "ACTIVE":
       return { label: "Active", tone: "success" };
@@ -71,7 +72,10 @@ const AnimalFormSchema = z.object({
   initialWeight: z
     .string()
     .min(1, "Initial weight is required.")
-    .refine(value => Number.parseFloat(value) > 0, "Initial weight must be > 0."),
+    .refine(
+      (value) => Number.parseFloat(value) > 0,
+      "Initial weight must be > 0.",
+    ),
 });
 
 export function ProducerLotDashboardScreen() {
@@ -119,8 +123,11 @@ export function ProducerLotDashboardScreen() {
     return new Date(lotQuery.data.updatedAt).toLocaleDateString();
   }, [lotQuery.data?.updatedAt]);
   const canRegisterSale = lotQuery.data?.status === "ACTIVE";
-  const handleAnimalChange = (field: keyof typeof animalForm, value: string) => {
-    setAnimalForm(prev => ({ ...prev, [field]: value }));
+  const handleAnimalChange = (
+    field: keyof typeof animalForm,
+    value: string,
+  ) => {
+    setAnimalForm((prev) => ({ ...prev, [field]: value }));
     setAnimalError("");
     setAnimalSuccess("");
   };
@@ -233,9 +240,7 @@ export function ProducerLotDashboardScreen() {
           <h2 className="text-sm font-semibold text-vaca-neutral-gray-700">
             Next required update
           </h2>
-          <p className="mt-3 font-playfair text-2xl text-vaca-blue">
-            —
-          </p>
+          <p className="mt-3 font-playfair text-2xl text-vaca-blue">—</p>
           <p className="mt-1 text-xs text-vaca-neutral-gray-500">
             Please submit by end of day.
           </p>
@@ -257,10 +262,7 @@ export function ProducerLotDashboardScreen() {
         <ul className="mt-3 space-y-2 text-sm text-vaca-neutral-gray-600">
           <li>Last weight update: —</li>
           <li>Last health check: —</li>
-          <li>
-            Producer video:{" "}
-            Not added
-          </li>
+          <li>Producer video: Not added</li>
         </ul>
       </section>
 
@@ -281,8 +283,10 @@ export function ProducerLotDashboardScreen() {
             {!animalsQuery.isLoading && animalsQuery.data?.length === 0 && (
               <p>No animals registered yet.</p>
             )}
-            {animalsQuery.data?.map(animal => {
-              const approvalDisplay = getApprovalStatusDisplay(animal.approvalStatus);
+            {animalsQuery.data?.map((animal) => {
+              const approvalDisplay = getApprovalStatusDisplay(
+                animal.approvalStatus,
+              );
               return (
                 <div
                   key={animal.id}
@@ -334,7 +338,9 @@ export function ProducerLotDashboardScreen() {
                 id="animal-eid"
                 className="input input-bordered w-full"
                 value={animalForm.eid}
-                onChange={event => handleAnimalChange("eid", event.target.value)}
+                onChange={(event) =>
+                  handleAnimalChange("eid", event.target.value)
+                }
                 required
               />
             </div>
@@ -346,7 +352,7 @@ export function ProducerLotDashboardScreen() {
                 id="animal-custodian"
                 className="input input-bordered w-full"
                 value={animalForm.custodian}
-                onChange={event =>
+                onChange={(event) =>
                   handleAnimalChange("custodian", event.target.value)
                 }
                 required
@@ -360,7 +366,7 @@ export function ProducerLotDashboardScreen() {
                 id="animal-breed"
                 className="input input-bordered w-full"
                 value={animalForm.breed}
-                onChange={event =>
+                onChange={(event) =>
                   handleAnimalChange("breed", event.target.value)
                 }
                 required
@@ -376,7 +382,7 @@ export function ProducerLotDashboardScreen() {
                 id="animal-weight"
                 className="input input-bordered w-full"
                 value={animalForm.initialWeight}
-                onChange={event =>
+                onChange={(event) =>
                   handleAnimalChange("initialWeight", event.target.value)
                 }
               />

@@ -68,10 +68,7 @@ export function RoleSelectionScreen() {
         </motion.div>
 
         {/* Role Cards */}
-        <motion.div
-          variants={shellItemVariants}
-          className="space-y-4"
-        >
+        <motion.div variants={shellItemVariants} className="space-y-4">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -119,10 +116,7 @@ export function RoleSelectionScreen() {
         </motion.div>
 
         {/* Not sure link */}
-        <motion.p
-          variants={shellItemVariants}
-          className="mt-4 text-center"
-        >
+        <motion.p variants={shellItemVariants} className="mt-4 text-center">
           <button
             type="button"
             onClick={() => setShowInfoModal(true)}

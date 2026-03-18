@@ -45,8 +45,8 @@ export function AddProductionUpdateScreen() {
   );
 
   const handleChange = (field: keyof UpdateFormState, value: string) => {
-    setFormState(prev => ({ ...prev, [field]: value }));
-    setErrors(prev => ({ ...prev, [field]: "" }));
+    setFormState((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const validate = () => {
@@ -110,7 +110,7 @@ export function AddProductionUpdateScreen() {
                 { label: "Feeding", value: "feeding" },
                 { label: "Event", value: "event" },
               ] as const
-            ).map(option => (
+            ).map((option) => (
               <label
                 key={option.value}
                 className="flex cursor-pointer items-center gap-2 rounded-full border border-vaca-neutral-gray-200 px-3 py-2 text-sm text-vaca-neutral-gray-600"
@@ -149,7 +149,9 @@ export function AddProductionUpdateScreen() {
                     errors.weight && "border-vaca-brown",
                   )}
                   value={formState.weight}
-                  onChange={event => handleChange("weight", event.target.value)}
+                  onChange={(event) =>
+                    handleChange("weight", event.target.value)
+                  }
                   aria-invalid={Boolean(errors.weight)}
                   aria-describedby={errors.weight ? "weight-error" : undefined}
                 />
@@ -171,7 +173,7 @@ export function AddProductionUpdateScreen() {
                     errors.weightDate && "border-vaca-brown",
                   )}
                   value={formState.weightDate}
-                  onChange={event =>
+                  onChange={(event) =>
                     handleChange("weightDate", event.target.value)
                   }
                   aria-invalid={Boolean(errors.weightDate)}
@@ -208,7 +210,7 @@ export function AddProductionUpdateScreen() {
                   errors.healthStatus && "border-vaca-brown",
                 )}
                 value={formState.healthStatus}
-                onChange={event =>
+                onChange={(event) =>
                   handleChange("healthStatus", event.target.value)
                 }
                 aria-invalid={Boolean(errors.healthStatus)}
@@ -240,7 +242,7 @@ export function AddProductionUpdateScreen() {
                 id="health-notes"
                 className="textarea textarea-bordered min-h-[120px] w-full"
                 value={formState.healthNotes}
-                onChange={event =>
+                onChange={(event) =>
                   handleChange("healthNotes", event.target.value)
                 }
               />
@@ -255,13 +257,15 @@ export function AddProductionUpdateScreen() {
             </legend>
             <div className="form-control">
               <label className="label" htmlFor="feeding-notes">
-                <span className="label-text font-medium">Feed change notes</span>
+                <span className="label-text font-medium">
+                  Feed change notes
+                </span>
               </label>
               <textarea
                 id="feeding-notes"
                 className="textarea textarea-bordered min-h-[120px] w-full"
                 value={formState.feedingNotes}
-                onChange={event =>
+                onChange={(event) =>
                   handleChange("feedingNotes", event.target.value)
                 }
               />
@@ -282,7 +286,7 @@ export function AddProductionUpdateScreen() {
                 id="event-notes"
                 className="textarea textarea-bordered min-h-[120px] w-full"
                 value={formState.eventNotes}
-                onChange={event =>
+                onChange={(event) =>
                   handleChange("eventNotes", event.target.value)
                 }
               />

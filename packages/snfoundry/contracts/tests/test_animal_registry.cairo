@@ -86,7 +86,10 @@ fn test_register_animal_batch_success() {
     profile_hashes.append('hash2');
 
     cheat_caller_address(contract_address, operator(), CheatSpan::TargetCalls(1));
-    dispatcher.register_animal_batch(animals_with_weights.span(), custodians.span(), profile_hashes.span());
+    dispatcher
+        .register_animal_batch(
+            animals_with_weights.span(), custodians.span(), profile_hashes.span(),
+        );
 
     assert(dispatcher.animal_exists(animal_id_1()), 'Animal 1 should exist');
     assert(dispatcher.animal_exists(animal_id_2()), 'Animal 2 should exist');
@@ -112,7 +115,10 @@ fn test_register_animal_batch_length_mismatch() {
     profile_hashes.append('hash2');
 
     cheat_caller_address(contract_address, operator(), CheatSpan::TargetCalls(1));
-    dispatcher.register_animal_batch(animals_with_weights.span(), custodians.span(), profile_hashes.span());
+    dispatcher
+        .register_animal_batch(
+            animals_with_weights.span(), custodians.span(), profile_hashes.span(),
+        );
 }
 
 #[test]

@@ -12,17 +12,24 @@ import {
   X,
 } from "lucide-react";
 
-import { Card, CardHeader, CardTitle, CardContent } from "~~/components/ui/Card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "~~/components/ui/Card";
 import { Badge } from "~~/components/ui/Badge";
 import { Button } from "~~/components/ui/Button";
 import { Input } from "~~/components/ui/Input";
 import { ProgressBar } from "~~/components/ui/ProgressBar";
 import { cn } from "~~/lib/utils/cn";
 import type { PortfolioDto } from "~~/lib/api/schemas";
+import { formatCurrency as formatCurrencyUtil } from "~~/lib/utils/formatCurrency";
 import { useMe } from "~~/hooks/auth/useMe";
 import { useCreatePayment } from "~~/hooks/payments/useCreatePayment";
 import { useConfirmPayment } from "~~/hooks/payments/useConfirmPayment";
 import { useFiatDeposit } from "~~/hooks/payments/useFiatDeposit";
+import { overlayVariants, modalVariants } from "../animations";
 
 export interface PortfolioSummaryProps {
   portfolio: PortfolioDto | null | undefined;
@@ -55,17 +62,6 @@ const itemVariants = {
   },
 };
 
-const overlayVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-};
-
-const modalVariants = {
-  hidden: { opacity: 0, y: 24, scale: 0.98 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.2 } },
-  exit: { opacity: 0, y: 24, scale: 0.98, transition: { duration: 0.15 } },
-};
-
 /**
  * PortfolioSummary - Overview of user's marketplace portfolio
  * Shows fiat balances and lot positions with actions
@@ -89,23 +85,23 @@ export function PortfolioSummary({
   const [depositLotId, setDepositLotId] = useState("");
   const [depositError, setDepositError] = useState<string | null>(null);
 
-  // Format currency
   const formatCurrency = (value: string | number, currency: string = "ARS") => {
     const numValue = typeof value === "string" ? parseFloat(value) : value;
-    return new Intl.NumberFormat("es-AR", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(numValue / 100); // Convert from cents
+    return formatCurrencyUtil(numValue, currency);
   };
 
   const parsedDepositAmount = Number(depositAmount.replace(",", "."));
-  const isValidDepositAmount = Number.isFinite(parsedDepositAmount) && parsedDepositAmount > 0;
-  const depositAmountCents = isValidDepositAmount ? Math.round(parsedDepositAmount * 100) : 0;
+  const isValidDepositAmount =
+    Number.isFinite(parsedDepositAmount) && parsedDepositAmount > 0;
+  const depositAmountCents = isValidDepositAmount
+    ? Math.round(parsedDepositAmount * 100)
+    : 0;
   const parsedLotId = Number(depositLotId);
   const isValidLotId = Number.isInteger(parsedLotId) && parsedLotId > 0;
-  const isDepositing = createPayment.isPending || confirmPayment.isPending || fiatDeposit.isPending;
+  const isDepositing =
+    createPayment.isPending ||
+    confirmPayment.isPending ||
+    fiatDeposit.isPending;
 
   const handleDeposit = async () => {
     setDepositError(null);
@@ -161,7 +157,7 @@ export function PortfolioSummary({
         animate={{ opacity: 1, y: 0 }}
         className={cn(
           "flex flex-col items-center justify-center py-12 px-4 text-center bg-vaca-error-light rounded-xl border border-vaca-error/10",
-          className
+          className,
         )}
       >
         <AlertCircle className="h-10 w-10 text-vaca-error mb-4" />
@@ -183,7 +179,7 @@ export function PortfolioSummary({
         animate={{ opacity: 1, y: 0 }}
         className={cn(
           "flex flex-col items-center justify-center py-12 px-4 text-center bg-vaca-neutral-gray-50 rounded-xl",
-          className
+          className,
         )}
       >
         <Wallet className="h-12 w-12 text-vaca-neutral-gray-400 mb-4" />
@@ -246,7 +242,9 @@ export function PortfolioSummary({
                   <span className="text-sm text-vaca-neutral-gray-500">
                     Argentine Pesos
                   </span>
-                  <Badge tone="info" size="sm">ARS</Badge>
+                  <Badge tone="info" size="sm">
+                    ARS
+                  </Badge>
                 </div>
                 <p className="text-2xl font-bold text-vaca-neutral-gray-900">
                   {hasArs ? formatCurrency(arsAvailable, "ARS") : fallbackText}
@@ -265,7 +263,9 @@ export function PortfolioSummary({
                   <span className="text-sm text-vaca-neutral-gray-500">
                     US Dollars
                   </span>
-                  <Badge tone="success" size="sm">USD</Badge>
+                  <Badge tone="success" size="sm">
+                    USD
+                  </Badge>
                 </div>
                 <p className="text-2xl font-bold text-vaca-neutral-gray-900">
                   {hasUsd ? formatCurrency(usdAvailable, "USD") : fallbackText}
@@ -302,14 +302,19 @@ export function PortfolioSummary({
                 className="w-full max-w-md"
                 onClick={(e) => e.stopPropagation()}
               >
-                <Card variant="elevated" padding="none" className="overflow-hidden">
+                <Card
+                  variant="elevated"
+                  padding="none"
+                  className="overflow-hidden"
+                >
                   <div className="flex items-center justify-between p-6 border-b border-vaca-neutral-gray-100">
                     <div>
                       <h2 className="font-playfair text-xl font-semibold text-vaca-neutral-gray-900">
                         Deposit funds
                       </h2>
                       <p className="text-sm text-vaca-neutral-gray-500 mt-1">
-                        This creates a payment, confirms it, and deposits fiat into your balance.
+                        This creates a payment, confirms it, and deposits fiat
+                        into your balance.
                       </p>
                     </div>
                     <button
@@ -393,7 +398,9 @@ export function PortfolioSummary({
                         colorScheme="blue"
                         fullWidth
                         onClick={handleDeposit}
-                        disabled={!isValidDepositAmount || !isValidLotId || isDepositing}
+                        disabled={
+                          !isValidDepositAmount || !isValidLotId || isDepositing
+                        }
                       >
                         {isDepositing ? "Depositing..." : "Deposit"}
                       </Button>
@@ -414,7 +421,8 @@ export function PortfolioSummary({
           </h2>
           {hasPositions && (
             <Badge tone="neutral" size="md">
-              {portfolio.lots.length} lot{portfolio.lots.length !== 1 ? "s" : ""}
+              {portfolio.lots.length} lot
+              {portfolio.lots.length !== 1 ? "s" : ""}
             </Badge>
           )}
         </div>
@@ -437,7 +445,11 @@ export function PortfolioSummary({
 
               return (
                 <motion.div key={position.lotId} variants={itemVariants}>
-                  <Card variant="bordered" padding="md" className="hover:shadow-md transition-shadow">
+                  <Card
+                    variant="bordered"
+                    padding="md"
+                    className="hover:shadow-md transition-shadow"
+                  >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       {/* Lot info */}
                       <div className="flex-1">
@@ -450,13 +462,17 @@ export function PortfolioSummary({
 
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
-                            <span className="text-vaca-neutral-gray-500">Available</span>
+                            <span className="text-vaca-neutral-gray-500">
+                              Available
+                            </span>
                             <p className="font-semibold text-vaca-green">
                               {available.toLocaleString()} shares
                             </p>
                           </div>
                           <div>
-                            <span className="text-vaca-neutral-gray-500">Locked</span>
+                            <span className="text-vaca-neutral-gray-500">
+                              Locked
+                            </span>
                             <p className="font-semibold text-vaca-neutral-gray-700">
                               {locked.toLocaleString()} shares
                             </p>

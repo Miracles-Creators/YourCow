@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 import webpack from "webpack";
 import nextPWA from "next-pwa";
-import createNextIntlPlugin from 'next-intl/plugin';
+import createNextIntlPlugin from "next-intl/plugin";
 
-const withNextIntl = createNextIntlPlugin('./lib/i18n/request.ts');
+const withNextIntl = createNextIntlPlugin("./lib/i18n/request.ts");
 
 const withPWA = nextPWA({
   dest: "public",
@@ -22,7 +22,7 @@ const nextConfig = {
   experimental: {
     // Ensure proper file watching
     serverActions: {
-      bodySizeLimit: '2mb',
+      bodySizeLimit: "2mb",
     },
   },
   // Force webpack to watch for changes

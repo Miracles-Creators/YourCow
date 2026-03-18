@@ -79,15 +79,14 @@ export function RegisterScreen() {
     router.push("/onboarding/role");
   };
 
-  const handleChange = (field: keyof FormData) => (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+  const handleChange =
+    (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      // Clear error when user starts typing
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
 
   return (
     <OnboardingShell>
@@ -141,10 +140,7 @@ export function RegisterScreen() {
           size="lg"
           fullWidth
           disabled={isSubmitting || !formData.fullName || !formData.email}
-          className={cn(
-            "mt-6",
-            "hover:-translate-y-0.5 active:translate-y-0",
-          )}
+          className={cn("mt-6", "hover:-translate-y-0.5 active:translate-y-0")}
         >
           {isSubmitting ? t("buttons.submitting") : t("buttons.continue")}
         </Button>

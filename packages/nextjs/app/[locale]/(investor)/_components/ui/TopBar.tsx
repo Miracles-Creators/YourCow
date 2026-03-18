@@ -2,6 +2,7 @@
 
 import { BRAND_COPY } from "~~/lib/constants/brand";
 import { CustomConnectButton } from "~~/components/scaffold-stark/CustomConnectButton";
+import { LanguageSwitcher } from "~~/components/LanguageSwitcher";
 import { CowLogo } from "./Logo";
 
 export function TopBar() {
@@ -16,7 +17,8 @@ export function TopBar() {
       </div>
 
       {/* Wallet — always visible, pushed right on desktop */}
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        <LanguageSwitcher className="lg:hidden" />
         <CustomConnectButton />
       </div>
     </header>

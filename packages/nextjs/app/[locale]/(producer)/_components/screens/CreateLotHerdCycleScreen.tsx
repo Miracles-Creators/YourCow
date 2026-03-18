@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "~~/lib/utils/cn";
 import { ProducerWizardStepper } from "../ui/ProducerWizardStepper";
 import { useLotDraftStore } from "~~/services/store/lotDraft";
@@ -19,14 +20,6 @@ type HerdCycleFormState = {
 
 type TimelineMode = "duration" | "date";
 
-const STEPS = [
-  "Basic Info",
-  "Herd & Cycle",
-  "Financing",
-  "Documents",
-  "Review",
-];
-
 const INITIAL_STATE: HerdCycleFormState = {
   cattleCount: 0,
   averageWeightKg: 0,
@@ -37,19 +30,26 @@ const INITIAL_STATE: HerdCycleFormState = {
 };
 
 export function CreateLotHerdCycleScreen() {
+  const t = useTranslations("producer.createLot");
   const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
-  const [formState, setFormState] =
-    useState<HerdCycleFormState>(INITIAL_STATE);
+  const steps = [
+    t("steps.basicInfo"),
+    t("steps.herdCycle"),
+    t("steps.financing"),
+    t("steps.documents"),
+    t("steps.review"),
+  ];
+  const [formState, setFormState] = useState<HerdCycleFormState>(INITIAL_STATE);
   const [mode, setMode] = useState<TimelineMode>("duration");
-  const draft = useLotDraftStore(state => state.draft);
-  const updateDraft = useLotDraftStore(state => state.updateDraft);
+  const draft = useLotDraftStore((state) => state.draft);
+  const updateDraft = useLotDraftStore((state) => state.updateDraft);
   const [errors, setErrors] = useState<
     Partial<Record<keyof HerdCycleFormState, string>>
   >({});
 
   useEffect(() => {
-    setFormState(prev => ({
+    setFormState((prev) => ({
       ...prev,
       cattleCount: draft.herdCycle.cattleCount,
       averageWeightKg: draft.herdCycle.averageWeightKg,
@@ -69,37 +69,44 @@ export function CreateLotHerdCycleScreen() {
     [prefersReducedMotion],
   );
 
-  const handleTextChange = (field: "targetEndDate" | "notes", value: string) => {
-    setFormState(prev => ({ ...prev, [field]: value }));
-    setErrors(prev => ({ ...prev, [field]: "" }));
+  const handleTextChange = (
+    field: "targetEndDate" | "notes",
+    value: string,
+  ) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const handleNumberChange = (
-    field: "cattleCount" | "averageWeightKg" | "initialWeightKg" | "durationWeeks",
+    field:
+      | "cattleCount"
+      | "averageWeightKg"
+      | "initialWeightKg"
+      | "durationWeeks",
     value: string,
   ) => {
     const parsed = value === "" ? 0 : Number(value);
-    setFormState(prev => ({ ...prev, [field]: parsed }));
-    setErrors(prev => ({ ...prev, [field]: "" }));
+    setFormState((prev) => ({ ...prev, [field]: parsed }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const validate = () => {
     const nextErrors: Partial<Record<keyof HerdCycleFormState, string>> = {};
 
     if (formState.cattleCount <= 0) {
-      nextErrors.cattleCount = "Number of cattle is required.";
+      nextErrors.cattleCount = t("herdCycle.errors.cattleCountRequired");
     }
     if (formState.averageWeightKg <= 0) {
-      nextErrors.averageWeightKg = "Average weight is required.";
+      nextErrors.averageWeightKg = t("herdCycle.errors.averageWeightRequired");
     }
     if (formState.initialWeightKg <= 0) {
-      nextErrors.initialWeightKg = "Initial weight is required.";
+      nextErrors.initialWeightKg = t("herdCycle.errors.initialWeightRequired");
     }
     if (mode === "duration" && formState.durationWeeks <= 0) {
-      nextErrors.durationWeeks = "Expected duration is required.";
+      nextErrors.durationWeeks = t("herdCycle.errors.durationRequired");
     }
     if (mode === "date" && !formState.targetEndDate.trim()) {
-      nextErrors.targetEndDate = "Target end date is required.";
+      nextErrors.targetEndDate = t("herdCycle.errors.targetDateRequired");
     }
 
     setErrors(nextErrors);
@@ -130,14 +137,14 @@ export function CreateLotHerdCycleScreen() {
       transition={transition}
       className="space-y-8"
     >
-      <ProducerWizardStepper steps={STEPS} currentStep={1} />
+      <ProducerWizardStepper steps={steps} currentStep={1} />
 
       <header>
         <h1 className="font-playfair text-4xl font-semibold text-vaca-neutral-gray-900">
-          Herd & production cycle
+          {t("herdCycle.title")}
         </h1>
         <p className="mt-2 text-sm text-vaca-neutral-gray-500">
-          Provide operational metrics for transparency and reporting.
+          {t("herdCycle.subtitle")}
         </p>
       </header>
 
@@ -151,7 +158,7 @@ export function CreateLotHerdCycleScreen() {
         <div className="grid gap-6 md:grid-cols-2">
           <div className="form-control">
             <label className="label" htmlFor="cattle-count">
-              <span className="label-text font-medium">Number of cattle</span>
+              <span className="label-text font-medium">{t("herdCycle.fields.cattleCount.label")}</span>
             </label>
             <input
               id="cattle-count"
@@ -164,7 +171,7 @@ export function CreateLotHerdCycleScreen() {
                 errors.cattleCount && "border-vaca-brown",
               )}
               value={formState.cattleCount || ""}
-              onChange={event =>
+              onChange={(event) =>
                 handleNumberChange("cattleCount", event.target.value)
               }
               aria-invalid={Boolean(errors.cattleCount)}
@@ -186,7 +193,7 @@ export function CreateLotHerdCycleScreen() {
           <div className="form-control">
             <label className="label" htmlFor="average-weight">
               <span className="label-text font-medium">
-                Average weight (kg)
+                {t("herdCycle.fields.averageWeightKg.label")}
               </span>
             </label>
             <input
@@ -200,7 +207,7 @@ export function CreateLotHerdCycleScreen() {
                 errors.averageWeightKg && "border-vaca-brown",
               )}
               value={formState.averageWeightKg || ""}
-              onChange={event =>
+              onChange={(event) =>
                 handleNumberChange("averageWeightKg", event.target.value)
               }
               aria-invalid={Boolean(errors.averageWeightKg)}
@@ -222,7 +229,7 @@ export function CreateLotHerdCycleScreen() {
           <div className="form-control">
             <label className="label" htmlFor="initial-weight">
               <span className="label-text font-medium">
-                Initial weight (kg)
+                {t("herdCycle.fields.initialWeightKg.label")}
               </span>
             </label>
             <input
@@ -236,7 +243,7 @@ export function CreateLotHerdCycleScreen() {
                 errors.initialWeightKg && "border-vaca-brown",
               )}
               value={formState.initialWeightKg || ""}
-              onChange={event =>
+              onChange={(event) =>
                 handleNumberChange("initialWeightKg", event.target.value)
               }
               aria-invalid={Boolean(errors.initialWeightKg)}
@@ -258,7 +265,7 @@ export function CreateLotHerdCycleScreen() {
 
         <fieldset className="space-y-3">
           <legend className="text-sm font-semibold text-vaca-neutral-gray-700">
-            Timeline
+            {t("herdCycle.timeline.label")}
           </legend>
           <div className="flex flex-wrap gap-3">
             <label className="flex cursor-pointer items-center gap-2 text-sm text-vaca-neutral-gray-600">
@@ -269,7 +276,7 @@ export function CreateLotHerdCycleScreen() {
                 checked={mode === "duration"}
                 onChange={() => setMode("duration")}
               />
-              Expected duration (weeks)
+              {t("herdCycle.timeline.durationOption")}
             </label>
             <label className="flex cursor-pointer items-center gap-2 text-sm text-vaca-neutral-gray-600">
               <input
@@ -279,7 +286,7 @@ export function CreateLotHerdCycleScreen() {
                 checked={mode === "date"}
                 onChange={() => setMode("date")}
               />
-              Target end date
+              {t("herdCycle.timeline.dateOption")}
             </label>
           </div>
 
@@ -296,14 +303,14 @@ export function CreateLotHerdCycleScreen() {
                   errors.durationWeeks && "border-vaca-brown",
                 )}
                 value={formState.durationWeeks || ""}
-                onChange={event =>
+                onChange={(event) =>
                   handleNumberChange("durationWeeks", event.target.value)
                 }
                 aria-invalid={Boolean(errors.durationWeeks)}
                 aria-describedby={
                   errors.durationWeeks ? "duration-weeks-error" : undefined
                 }
-                placeholder="e.g. 24"
+                placeholder={t("herdCycle.timeline.placeholder")}
                 required
               />
               {errors.durationWeeks && (
@@ -325,10 +332,10 @@ export function CreateLotHerdCycleScreen() {
                   "input input-bordered w-full",
                   errors.targetEndDate && "border-vaca-brown",
                 )}
-              value={formState.targetEndDate}
-              onChange={event =>
-                handleTextChange("targetEndDate", event.target.value)
-              }
+                value={formState.targetEndDate}
+                onChange={(event) =>
+                  handleTextChange("targetEndDate", event.target.value)
+                }
                 aria-invalid={Boolean(errors.targetEndDate)}
                 aria-describedby={
                   errors.targetEndDate ? "target-end-date-error" : undefined
@@ -348,22 +355,22 @@ export function CreateLotHerdCycleScreen() {
         </fieldset>
 
         <div className="rounded-xl border-l-4 border-vaca-blue bg-vaca-neutral-white p-4 text-sm text-vaca-neutral-gray-600">
-          <p className="font-semibold text-vaca-blue">What investors see</p>
+          <p className="font-semibold text-vaca-blue">{t("herdCycle.investorNote.title")}</p>
           <p className="mt-1">
-            We display these metrics to build investor trust.
+            {t("herdCycle.investorNote.description")}
           </p>
         </div>
 
         <div className="form-control">
           <label className="label" htmlFor="notes">
-            <span className="label-text font-medium">Notes (optional)</span>
+            <span className="label-text font-medium">{t("herdCycle.fields.notes.label")}</span>
           </label>
           <textarea
             id="notes"
             name="notes"
             className="textarea textarea-bordered min-h-[120px] w-full"
-              value={formState.notes}
-              onChange={event => handleTextChange("notes", event.target.value)}
+            value={formState.notes}
+            onChange={(event) => handleTextChange("notes", event.target.value)}
           />
         </div>
 
@@ -372,7 +379,7 @@ export function CreateLotHerdCycleScreen() {
             href="/producer/lots/new"
             className="btn btn-ghost text-vaca-neutral-gray-600"
           >
-            Back
+            {t("herdCycle.buttons.back")}
           </Link>
           <button
             type="submit"
@@ -382,7 +389,7 @@ export function CreateLotHerdCycleScreen() {
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vaca-blue focus-visible:ring-offset-2 focus-visible:ring-offset-vaca-neutral-bg",
             )}
           >
-            Continue
+            {t("herdCycle.buttons.continue")}
           </button>
         </div>
       </motion.form>

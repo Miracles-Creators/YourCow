@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AdminPageHeader, DataTable, FilterChips, StatusPill, type AdminStatusTone } from "../index";
+import {
+  AdminPageHeader,
+  DataTable,
+  FilterChips,
+  StatusPill,
+  type AdminStatusTone,
+} from "../index";
 import { cn } from "~~/lib/utils/cn";
 
 type UpdateStatus = "Pending" | "Verified" | "Flagged";

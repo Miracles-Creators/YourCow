@@ -38,6 +38,7 @@ export async function getOffers(filters?: OfferFilters): Promise<OfferDto[]> {
   if (filters?.lotId) params.append("lotId", String(filters.lotId));
   if (filters?.sellerId) params.append("sellerId", String(filters.sellerId));
   if (filters?.status) params.append("status", filters.status);
+  if (filters?.currency) params.append("currency", filters.currency);
 
   const query = params.toString();
   const path = query ? `/offers?${query}` : "/offers";
@@ -111,8 +112,12 @@ export async function cancelOffer(offerId: number): Promise<OfferDto> {
 /**
  * Get trade status (for polling async STRK trades)
  */
-export async function getTradeStatus(tradeId: number): Promise<TradeStatusResponse> {
-  const result = await apiFetch<TradeStatusResponse>(`/offers/trades/${tradeId}/status`);
+export async function getTradeStatus(
+  tradeId: number,
+): Promise<TradeStatusResponse> {
+  const result = await apiFetch<TradeStatusResponse>(
+    `/offers/trades/${tradeId}/status`,
+  );
   return TradeStatusResponseSchema.parse(result);
 }
 

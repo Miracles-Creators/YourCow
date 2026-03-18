@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { LanguageSwitcher } from "~~/components/LanguageSwitcher";
 import { Link, usePathname } from "~~/lib/i18n/routing";
 import { cn } from "~~/lib/utils/cn";
 
@@ -75,11 +76,14 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
             })}
           </nav>
 
-          <div className="mt-auto rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-bg p-3 text-xs text-vaca-neutral-gray-500">
-            <p className="font-semibold text-vaca-neutral-gray-700">
-              Admin user
-            </p>
-            <p>ops@yourcow.com</p>
+          <div className="mt-auto space-y-3">
+            <LanguageSwitcher />
+            <div className="rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-bg p-3 text-xs text-vaca-neutral-gray-500">
+              <p className="font-semibold text-vaca-neutral-gray-700">
+                Admin user
+              </p>
+              <p>ops@yourcow.com</p>
+            </div>
           </div>
         </aside>
 
@@ -93,6 +97,7 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
                 Ops
               </span>
             </div>
+            <LanguageSwitcher />
           </header>
 
           <div className="border-b border-vaca-neutral-gray-100 bg-vaca-neutral-white px-5 py-3 lg:hidden">
@@ -117,13 +122,8 @@ export function AdminLayout({ children, className }: AdminLayoutProps) {
             </nav>
           </div>
 
-          <main
-            id="admin-main"
-            className="flex-1 px-5 py-6 sm:px-6 lg:px-10"
-          >
-            <div className="mx-auto w-full max-w-7xl min-w-0">
-              {children}
-            </div>
+          <main id="admin-main" className="flex-1 px-5 py-6 sm:px-6 lg:px-10">
+            <div className="mx-auto w-full max-w-7xl min-w-0">{children}</div>
           </main>
         </div>
       </div>

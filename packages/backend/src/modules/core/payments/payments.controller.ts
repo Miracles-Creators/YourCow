@@ -1,5 +1,7 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
 
+import { AuthGuard } from "../auth/auth.guard";
+import type { AuthenticatedRequest } from "../auth/types";
 import { ConfirmPaymentDto } from "./dto/confirm-payment.dto";
 import { CreatePaymentDto } from "./dto/create-payment.dto";
 import { PaymentsService } from "./payments.service";
@@ -7,6 +9,18 @@ import { PaymentsService } from "./payments.service";
 @Controller("payments")
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
+
+  @UseGuards(AuthGuard)
+  @Post("simulate-deposit")
+  async simulateDeposit(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: { amountFiat: number },
+  ) {
+    if (!req.user) {
+      throw new BadRequestException("Not authenticated");
+    }
+    return this.paymentsService.simulateDeposit(req.user.id, body.amountFiat);
+  }
 
   @Post()
   async purchaseShares(@Body() body: CreatePaymentDto) {

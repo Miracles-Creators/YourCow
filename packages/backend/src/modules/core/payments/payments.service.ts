@@ -186,6 +186,39 @@ export class PaymentsService {
       throw error;
     }
   }
+  async simulateDeposit(userId: number, amountFiat: number): Promise<{ balance: { available: number } }> {
+    if (amountFiat <= 0) {
+      throw new BadRequestException("amountFiat must be greater than 0");
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const account = await this.custodyService.getOrCreateAccountTx(tx, userId);
+      const protocolVault = await this.custodyService.getOrCreateSystemAccount("PROTOCOL_VAULT");
+
+      await this.custodyService.creditFiat(
+        tx,
+        account.id,
+        "FIAT_ARS",
+        new Decimal(amountFiat),
+      );
+
+      await this.ledgerService.writeEntry(tx, {
+        eventType: "FIAT_DEPOSIT",
+        debitAccountId: protocolVault.id,
+        creditAccountId: account.id,
+        assetType: "FIAT_ARS",
+        lotId: null,
+        amount: new Decimal(amountFiat),
+      });
+
+      const balance = await tx.balance.findFirst({
+        where: { accountId: account.id, assetType: "FIAT_ARS", lotId: null },
+      });
+
+      return { balance: { available: Number(balance?.available ?? 0) } };
+    });
+  }
+
 //TODO:UTILS
   private mapCurrencyToAssetType(currency: string): "FIAT_ARS" | "FIAT_USD" {
     const normalized = currency.trim().toUpperCase();

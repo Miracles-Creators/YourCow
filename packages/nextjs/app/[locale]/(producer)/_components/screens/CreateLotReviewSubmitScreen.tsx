@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "~~/lib/utils/cn";
 import { ProducerWizardStepper } from "../ui/ProducerWizardStepper";
 import {
@@ -13,30 +14,29 @@ import {
 } from "~~/services/store/lotDraft";
 import { useCreateLot } from "~~/hooks/lots/useCreateLot";
 
-const STEPS = [
-  "Basic Info",
-  "Herd & Cycle",
-  "Financing",
-  "Documents",
-  "Review",
-];
-
-const checklistItems = [
-  "Lot details confirmed",
-  "Herd & cycle metrics reviewed",
-  "Financing terms aligned",
-  "Documents uploaded",
-];
-
 export function CreateLotReviewSubmitScreen() {
+  const t = useTranslations("producer.createLot");
   const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
+  const steps = [
+    t("steps.basicInfo"),
+    t("steps.herdCycle"),
+    t("steps.financing"),
+    t("steps.documents"),
+    t("steps.review"),
+  ];
+  const checklistItems = [
+    t("review.checklist.items.lotDetails"),
+    t("review.checklist.items.herdCycle"),
+    t("review.checklist.items.financing"),
+    t("review.checklist.items.documents"),
+  ];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draft, setDraft] = useState<LotDraft | null>(null);
   const [submitError, setSubmitError] = useState("");
   const createLot = useCreateLot();
-  const storeDraft = useLotDraftStore(state => state.draft);
-  const resetDraft = useLotDraftStore(state => state.resetDraft);
+  const storeDraft = useLotDraftStore((state) => state.draft);
+  const resetDraft = useLotDraftStore((state) => state.resetDraft);
 
   const transition = useMemo(
     () =>
@@ -59,7 +59,7 @@ export function CreateLotReviewSubmitScreen() {
 
     const parsed = LotDraftSchema.safeParse(latestDraft);
     if (!parsed.success) {
-      setSubmitError("Missing or invalid data. Please review the form.");
+      setSubmitError(t("review.errors.invalidData"));
       return;
     }
 
@@ -78,7 +78,8 @@ export function CreateLotReviewSubmitScreen() {
       // Location & Operation
       farmName: parsed.data.basicInfo.farmName,
       location: parsed.data.basicInfo.location,
-      productionType: productionTypeMap[parsed.data.basicInfo.productionType] ?? "FEEDLOT",
+      productionType:
+        productionTypeMap[parsed.data.basicInfo.productionType] ?? "FEEDLOT",
 
       // Herd data
       cattleCount: parsed.data.herdCycle.cattleCount,
@@ -117,50 +118,48 @@ export function CreateLotReviewSubmitScreen() {
       transition={transition}
       className="space-y-8"
     >
-      <ProducerWizardStepper steps={STEPS} currentStep={4} />
+      <ProducerWizardStepper steps={steps} currentStep={4} />
 
       <header>
         <h1 className="font-playfair text-4xl font-semibold text-vaca-neutral-gray-900">
-          Review & submit
+          {t("review.title")}
         </h1>
         <p className="mt-2 text-sm text-vaca-neutral-gray-500">
-          Confirm the details below before sending for approval.
+          {t("review.subtitle")}
         </p>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white p-5 shadow-sm">
           <h2 className="font-playfair text-xl font-semibold text-vaca-neutral-gray-900">
-            Basic info
+            {t("review.sections.basicInfo.title")}
           </h2>
           <ul className="mt-3 space-y-2 text-sm text-vaca-neutral-gray-600">
-            <li>Lot: {summary.basicInfo.lotName || "—"}</li>
-            <li>Farm: {summary.basicInfo.farmName || "—"}</li>
-            <li>Location: {summary.basicInfo.location || "—"}</li>
-            <li>Start date: {summary.basicInfo.startDate || "—"}</li>
+            <li>{t("review.sections.basicInfo.lot")}: {summary.basicInfo.lotName || "—"}</li>
+            <li>{t("review.sections.basicInfo.farm")}: {summary.basicInfo.farmName || "—"}</li>
+            <li>{t("review.sections.basicInfo.location")}: {summary.basicInfo.location || "—"}</li>
+            <li>{t("review.sections.basicInfo.startDate")}: {summary.basicInfo.startDate || "—"}</li>
           </ul>
         </div>
 
         <div className="rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white p-5 shadow-sm">
           <h2 className="font-playfair text-xl font-semibold text-vaca-neutral-gray-900">
-            Herd & cycle
+            {t("review.sections.herdCycle.title")}
           </h2>
           <ul className="mt-3 space-y-2 text-sm text-vaca-neutral-gray-600">
+            <li>{t("review.sections.herdCycle.cattleCount")}: {summary.herdCycle.cattleCount || "—"}</li>
             <li>
-              Number of cattle: {summary.herdCycle.cattleCount || "—"}
+              {t("review.sections.herdCycle.averageWeight")}: {summary.herdCycle.averageWeightKg || "—"} kg
             </li>
             <li>
-              Average weight: {summary.herdCycle.averageWeightKg || "—"} kg
+              {t("review.sections.herdCycle.initialWeight")}: {summary.herdCycle.initialWeightKg || "—"} kg
             </li>
             <li>
-              Initial weight: {summary.herdCycle.initialWeightKg || "—"} kg
-            </li>
-            <li>
-              Timeline:{" "}
+              {t("review.sections.herdCycle.timeline")}:{" "}
               {summary.herdCycle.timelineMode === "date"
                 ? summary.herdCycle.targetEndDate || "—"
                 : summary.herdCycle.durationWeeks
-                  ? `${summary.herdCycle.durationWeeks} weeks`
+                  ? `${summary.herdCycle.durationWeeks} ${t("review.sections.herdCycle.weeks")}`
                   : "—"}
             </li>
           </ul>
@@ -168,53 +167,52 @@ export function CreateLotReviewSubmitScreen() {
 
         <div className="rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white p-5 shadow-sm">
           <h2 className="font-playfair text-xl font-semibold text-vaca-neutral-gray-900">
-            Financing
+            {t("review.sections.financing.title")}
           </h2>
           <ul className="mt-3 space-y-2 text-sm text-vaca-neutral-gray-600">
             <li>
-              Total capital required:{" "}
+              {t("review.sections.financing.totalCapital")}:{" "}
               {summary.financing.totalCapital
                 ? `$${summary.financing.totalCapital}`
                 : "—"}
             </li>
             <li>
-              Investor allocation: {summary.financing.investorPercent ?? 0}%
+              {t("review.sections.financing.investorAllocation")}: {summary.financing.investorPercent ?? 0}%
             </li>
             <li>
-              Funding deadline: {summary.financing.fundingDeadline || "—"}
+              {t("review.sections.financing.fundingDeadline")}: {summary.financing.fundingDeadline || "—"}
             </li>
           </ul>
         </div>
 
         <div className="rounded-xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white p-5 shadow-sm">
           <h2 className="font-playfair text-xl font-semibold text-vaca-neutral-gray-900">
-            Documents status
+            {t("review.sections.documents.title")}
           </h2>
           <ul className="mt-3 space-y-2 text-sm text-vaca-neutral-gray-600">
             <li>
-              Ownership / operation proof:{" "}
-              {summary.documents.ownership ? "Uploaded" : "Missing"}
+              {t("review.sections.documents.ownership")}:{" "}
+              {summary.documents.ownership ? t("review.sections.documents.uploaded") : t("review.sections.documents.missing")}
             </li>
             <li>
-              Lot documentation:{" "}
-              {summary.documents.lotDocs ? "Uploaded" : "Missing"}
+              {t("review.sections.documents.lotDocs")}:{" "}
+              {summary.documents.lotDocs ? t("review.sections.documents.uploaded") : t("review.sections.documents.missing")}
             </li>
             <li>
-              Insurance:{" "}
-              {summary.documents.insurance ? "Uploaded" : "Optional"}
+              {t("review.sections.documents.insurance")}: {summary.documents.insurance ? t("review.sections.documents.uploaded") : t("review.sections.documents.optional")}
             </li>
             <li>
-              Producer intro video:{" "}
-              {summary.documents.video ? "Uploaded" : "Optional"}
+              {t("review.sections.documents.video")}:{" "}
+              {summary.documents.video ? t("review.sections.documents.uploaded") : t("review.sections.documents.optional")}
             </li>
           </ul>
         </div>
       </div>
 
       <div className="rounded-xl border-l-4 border-vaca-green bg-vaca-neutral-white p-5 text-sm text-vaca-neutral-gray-600">
-        <h3 className="font-semibold text-vaca-green">Submission checklist</h3>
+        <h3 className="font-semibold text-vaca-green">{t("review.checklist.title")}</h3>
         <ul className="mt-3 space-y-2">
-          {checklistItems.map(item => (
+          {checklistItems.map((item) => (
             <li key={item} className="flex items-center gap-2">
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-vaca-green/10 text-vaca-green">
                 ✓
@@ -236,7 +234,7 @@ export function CreateLotReviewSubmitScreen() {
           href="/producer/lots/new/documents"
           className="btn btn-ghost text-vaca-neutral-gray-600"
         >
-          Back
+          {t("review.buttons.back")}
         </Link>
         <button
           type="button"
@@ -248,7 +246,7 @@ export function CreateLotReviewSubmitScreen() {
           )}
           onClick={() => setIsModalOpen(true)}
         >
-          {createLot.isPending ? "Submitting..." : "Submit for approval"}
+          {createLot.isPending ? t("review.buttons.submitting") : t("review.buttons.submit")}
         </button>
       </div>
 
@@ -263,10 +261,10 @@ export function CreateLotReviewSubmitScreen() {
               id="submit-confirmation-title"
               className="font-playfair text-xl font-semibold text-vaca-neutral-gray-900"
             >
-              Confirm submission
+              {t("review.modal.title")}
             </h3>
             <p className="mt-3 text-sm text-vaca-neutral-gray-600">
-              You can’t change core parameters after approval without re-review.
+              {t("review.modal.description")}
             </p>
             <div className="modal-action flex flex-col gap-2 sm:flex-row sm:justify-end">
               <button
@@ -274,7 +272,7 @@ export function CreateLotReviewSubmitScreen() {
                 className="btn btn-ghost"
                 onClick={() => setIsModalOpen(false)}
               >
-                Cancel
+                {t("review.modal.cancel")}
               </button>
               <button
                 type="button"
@@ -285,7 +283,7 @@ export function CreateLotReviewSubmitScreen() {
                 )}
                 onClick={handleSubmit}
               >
-                {createLot.isPending ? "Submitting..." : "Submit for approval"}
+                {createLot.isPending ? t("review.modal.submitting") : t("review.modal.submit")}
               </button>
             </div>
           </div>

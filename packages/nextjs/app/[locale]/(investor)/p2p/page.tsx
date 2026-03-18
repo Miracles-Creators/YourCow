@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { P2PScreen } from "../_components/screens/P2PScreen";
+import { TradeScreen } from "../_components/screens/TradeScreen";
 
 export const metadata: Metadata = {
-  title: "P2P Marketplace",
+  title: "Trade",
   description:
-    "Trade cattle lot shares with other investors in a transparent marketplace.",
+    "Trade cattle lot shares with other investors via fiat or crypto.",
 };
 
-export default function P2PPage() {
-  return <P2PScreen />;
+export default function TradePage() {
+  return <TradeScreen />;
 }

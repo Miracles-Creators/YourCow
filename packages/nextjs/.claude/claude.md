@@ -30,6 +30,7 @@ Before writing ANY code:
 **User:** Retail investors (non-crypto, non-technical)
 **Style:** Modern fintech, calm, serious, trustworthy
 **Tech Stack:**
+
 - Next.js 15 (App Router)
 - TypeScript (strict mode)
 - Tailwind CSS v4
@@ -38,16 +39,19 @@ Before writing ANY code:
 - next/font (optimized fonts)
 
 **Brand:**
+
 - Primary: Deep green (#1B5E20) - nature, trust
 - Secondary: Sky blue (#4FC3F7) - liquidity, clarity
 - Accent: Warm brown (#8D6E63) - real assets, earth
 - Background: Off-white (#FAFAF8) - calm, clean
 
 **Typography:**
+
 - Headlines/Logo: Playfair Display (serif, elegant)
 - Body: Inter (sans-serif, modern)
 
 **Design Philosophy:**
+
 - NO crypto language or aesthetics
 - NO trading UI patterns
 - NO flashy animations or complex charts
@@ -64,6 +68,7 @@ Before writing ANY code:
 ### When to Invoke the Plugin
 
 Trigger the plugin for:
+
 - ✅ Creating new screens/pages
 - ✅ Building complex UI components
 - ✅ Designing user flows
@@ -116,16 +121,19 @@ Please create the screen components following our atomic design structure.
 ### For Creating New Screens
 
 **Step 1: Understand the requirement**
+
 - What feature does this belong to? (investor, admin, operator)
 - What user problem does it solve?
 - What data does it need?
 
 **Step 2: Check ARCHITECTURE.md**
+
 - Where should components go?
 - What naming convention to use?
 - Are there similar examples?
 
 **Step 3: Plan the structure**
+
 ```
 app/(feature)/
 ├── _components/
@@ -135,18 +143,21 @@ app/(feature)/
 ```
 
 **Step 4: Invoke design plugin**
+
 - Provide full context (see template above)
 - Reference ARCHITECTURE.md
 - Specify YourCow brand guidelines
 
 **Step 5: Review generated code**
+
 - Does it follow feature-based colocation?
 - Are imports using barrel exports?
-- Is it using design tokens (vaca-* colors)?
+- Is it using design tokens (vaca-\* colors)?
 - Is TypeScript strict?
 - Is it accessible?
 
 **Step 6: Build and verify**
+
 ```bash
 yarn check-types  # TypeScript validation
 yarn build        # Production build test
@@ -332,11 +343,13 @@ Follow investor login form as reference: app/(investor)/_components/screens/Logi
 ### 1. File Organization
 
 ❌ **NEVER** put investor components in `components/`
+
 ```
 components/investor/Logo.tsx  ❌ WRONG
 ```
 
 ✅ **ALWAYS** use feature-based colocation
+
 ```
 app/(investor)/_components/ui/Logo.tsx  ✅ CORRECT
 ```
@@ -344,11 +357,13 @@ app/(investor)/_components/ui/Logo.tsx  ✅ CORRECT
 ### 2. Imports
 
 ❌ **NEVER** use deep imports
+
 ```tsx
 import { Logo } from "../_components/ui/Logo";  ❌
 ```
 
 ✅ **ALWAYS** use barrel exports
+
 ```tsx
 import { Logo } from "../_components";  ✅
 ```
@@ -356,11 +371,13 @@ import { Logo } from "../_components";  ✅
 ### 3. Styling
 
 ❌ **NEVER** hardcode colors
+
 ```tsx
 <div className="bg-[#1B5E20]">  ❌
 ```
 
 ✅ **ALWAYS** use design tokens
+
 ```tsx
 <div className="bg-vaca-green">  ✅
 ```
@@ -368,11 +385,13 @@ import { Logo } from "../_components";  ✅
 ### 4. TypeScript
 
 ❌ **NEVER** use `any`
+
 ```tsx
 function Button(props: any) {}  ❌
 ```
 
 ✅ **ALWAYS** define types
+
 ```tsx
 interface ButtonProps {
   children: ReactNode;
@@ -384,11 +403,13 @@ function Button({ children, onClick }: ButtonProps) {}  ✅
 ### 5. Accessibility
 
 ❌ **NEVER** skip semantic HTML
+
 ```tsx
 <div onClick={handleClick}>Click me</div>  ❌
 ```
 
 ✅ **ALWAYS** use proper elements
+
 ```tsx
 <button onClick={handleClick} aria-label="Submit">
   Click me
@@ -398,11 +419,13 @@ function Button({ children, onClick }: ButtonProps) {}  ✅
 ### 6. Route Structure
 
 ❌ **NEVER** create routes outside route groups
+
 ```
 app/welcome/page.tsx  ❌ (if it's investor-specific)
 ```
 
 ✅ **ALWAYS** use route groups
+
 ```
 app/(investor)/welcome/page.tsx  ✅
 ```
@@ -414,25 +437,29 @@ app/(investor)/welcome/page.tsx  ✅
 Before considering any code complete, verify:
 
 ### Structure
+
 - [ ] Component in correct folder (feature vs shared)?
 - [ ] Using route groups for features?
 - [ ] Private folders (`_components`) for internal code?
 - [ ] Barrel exports created/updated?
 
 ### Design
-- [ ] Using design tokens (vaca-* colors)?
+
+- [ ] Using design tokens (vaca-\* colors)?
 - [ ] Following YourCow brand guidelines?
 - [ ] Tailwind CSS v4 ONLY (no inline styles)?
 - [ ] Mobile-first responsive?
 - [ ] Calm fintech aesthetic (NO crypto vibes)?
 
 ### Code Quality
+
 - [ ] TypeScript strict (no `any`)?
 - [ ] Props interfaces defined?
 - [ ] Imports clean (barrel exports)?
 - [ ] No hardcoded values?
 
 ### Accessibility
+
 - [ ] Semantic HTML?
 - [ ] ARIA labels where needed?
 - [ ] Focus states visible?
@@ -440,12 +467,14 @@ Before considering any code complete, verify:
 - [ ] Color contrast 4.5:1+?
 
 ### Performance
+
 - [ ] Server components where possible?
 - [ ] `"use client"` only when needed?
 - [ ] Images optimized (next/image)?
 - [ ] Fonts optimized (next/font)?
 
 ### Testing
+
 - [ ] TypeScript compiles (`yarn check-types`)?
 - [ ] Build succeeds (`yarn build`)?
 - [ ] Component renders correctly?
@@ -458,6 +487,7 @@ Before considering any code complete, verify:
 ### Standard Animations
 
 **Page Mount:**
+
 ```tsx
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -484,6 +514,7 @@ const itemVariants = {
 ```
 
 **Button Hover:**
+
 ```tsx
 <motion.button
   whileHover={{ scale: 1.02 }}
@@ -493,6 +524,7 @@ const itemVariants = {
 ```
 
 **Loading State:**
+
 ```tsx
 <motion.div
   animate={{ rotate: 360 }}
@@ -567,8 +599,9 @@ Is it a TypeScript type?
 **Location:** `app/(investor)/_components/screens/WelcomeScreen.tsx`
 
 **Why it's perfect:**
+
 - ✅ Feature-based colocation
-- ✅ Uses design tokens (vaca-*)
+- ✅ Uses design tokens (vaca-\*)
 - ✅ Framer Motion for animations
 - ✅ TypeScript strict
 - ✅ Accessible (semantic HTML, ARIA)
@@ -598,6 +631,7 @@ Is it a TypeScript type?
 ### Issue: "Should this be shared or feature-specific?"
 
 **Ask:**
+
 - Will admin/operator features need this exact component?
   - YES → Shared (`components/ui/`)
   - NO → Feature-specific (`app/([feature])/_components/`)
@@ -605,6 +639,7 @@ Is it a TypeScript type?
 ### Issue: "How do I know if it's working correctly?"
 
 **Run:**
+
 ```bash
 yarn check-types  # TypeScript validation
 yarn build        # Production build
@@ -614,6 +649,7 @@ yarn dev          # View in browser
 ### Issue: "The build is failing"
 
 **Check:**
+
 1. All imports correct?
 2. TypeScript types defined?
 3. No `any` types?
@@ -622,6 +658,7 @@ yarn dev          # View in browser
 ### Issue: "Confused about route groups"
 
 **Remember:**
+
 - `(investor)` folder = organization only
 - URL is NOT `/investor/welcome`
 - URL IS `/welcome`
@@ -648,6 +685,7 @@ touch app/\(investor\)/new-route/page.tsx
 ```
 
 **Prompt:**
+
 ```
 Create [NewScreen] for investor feature following ARCHITECTURE.md.
 Location: app/(investor)/_components/screens/NewScreen.tsx
@@ -667,6 +705,7 @@ touch components/ui/NewComponent.tsx
 ```
 
 **Prompt:**
+
 ```
 Create generic [Component] for use across all features.
 Location: components/ui/[Component].tsx
@@ -680,7 +719,7 @@ Accepts variant props. TypeScript strict.
 // lib/constants/brand.ts
 export const BRAND_COLORS = {
   // Add new color
-  purple: { DEFAULT: '#8B5CF6' },
+  purple: { DEFAULT: "#8B5CF6" },
 };
 ```
 

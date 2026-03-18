@@ -24,7 +24,7 @@ const mapProductionTypeToCategory = (
 };
 
 const getExpectedReturn = (lotId: number) => {
-  const seed = ((lotId * 7 + 3) % 11);
+  const seed = (lotId * 7 + 3) % 11;
   const value = 10 + seed * 0.5;
   return `${value.toFixed(1)}%`;
 };

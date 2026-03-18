@@ -32,7 +32,12 @@ export function AuditNote({
   }, [value]);
 
   return (
-    <div className={cn("rounded-xl border border-vaca-neutral-gray-200 bg-vaca-neutral-white p-4", className)}>
+    <div
+      className={cn(
+        "rounded-xl border border-vaca-neutral-gray-200 bg-vaca-neutral-white p-4",
+        className,
+      )}
+    >
       <label className="text-sm font-semibold text-vaca-neutral-gray-800">
         Internal notes
       </label>

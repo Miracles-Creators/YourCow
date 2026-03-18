@@ -93,7 +93,9 @@ export function FileUploadCard({
             exit={{ opacity: 0, y: -10 }}
             className={cn(
               "flex items-center gap-3 rounded-xl border-2 p-4",
-              error ? "border-red-500 bg-red-50" : "border-vaca-green/30 bg-vaca-green/5",
+              error
+                ? "border-red-500 bg-red-50"
+                : "border-vaca-green/30 bg-vaca-green/5",
             )}
           >
             {/* File icon */}

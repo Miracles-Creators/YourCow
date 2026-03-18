@@ -19,18 +19,7 @@ interface FormRowProps extends InputHTMLAttributes<HTMLInputElement> {
  * Consistent form field layout for onboarding forms
  */
 export const FormRow = forwardRef<HTMLInputElement, FormRowProps>(
-  (
-    {
-      label,
-      helperText,
-      error,
-      optional,
-      className,
-      id,
-      ...props
-    },
-    ref,
-  ) => {
+  ({ label, helperText, error, optional, className, id, ...props }, ref) => {
     const inputId = id || `input-${label.toLowerCase().replace(/\s+/g, "-")}`;
 
     return (
@@ -61,7 +50,11 @@ export const FormRow = forwardRef<HTMLInputElement, FormRowProps>(
           )}
           aria-invalid={error ? "true" : "false"}
           aria-describedby={
-            error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined
+            error
+              ? `${inputId}-error`
+              : helperText
+                ? `${inputId}-helper`
+                : undefined
           }
           {...props}
         />

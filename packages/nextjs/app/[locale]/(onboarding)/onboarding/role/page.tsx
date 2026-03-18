@@ -3,7 +3,8 @@ import { RoleSelectionScreen } from "../../_components/screens/RoleSelectionScre
 
 export const metadata: Metadata = {
   title: "Choose Role",
-  description: "Select how you want to use YourCow - as an investor or producer.",
+  description:
+    "Select how you want to use YourCow - as an investor or producer.",
 };
 
 export default function RoleSelectionPage() {

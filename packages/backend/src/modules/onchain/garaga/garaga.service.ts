@@ -35,7 +35,6 @@ const CIRCUIT_DIR = process.env.GARAGA_CIRCUIT_DIR
 export class GaragaService {
   private readonly logger = new Logger(GaragaService.name);
   private readonly jobs = new Map<string, Job>();
-  private readonly verifierAddress: string;
   private garagaModulePromise?: Promise<{
     getZKHonkCallData: (
       proof: Uint8Array,
@@ -47,13 +46,24 @@ export class GaragaService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly starknetService: StarknetService,
-  ) {
-    // The Garaga verifier lives on Sepolia only — one contract, always.
-    this.verifierAddress = process.env.GARAGA_VERIFIER_ADDRESS_SEPOLIA ?? "";
+  ) {}
 
-    if (!this.verifierAddress) {
-      this.logger.warn("GARAGA_VERIFIER_ADDRESS_SEPOLIA not set - on-chain verification will fail");
+  private resolveVerifierAddress(): { address: string; network: string; envKeys: string[] } {
+    const network = this.starknetService.getNetwork();
+    const envKeys = network === "devnet"
+      ? ["GARAGA_VERIFIER_ADDRESS_DEVNET", "GARAGA_VERIFIER_ADDRESS"]
+      : network === "sepolia"
+        ? ["GARAGA_VERIFIER_ADDRESS_SEPOLIA", "GARAGA_VERIFIER_ADDRESS"]
+        : ["GARAGA_VERIFIER_ADDRESS_MAINNET", "GARAGA_VERIFIER_ADDRESS"];
+
+    for (const envKey of envKeys) {
+      const value = process.env[envKey]?.trim();
+      if (value) {
+        return { address: value, network, envKeys };
+      }
     }
+
+    return { address: "", network, envKeys };
   }
 
   private buildProverToml(
@@ -108,8 +118,11 @@ export class GaragaService {
     proof: Buffer,
     publicInputs: Buffer,
   ): Promise<string> {
-    if (!this.verifierAddress) {
-      throw new Error("GARAGA_VERIFIER_ADDRESS not configured");
+    const { address: verifierAddress, network, envKeys } = this.resolveVerifierAddress();
+    if (!verifierAddress) {
+      throw new Error(
+        `Garaga verifier address not configured for ${network}. Set one of: ${envKeys.join(", ")}`,
+      );
     }
 
     const { getZKHonkCallData } = await this.getGaragaModule();
@@ -124,7 +137,7 @@ export class GaragaService {
 
     const account = this.starknetService.getOperatorAccount();
     const { transaction_hash } = await account.execute({
-      contractAddress: this.verifierAddress,
+      contractAddress: verifierAddress,
       entrypoint: "verify_ultra_keccak_zk_honk_proof",
       calldata,
     });

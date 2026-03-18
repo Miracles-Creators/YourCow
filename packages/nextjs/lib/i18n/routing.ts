@@ -1,17 +1,18 @@
-import { defineRouting } from 'next-intl/routing';
-import { createNavigation } from 'next-intl/navigation';
+import { defineRouting } from "next-intl/routing";
+import { createNavigation } from "next-intl/navigation";
 
 export const routing = defineRouting({
   // A list of all locales that are supported
-  locales: ['en', 'es'],
+  locales: ["en", "es"],
 
   // Used when no locale matches
-  defaultLocale: 'es',
+  defaultLocale: "es",
 
   // Always show the locale prefix in the URL (e.g., /es/welcome, /en/welcome)
-  localePrefix: 'always',
+  localePrefix: "always",
 });
 
 // Lightweight wrappers around Next.js' navigation APIs
 // that will consider the routing configuration
-export const { Link, redirect, usePathname, useRouter } = createNavigation(routing);
+export const { Link, redirect, usePathname, useRouter } =
+  createNavigation(routing);

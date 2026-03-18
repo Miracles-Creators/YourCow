@@ -35,9 +35,9 @@ export function ProducerDetailScreen() {
   const [status, setStatus] = useState<"Pending" | "Approved" | "Rejected">(
     "Pending",
   );
-  const [modalAction, setModalAction] = useState<
-    "approve" | "reject" | null
-  >(null);
+  const [modalAction, setModalAction] = useState<"approve" | "reject" | null>(
+    null,
+  );
   const [rejectReason, setRejectReason] = useState("");
   const [error, setError] = useState("");
   const modalRef = useRef<HTMLDivElement | null>(null);
@@ -48,17 +48,20 @@ export function ProducerDetailScreen() {
     return "pending";
   }, [status]);
 
-  const lots = useMemo(() => producerQuery.data?.lots ?? [], [producerQuery.data]);
+  const lots = useMemo(
+    () => producerQuery.data?.lots ?? [],
+    [producerQuery.data],
+  );
   const isApproving = approveProducer.isPending;
   const isApproved = status === "Approved";
 
-  const formatShares = (value: number) => `${value.toLocaleString("en-US")} shares`;
+  const formatShares = (value: number) =>
+    `${value.toLocaleString("en-US")} shares`;
 
   useEffect(() => {
     if (!modalAction) return;
-    const firstFocusable = modalRef.current?.querySelector<HTMLElement>(
-      "button, textarea",
-    );
+    const firstFocusable =
+      modalRef.current?.querySelector<HTMLElement>("button, textarea");
     firstFocusable?.focus();
   }, [modalAction]);
 
@@ -70,9 +73,8 @@ export function ProducerDetailScreen() {
     }
 
     if (event.key === "Tab" && modalRef.current) {
-      const focusable = modalRef.current.querySelectorAll<HTMLElement>(
-        "button, textarea",
-      );
+      const focusable =
+        modalRef.current.querySelectorAll<HTMLElement>("button, textarea");
       if (focusable.length === 0) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
@@ -314,9 +316,7 @@ export function ProducerDetailScreen() {
                 disabled={modalAction === "approve" && isApproving}
                 className={cn(
                   "rounded-full px-4 py-2 text-xs font-semibold text-vaca-neutral-white disabled:cursor-not-allowed disabled:opacity-70",
-                  modalAction === "approve"
-                    ? "bg-vaca-green"
-                    : "bg-red-600",
+                  modalAction === "approve" ? "bg-vaca-green" : "bg-red-600",
                 )}
               >
                 {modalAction === "approve" && isApproving

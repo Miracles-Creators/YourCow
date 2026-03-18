@@ -2,7 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { AdminPageHeader, DataTable, StatusPill, type AdminStatusTone } from "../index";
+import {
+  AdminPageHeader,
+  DataTable,
+  StatusPill,
+  type AdminStatusTone,
+} from "../index";
 import { cn } from "~~/lib/utils/cn";
 import { useConfirmSettlement } from "~~/hooks/settlements/useConfirmSettlement";
 import { useSettlements } from "~~/hooks/settlements/useSettlements";
@@ -82,7 +87,8 @@ export function SettlementsReviewScreen() {
           grossAmount,
           finalCosts: "—",
           netResult: grossAmount,
-          status: settlement.onChainStatus === "SYNCED" ? "Confirmed" : "Pending",
+          status:
+            settlement.onChainStatus === "SYNCED" ? "Confirmed" : "Pending",
           source: "api",
           settlementId: settlement.id,
         };
@@ -95,9 +101,8 @@ export function SettlementsReviewScreen() {
     [mappedApiSettlements],
   );
 
-  const [settlements, setSettlements] = useState<SettlementRecord[]>(
-    combinedSettlements,
-  );
+  const [settlements, setSettlements] =
+    useState<SettlementRecord[]>(combinedSettlements);
   const [active, setActive] = useState<SettlementRecord | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [confirmError, setConfirmError] = useState<string | null>(null);
@@ -111,7 +116,9 @@ export function SettlementsReviewScreen() {
     setConfirmError(null);
     if (active.source === "api" && active.settlementId) {
       try {
-        const updated = await confirmSettlement.mutateAsync(active.settlementId);
+        const updated = await confirmSettlement.mutateAsync(
+          active.settlementId,
+        );
         const nextStatus =
           updated.onChainStatus === "SYNCED" ? "Confirmed" : "Pending";
         setSettlements((prev) =>
@@ -124,7 +131,9 @@ export function SettlementsReviewScreen() {
         setConfirmed(false);
       } catch (error) {
         setConfirmError(
-          error instanceof Error ? error.message : "Failed to confirm settlement.",
+          error instanceof Error
+            ? error.message
+            : "Failed to confirm settlement.",
         );
       }
       return;
@@ -301,7 +310,9 @@ export function SettlementsReviewScreen() {
                     : "bg-vaca-neutral-gray-300 cursor-not-allowed",
                 )}
               >
-                {confirmSettlement.isPending ? "Confirming..." : "Confirm settlement"}
+                {confirmSettlement.isPending
+                  ? "Confirming..."
+                  : "Confirm settlement"}
               </button>
             </div>
           </div>

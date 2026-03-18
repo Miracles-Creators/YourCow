@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "~~/components/LanguageSwitcher";
 import { cn } from "~~/lib/utils/cn";
 import { CowLogo } from "./Logo";
 import { BRAND_COPY } from "~~/lib/constants/brand";
@@ -117,10 +118,12 @@ export function SideNav() {
                   aria-current={active ? "page" : undefined}
                 >
                   {item.icon(active)}
-                  <span className={cn(
-                    "font-inter text-sm",
-                    active ? "font-semibold" : "font-medium",
-                  )}>
+                  <span
+                    className={cn(
+                      "font-inter text-sm",
+                      active ? "font-semibold" : "font-medium",
+                    )}
+                  >
                     {item.label}
                   </span>
                   {active && (
@@ -134,7 +137,8 @@ export function SideNav() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-vaca-neutral-gray-100 px-6 py-4">
+      <div className="space-y-4 border-t border-vaca-neutral-gray-100 px-6 py-4">
+        <LanguageSwitcher />
         <p className="font-inter text-[10px] font-medium uppercase tracking-widest text-vaca-neutral-gray-300">
           {BRAND_COPY.description}
         </p>

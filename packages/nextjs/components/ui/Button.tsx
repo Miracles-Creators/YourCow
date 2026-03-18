@@ -54,30 +54,39 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const colorSchemes = {
       green: {
         ring: "focus-visible:ring-vaca-green",
-        primary: "bg-vaca-green text-white hover:bg-vaca-green-light shadow-lg shadow-vaca-green/20 hover:shadow-xl",
+        primary:
+          "bg-vaca-green text-white hover:bg-vaca-green-light shadow-lg shadow-vaca-green/20 hover:shadow-xl",
         secondary: "bg-vaca-green/10 text-vaca-green hover:bg-vaca-green/20",
-        outline: "border-2 border-vaca-green text-vaca-green hover:bg-vaca-green hover:text-white",
+        outline:
+          "border-2 border-vaca-green text-vaca-green hover:bg-vaca-green hover:text-white",
         ghost: "text-vaca-green hover:bg-vaca-green/10",
       },
       blue: {
         ring: "focus-visible:ring-vaca-blue",
-        primary: "bg-vaca-blue text-white hover:bg-vaca-blue-light shadow-lg shadow-vaca-blue/20 hover:shadow-xl",
+        primary:
+          "bg-vaca-blue text-white hover:bg-vaca-blue-light shadow-lg shadow-vaca-blue/20 hover:shadow-xl",
         secondary: "bg-vaca-blue/10 text-vaca-blue hover:bg-vaca-blue/20",
-        outline: "border-2 border-vaca-blue text-vaca-blue hover:bg-vaca-blue hover:text-white",
+        outline:
+          "border-2 border-vaca-blue text-vaca-blue hover:bg-vaca-blue hover:text-white",
         ghost: "text-vaca-blue hover:bg-vaca-blue/10",
       },
       brown: {
         ring: "focus-visible:ring-vaca-brown",
-        primary: "bg-vaca-brown text-white hover:bg-vaca-brown-light shadow-lg shadow-vaca-brown/20 hover:shadow-xl",
+        primary:
+          "bg-vaca-brown text-white hover:bg-vaca-brown-light shadow-lg shadow-vaca-brown/20 hover:shadow-xl",
         secondary: "bg-vaca-brown/10 text-vaca-brown hover:bg-vaca-brown/20",
-        outline: "border-2 border-vaca-brown text-vaca-brown hover:bg-vaca-brown hover:text-white",
+        outline:
+          "border-2 border-vaca-brown text-vaca-brown hover:bg-vaca-brown hover:text-white",
         ghost: "text-vaca-brown hover:bg-vaca-brown/10",
       },
       neutral: {
         ring: "focus-visible:ring-vaca-neutral-gray-400",
-        primary: "bg-vaca-neutral-gray-700 text-white hover:bg-vaca-neutral-gray-600 shadow-lg",
-        secondary: "bg-vaca-neutral-gray-100 text-vaca-neutral-gray-700 hover:bg-vaca-neutral-gray-200",
-        outline: "border-2 border-vaca-neutral-gray-300 text-vaca-neutral-gray-700 hover:bg-vaca-neutral-gray-100",
+        primary:
+          "bg-vaca-neutral-gray-700 text-white hover:bg-vaca-neutral-gray-600 shadow-lg",
+        secondary:
+          "bg-vaca-neutral-gray-100 text-vaca-neutral-gray-700 hover:bg-vaca-neutral-gray-200",
+        outline:
+          "border-2 border-vaca-neutral-gray-300 text-vaca-neutral-gray-700 hover:bg-vaca-neutral-gray-100",
         ghost: "text-vaca-neutral-gray-700 hover:bg-vaca-neutral-gray-100",
       },
     };
@@ -112,7 +121,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     // Render as Button
     return (
-      <button ref={ref} className={cn(styles, "group")} disabled={disabled} {...props}>
+      <button
+        ref={ref}
+        className={cn(styles, "group")}
+        disabled={disabled}
+        {...props}
+      >
         {content}
       </button>
     );

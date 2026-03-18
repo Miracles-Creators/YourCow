@@ -51,7 +51,11 @@ export function StatusPill({
       tone={toneMap[tone]}
       size="md"
       variant="pill"
-      className={additionalStyles[tone] ? `${additionalStyles[tone]} ${className ?? ""}` : className}
+      className={
+        additionalStyles[tone]
+          ? `${additionalStyles[tone]} ${className ?? ""}`
+          : className
+      }
     >
       {label}
     </Badge>

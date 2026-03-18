@@ -32,6 +32,7 @@ export class AuthController {
       sameSite: "lax",
       maxAge: SESSION_TTL_DAYS * 24 * 60 * 60 * 1000,
       path: "/",
+      ...(process.env.COOKIE_DOMAIN && { domain: process.env.COOKIE_DOMAIN }),
     });
 
     return user;
@@ -39,7 +40,10 @@ export class AuthController {
 
   @Post("logout")
   async logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie(SESSION_COOKIE_NAME, { path: "/" });
+    res.clearCookie(SESSION_COOKIE_NAME, {
+      path: "/",
+      ...(process.env.COOKIE_DOMAIN && { domain: process.env.COOKIE_DOMAIN }),
+    });
     return { ok: true };
   }
 

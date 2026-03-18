@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { LanguageSwitcher } from "~~/components/LanguageSwitcher";
 import { cn } from "~~/lib/utils/cn";
 import { BottomNav } from "../ui/BottomNav";
 import { SideNav } from "../ui/SideNav";
@@ -15,16 +16,27 @@ interface InvestorLayoutProps {
 const PUBLIC_ROUTES = ["/welcome", "/login"];
 
 // Immersive routes: no TopBar, no padding, no max-w — the screen owns its own layout
-const IMMERSIVE_ROUTES = ["/lot/", "/invest/", "/confirm-investment/", "/investment-success/", "/position/"];
+const IMMERSIVE_ROUTES = [
+  "/lot/",
+  "/invest/",
+  "/confirm-investment/",
+  "/investment-success/",
+  "/position/",
+];
 
 export function InvestorLayout({ children, className }: InvestorLayoutProps) {
   const pathname = usePathname();
   const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, "") || "/";
-  const showBottomNav = !PUBLIC_ROUTES.some((r) => pathWithoutLocale === r || pathWithoutLocale.startsWith(r + "/"));
+  const showBottomNav = !PUBLIC_ROUTES.some(
+    (r) => pathWithoutLocale === r || pathWithoutLocale.startsWith(r + "/"),
+  );
   const isNarrowCentered = ["/welcome", "/login", "/register"].some(
     (r) => pathWithoutLocale === r || pathWithoutLocale.startsWith(r + "/"),
   );
-  const isImmersive = IMMERSIVE_ROUTES.some((r) => pathWithoutLocale.startsWith(r));
+  const isImmersive = IMMERSIVE_ROUTES.some((r) =>
+    pathWithoutLocale.startsWith(r),
+  );
+  const showFloatingLanguageSwitcher = !showBottomNav || isImmersive;
 
   return (
     <div
@@ -33,15 +45,24 @@ export function InvestorLayout({ children, className }: InvestorLayoutProps) {
         className,
       )}
     >
+      {showFloatingLanguageSwitcher && (
+        <div
+          className={cn(
+            "fixed right-4 top-4 z-40",
+            showBottomNav && isImmersive && "lg:hidden",
+          )}
+        >
+          <LanguageSwitcher />
+        </div>
+      )}
+
       {showBottomNav && <SideNav />}
 
       <div
         className={cn(
           "relative z-10 flex min-h-screen justify-center",
           isNarrowCentered ? "items-center" : "items-start",
-          isImmersive
-            ? "px-0 pb-0"
-            : "px-4 pb-8 sm:px-6 lg:px-8",
+          isImmersive ? "px-0 pb-0" : "px-4 pb-8 sm:px-6 lg:px-8",
           showBottomNav && !isImmersive && "pb-24 lg:pb-8 lg:pl-64",
           showBottomNav && isImmersive && "lg:pl-64",
         )}

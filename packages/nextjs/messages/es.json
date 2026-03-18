@@ -66,7 +66,10 @@
       "network": "Error de conexión. Verifica tu internet.",
       "notFound": "No encontrado",
       "unauthorized": "No autorizado",
-      "invalidInput": "Entrada inválida"
+      "invalidInput": "Entrada inválida",
+      "walletLinkFailed": "No se pudo vincular la wallet. Intenta de nuevo.",
+      "walletAlreadyLinked": "Esta wallet ya está vinculada a otra cuenta.",
+      "walletMismatch": "La wallet conectada no coincide con la asociada a tu cuenta."
     },
     "loading": {
       "default": "Cargando...",
@@ -135,6 +138,36 @@
         "daysLeft": "{count} días restantes",
         "noEvents": "Sin eventos próximos"
       },
+      "offers": {
+        "eyebrow": "Ofertas de Acciones",
+        "title": "Ofertas de Acciones",
+        "subtitle": "Administra las acciones que publicaste en el mercado P2P sin salir de tu dashboard.",
+        "count": "{count} ofertas activas",
+        "status": {
+          "open": "Abierta",
+          "partiallyFilled": "Parcialmente Completada",
+          "filled": "Completada",
+          "cancelled": "Cancelada"
+        },
+        "card": {
+          "selling": "Vendiendo",
+          "shares": "acciones",
+          "pricePerShare": "Precio / Acción",
+          "availableShares": "Disponibles",
+          "filledShares": "Completadas",
+          "liveValue": "Valor Activo",
+          "fulfillment": "Cumplimiento de la oferta",
+          "totalShares": "{count} acciones totales",
+          "remainingShares": "{count} restantes",
+          "listedOn": "Publicada el {date}",
+          "shareCount": "{count} acciones"
+        },
+        "actions": {
+          "viewLot": "Ver lote",
+          "cancel": "Cancelar oferta",
+          "canceling": "Cancelando..."
+        }
+      },
       "empty": {
         "title": "Comenzá tu Viaje de Inversión",
         "description": "Explorá los lotes de ganado disponibles y hacé tu primera inversión.",
@@ -182,6 +215,112 @@
         "description": "No hay ofertas disponibles por ahora. Vuelve pronto."
       }
     },
+    "trade": {
+      "title": "Mercado",
+      "fiatTab": "💵 Fiat (ARS)",
+      "cryptoTab": "⚡ Crypto",
+      "buy": "Comprar",
+      "sell": "Vender",
+      "buyShares": "Comprar Acciones",
+      "buyWithStrk": "Comprar con STRK",
+      "balance": "Saldo",
+      "custody": "Custodia",
+      "private": "Privado",
+      "deposit": "Depositar",
+      "withdraw": "Retirar",
+      "comingSoon": "Próximamente",
+      "feeInfo": "1% de comisión por lado",
+      "feeInfoCrypto": "0% comisión · Transferencias privadas",
+      "availableOffers": "Ofertas disponibles",
+      "yourPositions": "Tus posiciones",
+      "noFiatOffers": "No hay ofertas fiat aún. Sé el primero en listar acciones por ARS.",
+      "noCryptoOffers": "No hay ofertas crypto aún. Lista acciones por STRK con liquidación privada.",
+      "sellShares": "Vender Acciones",
+      "noSharesToSell": "Sin acciones para vender",
+      "noSharesDescription": "Comprá acciones en el mercado primero, luego vení acá para listarlas.",
+      "available": "disponibles",
+      "locked": "bloqueadas",
+      "depositArs": "Depositar ARS",
+      "addFunds": "Agregar fondos a tu saldo de trading",
+      "depositSuccess": "Depósito exitoso",
+      "depositAdded": "{amount} ARS agregados a tu saldo de trading.",
+      "depositAmount": "Monto (ARS)",
+      "depositButton": "Depositar",
+      "processing": "Procesando depósito...",
+      "depositFailed": "El depósito falló",
+      "somethingWrong": "Algo salió mal",
+      "retry": "Reintentar",
+      "done": "Listo",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "shares": "acciones",
+      "weeks": "semanas",
+      "offerCard": {
+        "pricePerShare": "Precio por acción",
+        "available": "Disponibles",
+        "totalValue": "Valor Total",
+        "seller": "Vendedor:",
+        "cancelOffer": "Cancelar oferta",
+        "offerCompleted": "Oferta completada",
+        "offerCancelled": "Oferta cancelada",
+        "listed": "Publicada {date}",
+        "soldProgress": "{filled} de {total} vendidas",
+        "statusOpen": "Abierta",
+        "statusPartiallyFilled": "Parcialmente Completada",
+        "statusSoldOut": "Agotada",
+        "statusCancelled": "Cancelada"
+      },
+      "acceptOffer": {
+        "title": "Comprar Acciones",
+        "pricePerShare": "Precio por acción",
+        "availableShares": "Acciones disponibles",
+        "tongoBalance": "Saldo Tongo",
+        "yourBalance": "Tu saldo",
+        "sharesToBuy": "Acciones a comprar",
+        "buyAll": "Comprar todas ({count})",
+        "enterAmount": "Ingresá cantidad",
+        "exceedsAvailable": "Supera las acciones disponibles",
+        "priceBreakdown": "Desglose de precio",
+        "subtotal": "Subtotal",
+        "fee": "Comisión (1%)",
+        "total": "Total",
+        "privateNoFees": "Transferencia privada — sin comisiones",
+        "insufficientFunds": "Fondos insuficientes",
+        "fundTongo": "Cargá tu saldo Tongo para completar esta compra.",
+        "needMore": "Necesitás {amount} más.",
+        "tradeCompleted": "Operación completada",
+        "paymentConfirmed": "Pago confirmado — transfiriendo acciones...",
+        "tradeFailed": "Operación fallida",
+        "processingTransfer": "Procesando transferencia privada...",
+        "sharesInPortfolio": "Las acciones ya están en tu portafolio.",
+        "paymentFailed": "No se pudo procesar el pago. No se cobró tu saldo.",
+        "settlingOnChain": "Pago encriptado liquidándose en Starknet...",
+        "viewOnVoyager": "Ver transacción en Voyager",
+        "confirmPurchase": "Confirmar Compra",
+        "purchaseFailed": "No se pudieron comprar las acciones"
+      },
+      "createOffer": {
+        "title": "Crear Oferta de Venta",
+        "availableToSell": "Disponibles para vender",
+        "sharesToSell": "Cantidad de acciones a vender",
+        "enterAmount": "Ingresá cantidad",
+        "exceedsAvailable": "Supera las acciones disponibles",
+        "ofPosition": "de tu posición",
+        "paymentCurrency": "Moneda de pago",
+        "strkPrivate": "STRK (Privado)",
+        "arsFiat": "ARS (Fiat)",
+        "pricePerShareStrk": "Precio por acción (STRK)",
+        "pricePerShareArs": "Precio por acción (ARS)",
+        "strkHelperText": "STRK por acción (privado)",
+        "arsHelperText": "Definí tu precio por acción",
+        "totalOfferValue": "Valor total de la oferta",
+        "privateNoFees": "Transferencia privada vía Tongo — sin comisiones",
+        "feeDeducted": "1% comisión ({fee}) descontada al vender",
+        "createFailed": "No se pudo crear la oferta",
+        "creating": "Creando...",
+        "createButton": "Crear Oferta"
+      }
+    },
     "portfolio": {
       "pill": "Detalle de posiciones",
       "title": "Portafolio",
@@ -224,7 +363,13 @@
       "privateMetrics": {
         "title": "Capacidad del lote",
         "hidden": "Privada",
-        "hint": "El progress bar sigue visible sin revelar el total de acciones del productor."
+        "hint": "El progress bar sigue visible sin revelar el total de acciones del productor.",
+        "verifyButton": "Verificar con ZK Proof",
+        "verifyFailed": "Falló la generación del proof",
+        "retryButton": "Reintentar",
+        "statusPending": "Iniciando trabajo de prueba...",
+        "statusProving": "Generando prueba (~2 min)...",
+        "statusVerifying": "Verificando en Starknet..."
       },
       "investButton": "Invertir en este Lote",
       "categories": {
@@ -286,7 +431,8 @@
         "viewPortfolio": "Ver Portafolio",
         "viewPosition": "Ver Posición",
         "browseLots": "Explorar Más Lotes"
-      }
+      },
+      "viewTransaction": "Ver Transacción"
     },
     "oracle": {
       "title": "Oráculo de Mercado",
@@ -668,6 +814,195 @@
         "step3": "Publica cuando la verificación sea aprobada"
       },
       "supportLink": "Contactar soporte"
+    }
+  },
+  "producer": {
+    "createLot": {
+      "steps": {
+        "basicInfo": "Info Básica",
+        "herdCycle": "Rodeo y Ciclo",
+        "financing": "Financiamiento",
+        "documents": "Documentos",
+        "review": "Revisión"
+      },
+      "basicInfo": {
+        "title": "Crear un nuevo lote",
+        "subtitle": "Completá los datos esenciales para registrar el lote correctamente.",
+        "fields": {
+          "producerId": { "label": "ID de productor" },
+          "lotName": { "label": "Nombre del lote" },
+          "farmName": { "label": "Nombre del establecimiento / Feedlot" },
+          "location": { "label": "Ubicación (Provincia/Estado + País)" },
+          "productionType": {
+            "label": "Tipo de producción",
+            "placeholder": "Seleccioná un tipo de producción",
+            "helper": "Seleccioná cómo se gestionará este lote operativamente.",
+            "options": {
+              "feedlot": "Feedlot",
+              "pasture": "Pastoreo",
+              "mixed": "Mixto"
+            }
+          },
+          "startDate": { "label": "Fecha de inicio" }
+        },
+        "buttons": {
+          "saveDraft": "Guardar borrador",
+          "continue": "Continuar"
+        },
+        "errors": {
+          "lotNameRequired": "El nombre del lote es requerido.",
+          "farmNameRequired": "El nombre del establecimiento es requerido.",
+          "locationRequired": "La ubicación es requerida.",
+          "productionTypeRequired": "Seleccioná un tipo de producción.",
+          "startDateRequired": "La fecha de inicio es requerida."
+        }
+      },
+      "herdCycle": {
+        "title": "Rodeo y ciclo productivo",
+        "subtitle": "Proporcioná métricas operativas para transparencia y reportes.",
+        "fields": {
+          "cattleCount": { "label": "Cantidad de cabezas" },
+          "averageWeightKg": { "label": "Peso promedio (kg)" },
+          "initialWeightKg": { "label": "Peso inicial (kg)" },
+          "notes": { "label": "Notas (opcional)" }
+        },
+        "timeline": {
+          "label": "Plazo",
+          "durationOption": "Duración estimada (semanas)",
+          "dateOption": "Fecha objetivo de cierre",
+          "placeholder": "ej. 24"
+        },
+        "investorNote": {
+          "title": "Lo que ven los inversores",
+          "description": "Mostramos estas métricas para generar confianza en los inversores."
+        },
+        "buttons": {
+          "back": "Volver",
+          "continue": "Continuar"
+        },
+        "errors": {
+          "cattleCountRequired": "La cantidad de cabezas es requerida.",
+          "averageWeightRequired": "El peso promedio es requerido.",
+          "initialWeightRequired": "El peso inicial es requerido.",
+          "durationRequired": "La duración estimada es requerida.",
+          "targetDateRequired": "La fecha objetivo es requerida."
+        }
+      },
+      "financing": {
+        "title": "Estructura de financiamiento",
+        "subtitle": "Definí el capital requerido y la asignación a inversores.",
+        "fields": {
+          "totalCapital": { "label": "Capital total requerido (USD)" },
+          "fundingDeadline": { "label": "Fecha límite de fondeo" },
+          "operatingCosts": { "label": "Costos operativos estimados (opcional)" }
+        },
+        "platformNote": "Los términos finales están sujetos a aprobación de la plataforma.",
+        "buttons": {
+          "back": "Volver",
+          "continue": "Continuar"
+        },
+        "errors": {
+          "totalCapitalRequired": "El capital total es requerido.",
+          "fundingDeadlineRequired": "La fecha límite de fondeo es requerida."
+        }
+      },
+      "documents": {
+        "title": "Documentos y presentación",
+        "subtitle": "Subí la documentación requerida para completar la verificación.",
+        "sections": {
+          "required": {
+            "title": "Documentos requeridos",
+            "subtitle": "Presentá comprobante de operación y documentación del lote."
+          },
+          "producer": {
+            "title": "Conocé al productor",
+            "subtitle": "Opcional, recomendado: presentá a tu familia/equipo y cómo gestionás este lote."
+          }
+        },
+        "fields": {
+          "ownership": {
+            "label": "Comprobante de propiedad / operación",
+            "helper": "Registro empresarial, contrato de arrendamiento o licencia operativa."
+          },
+          "lotDocs": {
+            "label": "Documentación del lote",
+            "helper": "Certificados sanitarios, trazabilidad o informes veterinarios."
+          },
+          "insurance": {
+            "label": "Seguro",
+            "helper": "Documentación de cobertura opcional."
+          },
+          "video": {
+            "label": "Video corto (máx. 2 minutos)",
+            "helper": "Sin promesas de retorno. Sé auténtico."
+          }
+        },
+        "buttons": {
+          "back": "Volver",
+          "continue": "Continuar"
+        }
+      },
+      "review": {
+        "title": "Revisar y enviar",
+        "subtitle": "Confirmá los datos antes de enviar para aprobación.",
+        "sections": {
+          "basicInfo": {
+            "title": "Info básica",
+            "lot": "Lote",
+            "farm": "Establecimiento",
+            "location": "Ubicación",
+            "startDate": "Fecha de inicio"
+          },
+          "herdCycle": {
+            "title": "Rodeo y ciclo",
+            "cattleCount": "Cantidad de cabezas",
+            "averageWeight": "Peso promedio",
+            "initialWeight": "Peso inicial",
+            "timeline": "Plazo",
+            "weeks": "semanas"
+          },
+          "financing": {
+            "title": "Financiamiento",
+            "totalCapital": "Capital total requerido",
+            "investorAllocation": "Asignación a inversores",
+            "fundingDeadline": "Fecha límite de fondeo"
+          },
+          "documents": {
+            "title": "Estado de documentos",
+            "ownership": "Comprobante de propiedad / operación",
+            "lotDocs": "Documentación del lote",
+            "insurance": "Seguro",
+            "video": "Video de presentación del productor",
+            "uploaded": "Cargado",
+            "missing": "Faltante",
+            "optional": "Opcional"
+          }
+        },
+        "checklist": {
+          "title": "Lista de verificación de envío",
+          "items": {
+            "lotDetails": "Datos del lote confirmados",
+            "herdCycle": "Métricas de rodeo y ciclo revisadas",
+            "financing": "Términos de financiamiento alineados",
+            "documents": "Documentos cargados"
+          }
+        },
+        "buttons": {
+          "back": "Volver",
+          "submit": "Enviar para aprobación",
+          "submitting": "Enviando..."
+        },
+        "modal": {
+          "title": "Confirmar envío",
+          "description": "No podrás cambiar parámetros clave después de la aprobación sin una revisión adicional.",
+          "cancel": "Cancelar",
+          "submit": "Enviar para aprobación",
+          "submitting": "Enviando..."
+        },
+        "errors": {
+          "invalidData": "Datos faltantes o inválidos. Revisá el formulario."
+        }
+      }
     }
   }
 }

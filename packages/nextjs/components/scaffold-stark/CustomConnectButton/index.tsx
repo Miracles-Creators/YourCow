@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { useConnect, useNetwork } from "@starknet-react/core";
+import { useConnect, useDisconnect, useNetwork } from "@starknet-react/core";
 import { Address } from "@starknet-react/chains";
 import { AddressInfoDropdown } from "./AddressInfoDropdown";
 import { WrongNetworkDropdown } from "./WrongNetworkDropdown";
@@ -11,18 +11,37 @@ import { useAccount } from "~~/hooks/useAccount";
 import { useMe } from "~~/hooks/auth/useMe";
 import { useAutoLinkWallet } from "~~/hooks/auth/useLinkWallet";
 import { getBlockExplorerAddressLink } from "~~/utils/scaffold-stark";
-import { useReadLocalStorage } from "usehooks-ts";
+import { useLocalStorage } from "usehooks-ts";
+import { useTranslations } from "next-intl";
 
 export const CustomConnectButton = () => {
   const { connector } = useConnect();
+  const { disconnect } = useDisconnect();
   const { targetNetwork } = useTargetNetwork();
   const { chain } = useNetwork();
   const { account, status, address: accountAddress } = useAccount();
   const { data: me } = useMe();
-  const { tryLinkWallet } = useAutoLinkWallet();
-  const wasDisconnectedManually = useReadLocalStorage<boolean>(
+  const t = useTranslations("common.errors");
+  const [, setWasDisconnectedManually] = useLocalStorage<boolean>(
     "wasDisconnectedManually",
+    false,
+    { initializeWithValue: false },
   );
+  const [linkFailed, setLinkFailed] = useState(false);
+  const { tryLinkWallet } = useAutoLinkWallet({
+    onLinkFailed: () => {
+      setLinkFailed(true);
+      disconnect();
+      localStorage.removeItem("lastUsedConnector");
+      localStorage.removeItem("lastConnectionTime");
+      setWasDisconnectedManually(true);
+    },
+    messages: {
+      linkFailed: t("walletLinkFailed"),
+      alreadyLinked: t("walletAlreadyLinked"),
+      walletMismatch: t("walletMismatch"),
+    },
+  });
   const [accountChainId, setAccountChainId] = useState<bigint>(0n);
   const [linkTrigger, setLinkTrigger] = useState(0);
 
@@ -74,8 +93,23 @@ export const CustomConnectButton = () => {
     }
   }, [status, accountAddress]);
 
-  if (status === "disconnected" || wasDisconnectedManually) {
-    return <ConnectModal />;
+  useEffect(() => {
+    if (
+      linkFailed &&
+      me?.walletAddress &&
+      accountAddress &&
+      me.walletAddress.toLowerCase() === accountAddress.toLowerCase()
+    ) {
+      setLinkFailed(false);
+    }
+  }, [linkFailed, me?.walletAddress, accountAddress]);
+
+  if (status === "disconnected" || linkFailed) {
+    return (
+      <ConnectModal
+        onConnect={() => setLinkTrigger((v) => v + 1)}
+      />
+    );
   }
 
   const isLoading =

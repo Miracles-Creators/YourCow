@@ -4,7 +4,10 @@ import { forwardRef } from "react";
 import { Button, type ButtonProps } from "~~/components/ui";
 import { cn } from "~~/lib/utils/cn";
 
-interface PrimaryButtonProps extends Omit<ButtonProps, "variant" | "colorScheme"> {
+interface PrimaryButtonProps extends Omit<
+  ButtonProps,
+  "variant" | "colorScheme"
+> {
   variant?: "primary" | "secondary";
 }
 
@@ -13,7 +16,10 @@ interface PrimaryButtonProps extends Omit<ButtonProps, "variant" | "colorScheme"
  * Composes the shared Button component with investor branding.
  */
 export const PrimaryButton = forwardRef<HTMLButtonElement, PrimaryButtonProps>(
-  ({ variant = "primary", size = "lg", className, children, ...props }, ref) => {
+  (
+    { variant = "primary", size = "lg", className, children, ...props },
+    ref,
+  ) => {
     // Animated arrow icon
     const Arrow = () => (
       <svg
@@ -42,10 +48,7 @@ export const PrimaryButton = forwardRef<HTMLButtonElement, PrimaryButtonProps>(
         size={size}
         icon={<Arrow />}
         iconPosition="right"
-        className={cn(
-          "hover:-translate-y-0.5 active:translate-y-0",
-          className,
-        )}
+        className={cn("hover:-translate-y-0.5 active:translate-y-0", className)}
         {...props}
       >
         {children}

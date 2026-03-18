@@ -4,7 +4,8 @@ import { PositionDetailScreen } from "../../_components/screens/PositionDetailSc
 
 export const metadata: Metadata = {
   title: "Position Detail",
-  description: "View your investment position details, NAV evolution, and production metrics.",
+  description:
+    "View your investment position details, NAV evolution, and production metrics.",
 };
 
 interface Props {

@@ -3,8 +3,10 @@
 import { forwardRef, type InputHTMLAttributes } from "react";
 import { cn } from "~~/lib/utils/cn";
 
-interface PhoneInputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
+interface PhoneInputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "type"
+> {
   label?: string;
   helperText?: string;
   error?: string;
@@ -43,7 +45,8 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
     ref,
   ) => {
     const inputId = id || "phone-input";
-    const selectedCountry = COUNTRY_CODES.find((c) => c.code === countryCode) || COUNTRY_CODES[0];
+    const selectedCountry =
+      COUNTRY_CODES.find((c) => c.code === countryCode) || COUNTRY_CODES[0];
 
     return (
       <div className="w-full">
@@ -62,9 +65,7 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
             className={cn(
               "flex shrink-0 items-center gap-1 rounded-xl border-2 px-3 py-3",
               "bg-vaca-neutral-gray-50 text-vaca-neutral-gray-700",
-              error
-                ? "border-red-500"
-                : "border-vaca-neutral-gray-200",
+              error ? "border-red-500" : "border-vaca-neutral-gray-200",
             )}
           >
             <span className="text-lg">{selectedCountry.flag}</span>

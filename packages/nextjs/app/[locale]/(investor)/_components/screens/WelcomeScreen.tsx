@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 import { Button } from "~~/components/ui";
 import { Logo } from "../ui/Logo";
 import { TrustBadge } from "../ui/TrustBadge";
@@ -12,7 +12,7 @@ import { TrustBadge } from "../ui/TrustBadge";
  * Establishes trust, clarity, and agricultural authenticity
  */
 export function WelcomeScreen() {
-  const t = useTranslations('investor.welcome');
+  const t = useTranslations("investor.welcome");
 
   // Staggered animation variants
   const containerVariants = {
@@ -53,15 +53,18 @@ export function WelcomeScreen() {
       {/* Headline & Tagline */}
       <motion.div variants={itemVariants} className="mb-12 space-y-4">
         <h2 className="font-playfair text-3xl font-semibold leading-tight tracking-tight text-vaca-neutral-gray-900 sm:text-4xl">
-          {t('tagline')}
+          {t("tagline")}
         </h2>
         <p className="mx-auto max-w-md font-inter text-base leading-relaxed text-vaca-neutral-gray-500 sm:text-lg">
-          {t('description')}
+          {t("description")}
         </p>
       </motion.div>
 
       {/* CTAs */}
-      <motion.div variants={itemVariants} className="mb-12 flex w-full max-w-xs flex-col gap-3">
+      <motion.div
+        variants={itemVariants}
+        className="mb-12 flex w-full max-w-xs flex-col gap-3"
+      >
         <Button
           href="/register"
           colorScheme="green"
@@ -70,7 +73,7 @@ export function WelcomeScreen() {
           fullWidth
           className="hover:-translate-y-0.5 active:translate-y-0"
         >
-          {t('ctaRegister')}
+          {t("ctaRegister")}
         </Button>
         <Button
           href="/login"
@@ -79,7 +82,7 @@ export function WelcomeScreen() {
           size="lg"
           fullWidth
         >
-          {t('ctaLogin')}
+          {t("ctaLogin")}
         </Button>
       </motion.div>
 

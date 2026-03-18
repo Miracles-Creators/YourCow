@@ -300,7 +300,15 @@ fn test_complete_mvp_flow() {
     cheat_caller_address(
         protocol.settlement_registry.contract_address, operator(), CheatSpan::TargetCalls(1),
     );
-    protocol.settlement_registry.settle_lot(lot_id, final_report_hash, total_proceeds, final_total_weight_grams, final_average_weight_grams);
+    protocol
+        .settlement_registry
+        .settle_lot(
+            lot_id,
+            final_report_hash,
+            total_proceeds,
+            final_total_weight_grams,
+            final_average_weight_grams,
+        );
 
     // Verify settlement recorded
     assert(protocol.settlement_registry.is_settled(lot_id), 'Should be settled');

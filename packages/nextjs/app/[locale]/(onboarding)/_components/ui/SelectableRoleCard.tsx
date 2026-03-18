@@ -82,7 +82,9 @@ export function SelectableRoleCard({
           <h3
             className={cn(
               "font-inter text-base font-semibold",
-              isSelected ? "text-vaca-neutral-gray-900" : "text-vaca-neutral-gray-700",
+              isSelected
+                ? "text-vaca-neutral-gray-900"
+                : "text-vaca-neutral-gray-700",
             )}
           >
             {title}
@@ -97,7 +99,10 @@ export function SelectableRoleCard({
           className={cn(
             "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
             isSelected
-              ? cn(colors.ring.replace("ring-", "border-"), colors.ring.replace("ring-", "bg-"))
+              ? cn(
+                  colors.ring.replace("ring-", "border-"),
+                  colors.ring.replace("ring-", "bg-"),
+                )
               : "border-vaca-neutral-gray-300 bg-transparent",
           )}
         >

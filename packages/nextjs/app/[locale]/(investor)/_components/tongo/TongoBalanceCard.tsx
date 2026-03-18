@@ -3,7 +3,12 @@
 import { motion } from "framer-motion";
 import { Shield, ArrowDownToLine, ArrowUpFromLine, Clock } from "lucide-react";
 
-import { Card, CardHeader, CardTitle, CardContent } from "~~/components/ui/Card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "~~/components/ui/Card";
 import { Badge } from "~~/components/ui/Badge";
 import { Button } from "~~/components/ui/Button";
 import { useTongoBalance } from "~~/hooks/tongo";

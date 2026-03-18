@@ -16,10 +16,10 @@ use starknet::ContractAddress;
 // ----------------------------------------------------------------------------
 #[derive(Drop, Serde, starknet::Store)]
 pub struct BatchAnchor {
-    pub batch_hash: felt252,      // Poseidon hash of canonical JSON
-    pub from_ledger_id: u64,      // First ledger entry ID in batch
-    pub to_ledger_id: u64,        // Last ledger entry ID in batch
-    pub timestamp: u64,           // Block timestamp when anchored
+    pub batch_hash: felt252, // Poseidon hash of canonical JSON
+    pub from_ledger_id: u64, // First ledger entry ID in batch
+    pub to_ledger_id: u64, // Last ledger entry ID in batch
+    pub timestamp: u64 // Block timestamp when anchored
 }
 
 // ----------------------------------------------------------------------------
@@ -137,11 +137,7 @@ pub mod AuditRegistry {
     // Constructor
     // ------------------------------------------------------------------------
     #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        owner: ContractAddress,
-        operator: ContractAddress,
-    ) {
+    fn constructor(ref self: ContractState, owner: ContractAddress, operator: ContractAddress) {
         self.ownable.initializer(owner);
         assert(!operator.is_zero(), 'Operator cannot be zero');
         self.operator.write(operator);
@@ -179,12 +175,7 @@ pub mod AuditRegistry {
             let anchored_by = get_caller_address();
 
             // Create batch anchor
-            let batch_anchor = BatchAnchor {
-                batch_hash,
-                from_ledger_id,
-                to_ledger_id,
-                timestamp,
-            };
+            let batch_anchor = BatchAnchor { batch_hash, from_ledger_id, to_ledger_id, timestamp };
 
             // Store batch anchor
             self.batches.write(batch_id, batch_anchor);
@@ -195,16 +186,12 @@ pub mod AuditRegistry {
             self.latest_batch_id.write(batch_id);
 
             // Emit event
-            self.emit(
-                BatchAnchored {
-                    batch_id,
-                    batch_hash,
-                    from_ledger_id,
-                    to_ledger_id,
-                    timestamp,
-                    anchored_by,
-                },
-            );
+            self
+                .emit(
+                    BatchAnchored {
+                        batch_id, batch_hash, from_ledger_id, to_ledger_id, timestamp, anchored_by,
+                    },
+                );
         }
 
         // --------------------------------------------------------------------
@@ -218,13 +205,12 @@ pub mod AuditRegistry {
             self.operator.write(new_operator);
 
             // Emit event
-            self.emit(
-                OperatorUpdated {
-                    old_operator,
-                    new_operator,
-                    updated_by: get_caller_address(),
-                },
-            );
+            self
+                .emit(
+                    OperatorUpdated {
+                        old_operator, new_operator, updated_by: get_caller_address(),
+                    },
+                );
         }
 
         // --------------------------------------------------------------------

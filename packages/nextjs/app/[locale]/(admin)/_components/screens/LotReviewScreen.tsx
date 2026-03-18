@@ -5,7 +5,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { AdminPageHeader, ReviewPanel, StatusPill, type AdminStatusTone } from "../index";
+import {
+  AdminPageHeader,
+  ReviewPanel,
+  StatusPill,
+  type AdminStatusTone,
+} from "../index";
 import { cn } from "~~/lib/utils/cn";
 import { useLot } from "~~/hooks/lots/useLot";
 import { useApproveLot } from "~~/hooks/lots/useApproveLot";
@@ -113,13 +118,20 @@ export function LotReviewScreen() {
   const modalRef = useRef<HTMLDivElement | null>(null);
 
   const mapStatus = (lotStatus?: string): LotStatus => {
-    if (lotStatus === "ACTIVE" || lotStatus === "FUNDING" || lotStatus === "COMPLETED") {
+    if (
+      lotStatus === "ACTIVE" ||
+      lotStatus === "FUNDING" ||
+      lotStatus === "COMPLETED"
+    ) {
       return "Active";
     }
     return "Pending";
   };
 
-  const status = useMemo<LotStatus>(() => mapStatus(lotQuery.data?.status), [lotQuery.data?.status]);
+  const status = useMemo<LotStatus>(
+    () => mapStatus(lotQuery.data?.status),
+    [lotQuery.data?.status],
+  );
 
   const producerName = lotQuery.data?.producer?.user?.name ?? "Producer";
   const producerId = lotQuery.data?.producer?.userId;
@@ -136,9 +148,8 @@ export function LotReviewScreen() {
 
   useEffect(() => {
     if (!modalAction) return;
-    const firstFocusable = modalRef.current?.querySelector<HTMLElement>(
-      "button, textarea",
-    );
+    const firstFocusable =
+      modalRef.current?.querySelector<HTMLElement>("button, textarea");
     firstFocusable?.focus();
   }, [modalAction]);
 
@@ -150,23 +161,27 @@ export function LotReviewScreen() {
 
   // Filter animals by approval status
   const pendingAnimals = useMemo(
-    () => animalsQuery.data?.filter(a => a.approvalStatus === "PENDING_APPROVAL") ?? [],
+    () =>
+      animalsQuery.data?.filter(
+        (a) => a.approvalStatus === "PENDING_APPROVAL",
+      ) ?? [],
     [animalsQuery.data],
   );
 
   const approvedAnimals = useMemo(
-    () => animalsQuery.data?.filter(a => a.approvalStatus === "APPROVED") ?? [],
+    () =>
+      animalsQuery.data?.filter((a) => a.approvalStatus === "APPROVED") ?? [],
     [animalsQuery.data],
   );
   const canApproveAnimals = Boolean(
     lotQuery.data?.onChainLotId &&
-      (lotQuery.data?.status === "FUNDING" || lotQuery.data?.status === "ACTIVE"),
+    (lotQuery.data?.status === "FUNDING" || lotQuery.data?.status === "ACTIVE"),
   );
 
   const toggleAnimalSelection = (animalId: number) => {
-    setSelectedAnimalIds(prev =>
+    setSelectedAnimalIds((prev) =>
       prev.includes(animalId)
-        ? prev.filter(id => id !== animalId)
+        ? prev.filter((id) => id !== animalId)
         : [...prev, animalId],
     );
   };
@@ -175,7 +190,7 @@ export function LotReviewScreen() {
     if (selectedAnimalIds.length === pendingAnimals.length) {
       setSelectedAnimalIds([]);
     } else {
-      setSelectedAnimalIds(pendingAnimals.map(a => a.id));
+      setSelectedAnimalIds(pendingAnimals.map((a) => a.id));
     }
   };
 
@@ -184,18 +199,24 @@ export function LotReviewScreen() {
 
     let notificationId: string | null = null;
     try {
-      notificationId = notification.loading("Approving animals and registering on-chain...");
+      notificationId = notification.loading(
+        "Approving animals and registering on-chain...",
+      );
       await approveAnimals.mutateAsync({
         animalIds: selectedAnimalIds,
         lotId,
       });
       if (notificationId) notification.remove(notificationId);
-      notification.success(`${selectedAnimalIds.length} animal(s) approved and registered on-chain.`);
+      notification.success(
+        `${selectedAnimalIds.length} animal(s) approved and registered on-chain.`,
+      );
       setSelectedAnimalIds([]);
       queryClient.invalidateQueries({ queryKey: ["animals", "lot", lotId] });
     } catch (err) {
       if (notificationId) notification.remove(notificationId);
-      notification.error(err instanceof Error ? err.message : "Failed to approve animals.");
+      notification.error(
+        err instanceof Error ? err.message : "Failed to approve animals.",
+      );
     }
   };
 
@@ -206,13 +227,17 @@ export function LotReviewScreen() {
 
   const formattedTotalCapital = useMemo(() => {
     if (totalCapital === null) return "—";
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
-      totalCapital,
-    );
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(totalCapital);
   }, [totalCapital]);
 
   const handleConfirm = async () => {
-    if ((modalAction === "reject" || modalAction === "pause") && !reason.trim()) {
+    if (
+      (modalAction === "reject" || modalAction === "pause") &&
+      !reason.trim()
+    ) {
       setError("Reason is required.");
       return;
     }
@@ -245,18 +270,35 @@ export function LotReviewScreen() {
           },
         });
         if (notificationId) notification.remove(notificationId);
-        notification.success("Lot approved and published.");
+        notification.success(
+          <div>
+            <p>Lot approved and deployed on-chain.</p>
+            {updatedLot.txHash && (
+              <a
+                href={`https://sepolia.voyager.online/tx/${updatedLot.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline text-sm"
+              >
+                View transaction on Voyager
+              </a>
+            )}
+          </div>,
+          { duration: 8000 },
+        );
         queryClient.setQueryData(["lots", lotId], updatedLot);
       } catch (err) {
         if (notificationId) notification.remove(notificationId);
         setError(err instanceof Error ? err.message : "Approval failed.");
-        notification.error("Approval failed. Check the error message for details.");
+        notification.error(
+          "Approval failed. Check the error message for details.",
+        );
         return;
       }
     }
     if (modalAction === "reject") {
-        setError("");
-      }
+      setError("");
+    }
     if (modalAction === "pause") {
       setError("");
     }
@@ -269,9 +311,8 @@ export function LotReviewScreen() {
     }
 
     if (event.key === "Tab" && modalRef.current) {
-      const focusable = modalRef.current.querySelectorAll<HTMLElement>(
-        "button, textarea",
-      );
+      const focusable =
+        modalRef.current.querySelectorAll<HTMLElement>("button, textarea");
       if (focusable.length === 0) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
@@ -323,8 +364,7 @@ export function LotReviewScreen() {
                   Location
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  {lotQuery.data?.location ??
-                    "—"}
+                  {lotQuery.data?.location ?? "—"}
                 </dd>
               </div>
               <div>
@@ -348,7 +388,9 @@ export function LotReviewScreen() {
                   Start date
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
-                  {lotQuery.data?.startDate ? new Date(lotQuery.data.startDate).toLocaleDateString() : "—"}
+                  {lotQuery.data?.startDate
+                    ? new Date(lotQuery.data.startDate).toLocaleDateString()
+                    : "—"}
                 </dd>
               </div>
               <div>
@@ -394,7 +436,9 @@ export function LotReviewScreen() {
                 </dt>
                 <dd className="mt-1 font-semibold text-vaca-neutral-gray-900">
                   {lotQuery.data?.fundingDeadline
-                    ? new Date(lotQuery.data.fundingDeadline).toLocaleDateString()
+                    ? new Date(
+                        lotQuery.data.fundingDeadline,
+                      ).toLocaleDateString()
                     : "—"}
                 </dd>
               </div>
@@ -461,11 +505,15 @@ export function LotReviewScreen() {
             </div>
 
             {animalsQuery.isLoading && (
-              <p className="mt-4 text-sm text-vaca-neutral-gray-500">Loading animals...</p>
+              <p className="mt-4 text-sm text-vaca-neutral-gray-500">
+                Loading animals...
+              </p>
             )}
 
             {animalsQuery.isError && (
-              <p className="mt-4 text-sm text-red-600">Failed to load animals.</p>
+              <p className="mt-4 text-sm text-red-600">
+                Failed to load animals.
+              </p>
             )}
 
             {!animalsQuery.isLoading && pendingAnimals.length === 0 && (
@@ -478,11 +526,15 @@ export function LotReviewScreen() {
               <>
                 {!canApproveAnimals && (
                   <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                    <p className="font-semibold">Animals cannot be approved yet.</p>
+                    <p className="font-semibold">
+                      Animals cannot be approved yet.
+                    </p>
                     <p className="mt-1 text-xs text-amber-800">
-                      The lot must be approved and deployed on-chain first (status
+                      The lot must be approved and deployed on-chain first
+                      (status
                       <span className="font-semibold"> FUNDING</span> or
-                      <span className="font-semibold"> ACTIVE</span> with an on-chain lot id).
+                      <span className="font-semibold"> ACTIVE</span> with an
+                      on-chain lot id).
                     </p>
                   </div>
                 )}
@@ -490,7 +542,9 @@ export function LotReviewScreen() {
                   <label className="flex items-center gap-2 text-sm text-vaca-neutral-gray-600">
                     <input
                       type="checkbox"
-                      checked={selectedAnimalIds.length === pendingAnimals.length}
+                      checked={
+                        selectedAnimalIds.length === pendingAnimals.length
+                      }
                       onChange={selectAllPendingAnimals}
                       disabled={!canApproveAnimals}
                       className="h-4 w-4 rounded border-vaca-neutral-gray-300 text-vaca-green focus:ring-vaca-green"
@@ -501,7 +555,9 @@ export function LotReviewScreen() {
                     type="button"
                     onClick={handleApproveAnimals}
                     disabled={
-                      selectedAnimalIds.length === 0 || approveAnimals.isPending || !canApproveAnimals
+                      selectedAnimalIds.length === 0 ||
+                      approveAnimals.isPending ||
+                      !canApproveAnimals
                     }
                     className={cn(
                       "rounded-full px-4 py-1.5 text-xs font-semibold transition",
@@ -516,7 +572,7 @@ export function LotReviewScreen() {
                   </button>
                 </div>
                 <div className="mt-4 space-y-3">
-                  {pendingAnimals.map(animal => {
+                  {pendingAnimals.map((animal) => {
                     const profile = animal.profile as { breed?: string } | null;
                     const initialWeightKg =
                       typeof animal.initialWeightGrams === "number"
@@ -550,10 +606,7 @@ export function LotReviewScreen() {
                             {animal.custodian.slice(0, 10)}...
                           </p>
                         </div>
-                        <StatusPill
-                          label="Pending"
-                          tone="pending"
-                        />
+                        <StatusPill label="Pending" tone="pending" />
                       </div>
                     );
                   })}
@@ -567,7 +620,7 @@ export function LotReviewScreen() {
                   Already approved ({approvedAnimals.length})
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {approvedAnimals.slice(0, 5).map(animal => (
+                  {approvedAnimals.slice(0, 5).map((animal) => (
                     <span
                       key={animal.id}
                       className="rounded-full bg-vaca-green/10 px-3 py-1 text-xs font-medium text-vaca-green"
@@ -614,11 +667,14 @@ export function LotReviewScreen() {
                 {lotQuery.data?.name ?? "—"}
               </p>
               <p className="mt-1 text-sm text-vaca-neutral-gray-500">
-                {lotQuery.data?.location ?? "—"} · {lotQuery.data?.cattleCount ?? "—"} head ·{" "}
+                {lotQuery.data?.location ?? "—"} ·{" "}
+                {lotQuery.data?.cattleCount ?? "—"} head ·{" "}
                 {lotQuery.data?.durationWeeks ?? "—"} weeks
               </p>
               <div className="mt-3 flex flex-wrap gap-3 text-sm text-vaca-neutral-gray-600">
-                <span>Investor %: {lotQuery.data?.investorPercent ?? "—"}%</span>
+                <span>
+                  Investor %: {lotQuery.data?.investorPercent ?? "—"}%
+                </span>
                 <span>Funding: {lotQuery.data?.fundedPercent ?? "—"}%</span>
                 <span>Price/share: {lotQuery.data?.pricePerShare ?? "—"}</span>
               </div>
@@ -645,16 +701,22 @@ export function LotReviewScreen() {
                   className="w-full rounded-full border border-vaca-neutral-gray-200 px-3 py-2 text-sm"
                   placeholder="Token name"
                   value={approveData.tokenName}
-                  onChange={event =>
-                    setApproveData(prev => ({ ...prev, tokenName: event.target.value }))
+                  onChange={(event) =>
+                    setApproveData((prev) => ({
+                      ...prev,
+                      tokenName: event.target.value,
+                    }))
                   }
                 />
                 <input
                   className="w-full rounded-full border border-vaca-neutral-gray-200 px-3 py-2 text-sm"
                   placeholder="Token symbol"
                   value={approveData.tokenSymbol}
-                  onChange={event =>
-                    setApproveData(prev => ({ ...prev, tokenSymbol: event.target.value }))
+                  onChange={(event) =>
+                    setApproveData((prev) => ({
+                      ...prev,
+                      tokenSymbol: event.target.value,
+                    }))
                   }
                 />
                 <input
@@ -664,8 +726,8 @@ export function LotReviewScreen() {
                   min={1}
                   step={1}
                   value={approveData.totalShares || ""}
-                  onChange={event =>
-                    setApproveData(prev => ({
+                  onChange={(event) =>
+                    setApproveData((prev) => ({
                       ...prev,
                       totalShares: Number(event.target.value),
                     }))
@@ -678,8 +740,8 @@ export function LotReviewScreen() {
                   min={1}
                   step={1}
                   value={approveData.pricePerShare || ""}
-                  onChange={event =>
-                    setApproveData(prev => ({
+                  onChange={(event) =>
+                    setApproveData((prev) => ({
                       ...prev,
                       pricePerShare: Number(event.target.value),
                     }))
@@ -689,8 +751,8 @@ export function LotReviewScreen() {
                   className="w-full rounded-full border border-vaca-neutral-gray-200 px-3 py-2 text-sm"
                   placeholder="Producer address (optional)"
                   value={approveData.producerAddress}
-                  onChange={event =>
-                    setApproveData(prev => ({
+                  onChange={(event) =>
+                    setApproveData((prev) => ({
                       ...prev,
                       producerAddress: event.target.value,
                     }))
@@ -724,7 +786,8 @@ export function LotReviewScreen() {
           <div className="rounded-2xl border border-vaca-green/20 bg-vaca-green/5 p-5 shadow-sm">
             <h3 className="text-sm font-semibold text-vaca-green">ZK Proof</h3>
             <p className="mt-1 text-xs text-vaca-neutral-gray-500">
-              Prove on Starknet that this lot reached 100% funding — without revealing share counts.
+              Prove on Starknet that this lot reached 100% funding — without
+              revealing share counts.
             </p>
 
             {proof.status === "idle" && (
@@ -737,12 +800,18 @@ export function LotReviewScreen() {
               </button>
             )}
 
-            {(proof.status === "pending" || proof.status === "proving" || proof.status === "verifying") && (
+            {(proof.status === "pending" ||
+              proof.status === "proving" ||
+              proof.status === "verifying") && (
               <div className="mt-4 space-y-2">
                 <div className="flex items-center gap-2 text-sm text-vaca-neutral-gray-600">
                   <motion.div
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 1.2,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                     className="h-4 w-4 rounded-full border-2 border-vaca-green border-t-transparent"
                   />
                   {proof.status === "pending" && "Starting proof job..."}
@@ -757,7 +826,9 @@ export function LotReviewScreen() {
 
             {proof.status === "done" && proof.txHash && (
               <div className="mt-4 space-y-2">
-                <p className="text-sm font-semibold text-vaca-green">Proof verified on-chain</p>
+                <p className="text-sm font-semibold text-vaca-green">
+                  Proof verified on-chain
+                </p>
                 <a
                   href={`https://sepolia.voyager.online/tx/${proof.txHash}`}
                   target="_blank"
@@ -774,7 +845,9 @@ export function LotReviewScreen() {
 
             {proof.status === "failed" && (
               <div className="mt-4 space-y-2">
-                <p className="text-sm font-semibold text-red-600">Proof failed</p>
+                <p className="text-sm font-semibold text-red-600">
+                  Proof failed
+                </p>
                 {proof.error && (
                   <p className="text-xs text-red-500">{proof.error}</p>
                 )}

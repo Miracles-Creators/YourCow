@@ -12,12 +12,14 @@ interface InvestmentSuccessScreenProps {
   lotId: number;
   investmentAmount: number;
   shares: number;
+  txHash?: string;
 }
 
 export function InvestmentSuccessScreen({
   lotId,
   investmentAmount,
   shares,
+  txHash,
 }: InvestmentSuccessScreenProps) {
   const t = useTranslations("investor.investmentSuccess");
   const tCommon = useTranslations("common");
@@ -44,7 +46,9 @@ export function InvestmentSuccessScreen({
   }
 
   const investorPercent = lot.investorPercent ?? 0;
-  const estimatedReturn = Math.round(investmentAmount * (investorPercent / 100));
+  const estimatedReturn = Math.round(
+    investmentAmount * (investorPercent / 100),
+  );
 
   return (
     <motion.div
@@ -61,11 +65,7 @@ export function InvestmentSuccessScreen({
           transition={{ duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
           className="flex h-20 w-20 items-center justify-center rounded-full bg-vaca-green/10"
         >
-          <svg
-            className="h-12 w-12"
-            viewBox="0 0 48 48"
-            fill="none"
-          >
+          <svg className="h-12 w-12" viewBox="0 0 48 48" fill="none">
             <motion.path
               d="M12 24 L20 32 L36 16"
               stroke="#1B5E20"
@@ -76,7 +76,11 @@ export function InvestmentSuccessScreen({
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ pathLength: 1, opacity: 1 }}
               transition={{
-                pathLength: { duration: 0.6, delay: 0.3, ease: [0.4, 0, 0.2, 1] },
+                pathLength: {
+                  duration: 0.6,
+                  delay: 0.3,
+                  ease: [0.4, 0, 0.2, 1],
+                },
                 opacity: { duration: 0.2, delay: 0.3 },
               }}
             />
@@ -105,7 +109,10 @@ export function InvestmentSuccessScreen({
             {lot.name}
           </h2>
           <p className="mt-0.5 font-inter text-xs text-vaca-neutral-gray-400">
-            {lot.location} · {lot.durationWeeks ? `${lot.durationWeeks} ${tCommon("time.weeks")}` : ""}
+            {lot.location} ·{" "}
+            {lot.durationWeeks
+              ? `${lot.durationWeeks} ${tCommon("time.weeks")}`
+              : ""}
           </p>
         </div>
 
@@ -155,6 +162,19 @@ export function InvestmentSuccessScreen({
             {tCommon("status.active")}
           </span>
         </div>
+
+        {txHash && (
+          <div className="mt-3 text-center">
+            <a
+              href={`https://sepolia.voyager.online/tx/${txHash}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-inter text-xs text-vaca-sky underline transition-colors hover:text-vaca-green"
+            >
+              {t("viewTransaction")}
+            </a>
+          </div>
+        )}
       </motion.div>
 
       {/* Next steps */}

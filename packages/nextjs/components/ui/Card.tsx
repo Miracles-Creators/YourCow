@@ -66,11 +66,7 @@ export interface CardHeaderProps {
 }
 
 export function CardHeader({ children, className }: CardHeaderProps) {
-  return (
-    <div className={cn("mb-4", className)}>
-      {children}
-    </div>
-  );
+  return <div className={cn("mb-4", className)}>{children}</div>;
 }
 
 export interface CardTitleProps {
@@ -79,7 +75,11 @@ export interface CardTitleProps {
   className?: string;
 }
 
-export function CardTitle({ children, size = "md", className }: CardTitleProps) {
+export function CardTitle({
+  children,
+  size = "md",
+  className,
+}: CardTitleProps) {
   const sizeStyles = {
     sm: "text-lg",
     md: "text-xl",
@@ -128,7 +128,12 @@ export interface CardFooterProps {
 
 export function CardFooter({ children, className }: CardFooterProps) {
   return (
-    <div className={cn("mt-4 pt-4 border-t border-vaca-neutral-gray-100", className)}>
+    <div
+      className={cn(
+        "mt-4 pt-4 border-t border-vaca-neutral-gray-100",
+        className,
+      )}
+    >
       {children}
     </div>
   );

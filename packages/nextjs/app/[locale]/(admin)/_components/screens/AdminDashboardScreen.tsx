@@ -97,7 +97,8 @@ export function AdminDashboardScreen() {
 
   useEffect(() => {
     if (!isAnchorModalOpen) return;
-    const firstFocusable = modalRef.current?.querySelector<HTMLElement>("button");
+    const firstFocusable =
+      modalRef.current?.querySelector<HTMLElement>("button");
     firstFocusable?.focus();
   }, [isAnchorModalOpen]);
 
@@ -107,7 +108,8 @@ export function AdminDashboardScreen() {
     }
 
     if (event.key === "Tab" && modalRef.current) {
-      const focusable = modalRef.current.querySelectorAll<HTMLElement>("button");
+      const focusable =
+        modalRef.current.querySelectorAll<HTMLElement>("button");
       if (focusable.length === 0) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
@@ -133,7 +135,9 @@ export function AdminDashboardScreen() {
       setVerifyMessage(null);
       setIsAnchorModalOpen(false);
     } catch (error) {
-      setAuditError(error instanceof Error ? error.message : "Failed to anchor batch.");
+      setAuditError(
+        error instanceof Error ? error.message : "Failed to anchor batch.",
+      );
     }
   };
 
@@ -154,7 +158,9 @@ export function AdminDashboardScreen() {
         setVerifyError(`Mismatch detected for batch #${result.batchId}.`);
       }
     } catch (error) {
-      setVerifyError(error instanceof Error ? error.message : "Failed to verify batch.");
+      setVerifyError(
+        error instanceof Error ? error.message : "Failed to verify batch.",
+      );
     }
   };
 
@@ -303,7 +309,8 @@ export function AdminDashboardScreen() {
               Confirm ledger anchor
             </h3>
             <p className="mt-2 text-sm text-vaca-neutral-gray-500">
-              This will anchor the latest ledger batch on-chain and register it for audit.
+              This will anchor the latest ledger batch on-chain and register it
+              for audit.
             </p>
 
             {auditError ? (

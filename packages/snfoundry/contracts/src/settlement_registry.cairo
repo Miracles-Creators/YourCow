@@ -35,7 +35,7 @@ pub struct WeightStats {
     pub weight_gain_grams: u32,
     pub weight_gain_percentage: u16,
     pub days_in_feedlot: u64,
-    pub avg_daily_gain_grams: u32
+    pub avg_daily_gain_grams: u32,
 }
 
 // ----------------------------------------------------------------------------
@@ -377,8 +377,9 @@ pub mod SettlementRegistry {
             assert(settlement.settled_at != 0, 'Lot not settled');
 
             // Calculate weight gain
-            let weight_gain_grams = if settlement.final_total_weight_grams
-                >= settlement.initial_total_weight_grams {
+            let weight_gain_grams = if settlement
+                .final_total_weight_grams >= settlement
+                .initial_total_weight_grams {
                 settlement.final_total_weight_grams - settlement.initial_total_weight_grams
             } else {
                 0 // Weight loss case
@@ -395,9 +396,9 @@ pub mod SettlementRegistry {
                 0
             };
 
-            // Note: We'd need lot creation timestamp from LotFactory, but it's not exposed in the current interface
-            // For now, we'll use a simplified calculation based on settlement time
-            // This would require the Lot struct to expose created_at in LotFactory interface
+            // Note: We'd need lot creation timestamp from LotFactory, but it's not exposed in the
+            // current interface For now, we'll use a simplified calculation based on settlement
+            // time This would require the Lot struct to expose created_at in LotFactory interface
             // For MVP, we'll estimate days_in_feedlot as 0 (to be enhanced later)
             let days_in_feedlot: u64 = 0; // TODO: Calculate from lot creation to settlement
 

@@ -66,7 +66,10 @@
       "network": "Connection error. Check your internet.",
       "notFound": "Not found",
       "unauthorized": "Unauthorized",
-      "invalidInput": "Invalid input"
+      "invalidInput": "Invalid input",
+      "walletLinkFailed": "Could not link wallet. Please try again.",
+      "walletAlreadyLinked": "This wallet is already linked to another account.",
+      "walletMismatch": "The connected wallet does not match the one linked to your account."
     },
     "loading": {
       "default": "Loading...",
@@ -135,6 +138,36 @@
         "daysLeft": "{count} days left",
         "noEvents": "No upcoming events"
       },
+      "offers": {
+        "eyebrow": "Offer Shares",
+        "title": "Offer Shares",
+        "subtitle": "Manage the share lots you have listed on the P2P market without leaving your dashboard.",
+        "count": "{count} active offers",
+        "status": {
+          "open": "Open",
+          "partiallyFilled": "Partially Filled",
+          "filled": "Filled",
+          "cancelled": "Cancelled"
+        },
+        "card": {
+          "selling": "Selling",
+          "shares": "shares",
+          "pricePerShare": "Price / Share",
+          "availableShares": "Available",
+          "filledShares": "Filled",
+          "liveValue": "Live Value",
+          "fulfillment": "Offer fulfillment",
+          "totalShares": "{count} total shares",
+          "remainingShares": "{count} remaining",
+          "listedOn": "Listed on {date}",
+          "shareCount": "{count} shares"
+        },
+        "actions": {
+          "viewLot": "View lot",
+          "cancel": "Cancel offer",
+          "canceling": "Canceling..."
+        }
+      },
       "empty": {
         "title": "Start Your Investment Journey",
         "description": "Browse available cattle lots and make your first investment.",
@@ -182,6 +215,112 @@
         "description": "No offers available right now. Check back soon."
       }
     },
+    "trade": {
+      "title": "Trade",
+      "fiatTab": "💵 Fiat (ARS)",
+      "cryptoTab": "⚡ Crypto",
+      "buy": "Buy",
+      "sell": "Sell",
+      "buyShares": "Buy Shares",
+      "buyWithStrk": "Buy with STRK",
+      "balance": "Balance",
+      "custody": "Custody",
+      "private": "Private",
+      "deposit": "Deposit",
+      "withdraw": "Withdraw",
+      "comingSoon": "Coming soon",
+      "feeInfo": "1% fee per side",
+      "feeInfoCrypto": "0% fee · Private transfers",
+      "availableOffers": "Available offers",
+      "yourPositions": "Your positions",
+      "noFiatOffers": "No fiat offers yet. Be the first to list shares for ARS.",
+      "noCryptoOffers": "No crypto offers yet. List shares for STRK with private settlement.",
+      "sellShares": "Sell Shares",
+      "noSharesToSell": "No shares to sell",
+      "noSharesDescription": "Buy shares from the marketplace first, then come here to list them for sale.",
+      "available": "available",
+      "locked": "locked",
+      "depositArs": "Deposit ARS",
+      "addFunds": "Add funds to your trading balance",
+      "depositSuccess": "Deposit successful",
+      "depositAdded": "{amount} ARS added to your trading balance.",
+      "depositAmount": "Amount (ARS)",
+      "depositButton": "Deposit",
+      "processing": "Processing deposit...",
+      "depositFailed": "Deposit failed",
+      "somethingWrong": "Something went wrong",
+      "retry": "Retry",
+      "done": "Done",
+      "cancel": "Cancel",
+      "close": "Close",
+      "shares": "shares",
+      "weeks": "weeks",
+      "offerCard": {
+        "pricePerShare": "Price per share",
+        "available": "Available",
+        "totalValue": "Total Value",
+        "seller": "Seller:",
+        "cancelOffer": "Cancel offer",
+        "offerCompleted": "Offer completed",
+        "offerCancelled": "Offer cancelled",
+        "listed": "Listed {date}",
+        "soldProgress": "{filled} of {total} sold",
+        "statusOpen": "Open",
+        "statusPartiallyFilled": "Partially Filled",
+        "statusSoldOut": "Sold Out",
+        "statusCancelled": "Cancelled"
+      },
+      "acceptOffer": {
+        "title": "Buy Shares",
+        "pricePerShare": "Price per share",
+        "availableShares": "Available shares",
+        "tongoBalance": "Tongo balance",
+        "yourBalance": "Your balance",
+        "sharesToBuy": "Shares to buy",
+        "buyAll": "Buy all ({count})",
+        "enterAmount": "Enter amount",
+        "exceedsAvailable": "Exceeds available shares",
+        "priceBreakdown": "Price breakdown",
+        "subtotal": "Subtotal",
+        "fee": "Fee (1%)",
+        "total": "Total",
+        "privateNoFees": "Private transfer — no fees",
+        "insufficientFunds": "Insufficient funds",
+        "fundTongo": "Fund your Tongo balance to complete this purchase.",
+        "needMore": "You need {amount} more.",
+        "tradeCompleted": "Trade completed",
+        "paymentConfirmed": "Payment confirmed — transferring shares...",
+        "tradeFailed": "Trade failed",
+        "processingTransfer": "Processing private transfer...",
+        "sharesInPortfolio": "Shares are now in your portfolio.",
+        "paymentFailed": "Payment could not be processed. Balance not charged.",
+        "settlingOnChain": "Encrypted payment settling on Starknet...",
+        "viewOnVoyager": "View transaction on Voyager",
+        "confirmPurchase": "Confirm Purchase",
+        "purchaseFailed": "Failed to purchase shares"
+      },
+      "createOffer": {
+        "title": "Create Sell Offer",
+        "availableToSell": "Available to sell",
+        "sharesToSell": "Number of shares to sell",
+        "enterAmount": "Enter amount",
+        "exceedsAvailable": "Exceeds available shares",
+        "ofPosition": "of your position",
+        "paymentCurrency": "Payment currency",
+        "strkPrivate": "STRK (Private)",
+        "arsFiat": "ARS (Fiat)",
+        "pricePerShareStrk": "Price per share (STRK)",
+        "pricePerShareArs": "Price per share (ARS)",
+        "strkHelperText": "STRK per share (private)",
+        "arsHelperText": "Set your asking price per share",
+        "totalOfferValue": "Total offer value",
+        "privateNoFees": "Private transfer via Tongo — no fees",
+        "feeDeducted": "1% fee ({fee}) deducted upon sale",
+        "createFailed": "Failed to create offer",
+        "creating": "Creating...",
+        "createButton": "Create Offer"
+      }
+    },
     "portfolio": {
       "pill": "Positions detail",
       "title": "Portfolio",
@@ -224,7 +363,13 @@
       "privateMetrics": {
         "title": "Lot capacity",
         "hidden": "Private",
-        "hint": "The progress bar remains visible without revealing the producer's total share count."
+        "hint": "The progress bar remains visible without revealing the producer's total share count.",
+        "verifyButton": "Verify with ZK Proof",
+        "verifyFailed": "Proof generation failed",
+        "retryButton": "Retry",
+        "statusPending": "Starting proof job...",
+        "statusProving": "Generating proof (~2 min)...",
+        "statusVerifying": "Verifying on Starknet..."
       },
       "investButton": "Invest in this Lot",
       "categories": {
@@ -286,7 +431,8 @@
         "viewPortfolio": "View Portfolio",
         "viewPosition": "View Position",
         "browseLots": "Browse More Lots"
-      }
+      },
+      "viewTransaction": "View Transaction"
     },
     "oracle": {
       "title": "Market Oracle",
@@ -668,6 +814,195 @@
         "step3": "Publish when verification is approved"
       },
       "supportLink": "Contact support"
+    }
+  },
+  "producer": {
+    "createLot": {
+      "steps": {
+        "basicInfo": "Basic Info",
+        "herdCycle": "Herd & Cycle",
+        "financing": "Financing",
+        "documents": "Documents",
+        "review": "Review"
+      },
+      "basicInfo": {
+        "title": "Create a new lot",
+        "subtitle": "Capture the essentials so we can register the lot correctly.",
+        "fields": {
+          "producerId": { "label": "Producer ID" },
+          "lotName": { "label": "Lot name" },
+          "farmName": { "label": "Farm / Feedlot name" },
+          "location": { "label": "Location (Province/State + Country)" },
+          "productionType": {
+            "label": "Production type",
+            "placeholder": "Select a production type",
+            "helper": "Select how this lot will be managed operationally.",
+            "options": {
+              "feedlot": "Feedlot",
+              "pasture": "Pasture",
+              "mixed": "Mixed"
+            }
+          },
+          "startDate": { "label": "Start date" }
+        },
+        "buttons": {
+          "saveDraft": "Save draft",
+          "continue": "Continue"
+        },
+        "errors": {
+          "lotNameRequired": "Lot name is required.",
+          "farmNameRequired": "Farm or feedlot name is required.",
+          "locationRequired": "Location is required.",
+          "productionTypeRequired": "Select a production type.",
+          "startDateRequired": "Start date is required."
+        }
+      },
+      "herdCycle": {
+        "title": "Herd & production cycle",
+        "subtitle": "Provide operational metrics for transparency and reporting.",
+        "fields": {
+          "cattleCount": { "label": "Number of cattle" },
+          "averageWeightKg": { "label": "Average weight (kg)" },
+          "initialWeightKg": { "label": "Initial weight (kg)" },
+          "notes": { "label": "Notes (optional)" }
+        },
+        "timeline": {
+          "label": "Timeline",
+          "durationOption": "Expected duration (weeks)",
+          "dateOption": "Target end date",
+          "placeholder": "e.g. 24"
+        },
+        "investorNote": {
+          "title": "What investors see",
+          "description": "We display these metrics to build investor trust."
+        },
+        "buttons": {
+          "back": "Back",
+          "continue": "Continue"
+        },
+        "errors": {
+          "cattleCountRequired": "Number of cattle is required.",
+          "averageWeightRequired": "Average weight is required.",
+          "initialWeightRequired": "Initial weight is required.",
+          "durationRequired": "Expected duration is required.",
+          "targetDateRequired": "Target end date is required."
+        }
+      },
+      "financing": {
+        "title": "Financing structure",
+        "subtitle": "Define how much capital is required and the investor allocation.",
+        "fields": {
+          "totalCapital": { "label": "Total capital required (USD)" },
+          "fundingDeadline": { "label": "Funding deadline date" },
+          "operatingCosts": { "label": "Estimated operating costs (optional)" }
+        },
+        "platformNote": "Final terms are subject to platform approval.",
+        "buttons": {
+          "back": "Back",
+          "continue": "Continue"
+        },
+        "errors": {
+          "totalCapitalRequired": "Total capital is required.",
+          "fundingDeadlineRequired": "Funding deadline is required."
+        }
+      },
+      "documents": {
+        "title": "Documents & presentation",
+        "subtitle": "Upload the required documentation so we can complete verification.",
+        "sections": {
+          "required": {
+            "title": "Required documents",
+            "subtitle": "Provide proof of operation and documentation for the lot."
+          },
+          "producer": {
+            "title": "Meet the producer",
+            "subtitle": "Optional, recommended: introduce your family/team and how you manage this lot."
+          }
+        },
+        "fields": {
+          "ownership": {
+            "label": "Ownership / operation proof",
+            "helper": "Business registry, land lease, or operating license."
+          },
+          "lotDocs": {
+            "label": "Lot documentation",
+            "helper": "Health certificates, traceability, or vet reports."
+          },
+          "insurance": {
+            "label": "Insurance",
+            "helper": "Optional coverage documentation."
+          },
+          "video": {
+            "label": "Short video upload (max 2 minutes)",
+            "helper": "No return promises. Keep it authentic."
+          }
+        },
+        "buttons": {
+          "back": "Back",
+          "continue": "Continue"
+        }
+      },
+      "review": {
+        "title": "Review & submit",
+        "subtitle": "Confirm the details below before sending for approval.",
+        "sections": {
+          "basicInfo": {
+            "title": "Basic info",
+            "lot": "Lot",
+            "farm": "Farm",
+            "location": "Location",
+            "startDate": "Start date"
+          },
+          "herdCycle": {
+            "title": "Herd & cycle",
+            "cattleCount": "Number of cattle",
+            "averageWeight": "Average weight",
+            "initialWeight": "Initial weight",
+            "timeline": "Timeline",
+            "weeks": "weeks"
+          },
+          "financing": {
+            "title": "Financing",
+            "totalCapital": "Total capital required",
+            "investorAllocation": "Investor allocation",
+            "fundingDeadline": "Funding deadline"
+          },
+          "documents": {
+            "title": "Documents status",
+            "ownership": "Ownership / operation proof",
+            "lotDocs": "Lot documentation",
+            "insurance": "Insurance",
+            "video": "Producer intro video",
+            "uploaded": "Uploaded",
+            "missing": "Missing",
+            "optional": "Optional"
+          }
+        },
+        "checklist": {
+          "title": "Submission checklist",
+          "items": {
+            "lotDetails": "Lot details confirmed",
+            "herdCycle": "Herd & cycle metrics reviewed",
+            "financing": "Financing terms aligned",
+            "documents": "Documents uploaded"
+          }
+        },
+        "buttons": {
+          "back": "Back",
+          "submit": "Submit for approval",
+          "submitting": "Submitting..."
+        },
+        "modal": {
+          "title": "Confirm submission",
+          "description": "You can't change core parameters after approval without re-review.",
+          "cancel": "Cancel",
+          "submit": "Submit for approval",
+          "submitting": "Submitting..."
+        },
+        "errors": {
+          "invalidData": "Missing or invalid data. Please review the form."
+        }
+      }
     }
   }
 }

@@ -73,11 +73,7 @@ export const SettlementSchema = z.object({
 
 export type SettlementDto = z.infer<typeof SettlementSchema>;
 
-export const AuditBatchStatusSchema = z.enum([
-  "PENDING",
-  "ANCHORED",
-  "FAILED",
-]);
+export const AuditBatchStatusSchema = z.enum(["PENDING", "ANCHORED", "FAILED"]);
 
 export const AuditBatchSchema = z.object({
   id: z.number(),
@@ -110,7 +106,9 @@ export const AuditBatchVerificationSchema = z.object({
   }),
 });
 
-export type AuditBatchVerificationDto = z.infer<typeof AuditBatchVerificationSchema>;
+export type AuditBatchVerificationDto = z.infer<
+  typeof AuditBatchVerificationSchema
+>;
 
 export const ShareTransferKindSchema = z.enum(["MINT", "TRANSFER", "BURN"]);
 
@@ -201,7 +199,8 @@ export const AnimalSchema = z.object({
   eid: z.string(),
   custodian: z.string(),
   status: z.enum(["ALIVE", "SOLD", "DECEASED", "REMOVED"]),
-  approvalStatus: AnimalApprovalStatusSchema.optional().default("PENDING_APPROVAL"),
+  approvalStatus:
+    AnimalApprovalStatusSchema.optional().default("PENDING_APPROVAL"),
   initialWeightGrams: z.number(),
   currentWeightGrams: z.number().nullable().optional(),
   lotId: z.number().nullable().optional(),
@@ -479,11 +478,23 @@ export const BuyPrimaryResultSchema = z.object({
   totalCost: z.number(),
 });
 
+// Simulate deposit response
+export const SimulateDepositResponseSchema = z.object({
+  balance: z.object({
+    available: z.number(),
+  }),
+});
+
+export type SimulateDepositResponse = z.infer<
+  typeof SimulateDepositResponseSchema
+>;
+
 // Query filters
 export const OfferFiltersSchema = z.object({
   lotId: z.number().optional(),
   sellerId: z.number().optional(),
   status: OfferStatusSchema.optional(),
+  currency: z.string().optional(),
 });
 
 // Type exports
@@ -493,9 +504,15 @@ export type AccountType = z.infer<typeof AccountTypeSchema>;
 export type OfferDto = z.infer<typeof OfferSchema>;
 export type TradeDto = z.infer<typeof TradeSchema>;
 export type MarketplaceBalanceDto = z.infer<typeof MarketplaceBalanceSchema>;
-export type PortfolioFiatBalanceDto = z.infer<typeof PortfolioFiatBalanceSchema>;
-export type PortfolioLotPositionDto = z.infer<typeof PortfolioLotPositionSchema>;
-export type PortfolioActiveOfferDto = z.infer<typeof PortfolioActiveOfferSchema>;
+export type PortfolioFiatBalanceDto = z.infer<
+  typeof PortfolioFiatBalanceSchema
+>;
+export type PortfolioLotPositionDto = z.infer<
+  typeof PortfolioLotPositionSchema
+>;
+export type PortfolioActiveOfferDto = z.infer<
+  typeof PortfolioActiveOfferSchema
+>;
 export type PortfolioLotItemDto = z.infer<typeof PortfolioLotItemSchema>;
 export type PortfolioDto = z.infer<typeof PortfolioSchema>;
 export type CreateOfferInput = z.infer<typeof CreateOfferInputSchema>;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 import { cn } from "~~/lib/utils/cn";
 
 interface TrustBadgeProps {
@@ -8,12 +8,9 @@ interface TrustBadgeProps {
   className?: string;
 }
 
-export function TrustBadge({
-  message,
-  className,
-}: TrustBadgeProps) {
-  const t = useTranslations('brand');
-  const displayMessage = message || t('trustBadge');
+export function TrustBadge({ message, className }: TrustBadgeProps) {
+  const t = useTranslations("brand");
+  const displayMessage = message || t("trustBadge");
 
   return (
     <div
