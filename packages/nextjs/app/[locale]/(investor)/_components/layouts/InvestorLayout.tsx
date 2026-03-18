@@ -13,7 +13,7 @@ interface InvestorLayoutProps {
   className?: string;
 }
 
-const PUBLIC_ROUTES = ["/welcome", "/login"];
+const PUBLIC_ROUTES = ["/", "/login"];
 
 // Immersive routes: no TopBar, no padding, no max-w — the screen owns its own layout
 const IMMERSIVE_ROUTES = [
@@ -30,7 +30,7 @@ export function InvestorLayout({ children, className }: InvestorLayoutProps) {
   const showBottomNav = !PUBLIC_ROUTES.some(
     (r) => pathWithoutLocale === r || pathWithoutLocale.startsWith(r + "/"),
   );
-  const isNarrowCentered = ["/welcome", "/login", "/register"].some(
+  const isNarrowCentered = ["/", "/login", "/register"].some(
     (r) => pathWithoutLocale === r || pathWithoutLocale.startsWith(r + "/"),
   );
   const isImmersive = IMMERSIVE_ROUTES.some((r) =>
