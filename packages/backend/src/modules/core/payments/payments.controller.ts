@@ -22,16 +22,19 @@ export class PaymentsController {
     return this.paymentsService.simulateDeposit(req.user.id, body.amountFiat);
   }
 
+  @UseGuards(AuthGuard)
   @Post()
   async purchaseShares(@Body() body: CreatePaymentDto) {
     return this.paymentsService.createPayment(body);
   }
 
+  @UseGuards(AuthGuard)
   @Post(":id/confirm")
   async confirmPayment(@Param("id") id: string, @Body() body: ConfirmPaymentDto) {
     return this.paymentsService.confirmPayment(Number(id), body.txHash);
   }
 
+  @UseGuards(AuthGuard)
   @Post(":id/fiat-deposit")
   async fiatDeposit(@Param("id") id: string) {
     return this.paymentsService.fiatDeposit(Number(id));

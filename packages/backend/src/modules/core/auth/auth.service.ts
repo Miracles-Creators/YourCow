@@ -34,11 +34,7 @@ export class AuthService {
     this.secret = process.env.AUTH_SECRET ?? "dev-secret";
   }
 
-  async loginWithEmail(
-    email: string,
-    name?: string,
-    role?: UserRole,
-  ): Promise<User> {
+  async loginWithEmail(email: string, name?: string): Promise<User> {
     const normalizedEmail = email.trim().toLowerCase();
     const existing = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
@@ -50,7 +46,7 @@ export class AuthService {
 
     return this.prisma.user.create({
       data: {
-        role: role ?? UserRole.INVESTOR,
+        role: UserRole.INVESTOR,
         email: normalizedEmail,
         name: name?.trim() || null,
       },

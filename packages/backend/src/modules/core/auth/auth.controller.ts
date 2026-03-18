@@ -8,7 +8,6 @@ import { LoginDto } from "./dto/login.dto";
 import { WalletChallengeDto } from "./dto/wallet-challenge.dto";
 import { LinkWalletDto } from "./dto/link-wallet.dto";
 import type { AuthenticatedRequest } from "./types";
-import { UserRole } from "@prisma/client";
 
 @Controller("auth")
 export class AuthController {
@@ -19,11 +18,7 @@ export class AuthController {
     @Body() body: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const user = await this.authService.loginWithEmail(
-      body.email,
-      body.name,
-      body.role as UserRole | undefined,
-    );
+    const user = await this.authService.loginWithEmail(body.email, body.name);
     const token = this.authService.createSessionToken(user.id);
 
     res.cookie(SESSION_COOKIE_NAME, token, {

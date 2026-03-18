@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { LanguageSwitcher } from "~~/components/LanguageSwitcher";
 import { cn } from "~~/lib/utils/cn";
+import { InvestorAuthGate } from "../InvestorAuthGate";
 import { BottomNav } from "../ui/BottomNav";
 import { SideNav } from "../ui/SideNav";
 import { TopBar } from "../ui/TopBar";
@@ -13,7 +14,8 @@ interface InvestorLayoutProps {
   className?: string;
 }
 
-const PUBLIC_ROUTES = ["/", "/login"];
+const PUBLIC_ROUTES = ["/", "/login", "/register"];
+const PUBLIC_PREFIXES = ["/lot/"];
 
 // Immersive routes: no TopBar, no padding, no max-w — the screen owns its own layout
 const IMMERSIVE_ROUTES = [
@@ -27,6 +29,9 @@ const IMMERSIVE_ROUTES = [
 export function InvestorLayout({ children, className }: InvestorLayoutProps) {
   const pathname = usePathname();
   const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, "") || "/";
+  const isPublicRoute =
+    PUBLIC_ROUTES.some((r) => pathWithoutLocale === r || pathWithoutLocale.startsWith(r + "/")) ||
+    PUBLIC_PREFIXES.some((p) => pathWithoutLocale.startsWith(p));
   const showBottomNav = !PUBLIC_ROUTES.some(
     (r) => pathWithoutLocale === r || pathWithoutLocale.startsWith(r + "/"),
   );
@@ -75,7 +80,7 @@ export function InvestorLayout({ children, className }: InvestorLayoutProps) {
           )}
         >
           {showBottomNav && !isImmersive && <TopBar />}
-          {children}
+          {isPublicRoute ? children : <InvestorAuthGate>{children}</InvestorAuthGate>}
         </main>
       </div>
 
