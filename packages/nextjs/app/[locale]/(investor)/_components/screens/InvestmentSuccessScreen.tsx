@@ -1,11 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, ExternalLink } from "lucide-react";
 import { useLot } from "~~/hooks/lots/useLot";
-import { cn } from "~~/lib/utils/cn";
 import { slowContainerVariants, slowItemVariants } from "../animations";
 
 interface InvestmentSuccessScreenProps {
@@ -51,6 +50,32 @@ export function InvestmentSuccessScreen({
   );
 
   return (
+    <>
+      {/* Toast — tx confirmation */}
+      <AnimatePresence>
+        {txHash && (
+          <motion.a
+            href={`https://sepolia.voyager.online/tx/${txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            initial={{ opacity: 0, y: -80 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -80 }}
+            transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1], delay: 0.6 }}
+            className="fixed left-1/2 top-4 z-50 flex -translate-x-1/2 items-center gap-2 rounded-xl bg-vaca-green px-3.5 py-2 shadow-lg shadow-vaca-green/25 transition-opacity hover:opacity-90"
+          >
+            <span className="relative flex h-1.5 w-1.5 shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-60" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
+            </span>
+            <span className="whitespace-nowrap font-inter text-xs font-semibold text-white">
+              {t("viewTransaction")}
+            </span>
+            <ExternalLink className="h-3 w-3 text-white/70" />
+          </motion.a>
+        )}
+      </AnimatePresence>
+
     <motion.div
       variants={slowContainerVariants}
       initial="hidden"
@@ -163,18 +188,6 @@ export function InvestmentSuccessScreen({
           </span>
         </div>
 
-        {txHash && (
-          <div className="mt-3 text-center">
-            <a
-              href={`https://sepolia.voyager.online/tx/${txHash}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-inter text-xs text-vaca-sky underline transition-colors hover:text-vaca-green"
-            >
-              {t("viewTransaction")}
-            </a>
-          </div>
-        )}
       </motion.div>
 
       {/* Next steps */}
@@ -212,5 +225,6 @@ export function InvestmentSuccessScreen({
         </button>
       </motion.div>
     </motion.div>
+    </>
   );
 }

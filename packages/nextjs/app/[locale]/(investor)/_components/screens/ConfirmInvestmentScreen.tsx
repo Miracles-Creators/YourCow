@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Lock } from "lucide-react";
+import { ArrowLeft, Lock, CheckCircle, ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLot } from "~~/hooks/lots/useLot";
 import { useMe } from "~~/hooks/auth/useMe";
@@ -13,6 +13,8 @@ import { useFiatDeposit } from "~~/hooks/payments/useFiatDeposit";
 import { useBuyPrimary } from "~~/hooks/marketplace";
 import { cn } from "~~/lib/utils/cn";
 import { containerVariants, itemVariants } from "../animations";
+
+type Step = 0 | 1 | 2 | 3 | 4;
 
 interface ConfirmInvestmentScreenProps {
   lotId: number;
@@ -27,10 +29,18 @@ export function ConfirmInvestmentScreen({
 }: ConfirmInvestmentScreenProps) {
   const t = useTranslations("investor.confirmInvestment");
   const tCommon = useTranslations("common");
+
+  const STEPS = [
+    t("steps.registeringPayment"),
+    t("steps.confirmingPayment"),
+    t("steps.mintingShares"),
+  ];
   const router = useRouter();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState<Step>(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
 
   const { data: lot, isPending } = useLot(lotId);
   const { data: me } = useMe();
@@ -56,6 +66,7 @@ export function ConfirmInvestmentScreen({
 
     setIsSubmitting(true);
     setErrorMessage(null);
+    setCurrentStep(1);
 
     try {
       const payment = await createPayment.mutateAsync({
@@ -66,13 +77,20 @@ export function ConfirmInvestmentScreen({
         currency: "ARS",
       });
 
+      setCurrentStep(2);
       await confirmPayment.mutateAsync({ id: payment.id });
+
+      setCurrentStep(3);
       await fiatDeposit.mutateAsync({ id: payment.id });
+
+      setCurrentStep(4);
       const result = await buyPrimary.mutateAsync({
         lotId: lot.id,
         sharesAmount: shares,
         idempotencyKey: `primary_${payment.id}`,
       });
+
+      setTxHash(result.txHash);
 
       router.push(
         `/investment-success/${lot.id}?amount=${investmentAmount}&shares=${shares}&txHash=${result.txHash}`,
@@ -81,6 +99,7 @@ export function ConfirmInvestmentScreen({
       console.error(error);
       setErrorMessage("Something went wrong. Please try again.");
       setIsSubmitting(false);
+      setCurrentStep(0);
     }
   };
 
@@ -104,30 +123,97 @@ export function ConfirmInvestmentScreen({
 
   const ctaButtons = (
     <>
-      <motion.button
-        whileHover={!isSubmitting ? { scale: 1.01 } : undefined}
-        whileTap={!isSubmitting ? { scale: 0.97 } : undefined}
-        disabled={isSubmitting}
-        onClick={handleConfirm}
-        className={cn(
-          "flex h-14 w-full items-center justify-center gap-2 rounded-2xl font-inter text-base font-bold text-white transition-all",
-          isSubmitting
-            ? "bg-vaca-neutral-gray-300"
-            : "bg-gradient-to-r from-vaca-green to-vaca-green-light shadow-xl shadow-vaca-green/30",
-        )}
-      >
+      <AnimatePresence mode="wait">
         {isSubmitting ? (
-          <>
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-            {t("processing")}
-          </>
+          <motion.div
+            key="progress"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            className="w-full rounded-2xl border border-vaca-neutral-gray-100 bg-vaca-neutral-white px-5 py-4 shadow-sm"
+          >
+            <p className="mb-3 font-inter text-[9px] font-bold uppercase tracking-[0.2em] text-vaca-neutral-gray-400">
+              {t("progressTitle")}
+            </p>
+
+            <div className="space-y-3">
+              {STEPS.map((label, i) => {
+                // map UI step index to internal currentStep values
+                // UI: 0=registeringPayment(1), 1=confirmingPayment(2), 2=mintingShares(3+4)
+                const uiStepStart = i === 2 ? 3 : i + 1;
+                const isDone = i === 2 ? currentStep > 4 : currentStep > uiStepStart;
+                const isActive = i === 2 ? currentStep === 3 || currentStep === 4 : currentStep === uiStepStart;
+                return (
+                  <div key={label} className="flex items-center gap-3">
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center">
+                      {isDone ? (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <CheckCircle className="h-5 w-5 text-vaca-green" />
+                        </motion.div>
+                      ) : isActive ? (
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-vaca-green/20 border-t-vaca-green" />
+                      ) : (
+                        <div className="h-4 w-4 rounded-full border-2 border-vaca-neutral-gray-200" />
+                      )}
+                    </div>
+                    <span
+                      className={cn(
+                        "font-inter text-sm transition-colors",
+                        isDone
+                          ? "text-vaca-green"
+                          : isActive
+                            ? "font-medium text-vaca-neutral-gray-900"
+                            : "text-vaca-neutral-gray-300",
+                      )}
+                    >
+                      {label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <AnimatePresence>
+              {txHash && (
+                <motion.a
+                  key="txlink"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  href={`https://sepolia.voyager.online/tx/${txHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 flex items-center justify-center gap-1.5 rounded-xl border border-vaca-sky/30 bg-vaca-sky/5 px-4 py-2.5 font-inter text-sm font-medium text-vaca-sky transition-colors hover:bg-vaca-sky/10"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  {t("viewTransaction")}
+                </motion.a>
+              )}
+            </AnimatePresence>
+          </motion.div>
         ) : (
-          <>
+          <motion.button
+            key="button"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={handleConfirm}
+            className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-vaca-green to-vaca-green-light font-inter text-base font-bold text-white shadow-xl shadow-vaca-green/30 transition-all"
+          >
             <Lock className="h-4 w-4" />
             {t("confirmButton")}
-          </>
+          </motion.button>
         )}
-      </motion.button>
+      </AnimatePresence>
+
       <button
         onClick={() => router.back()}
         disabled={isSubmitting}

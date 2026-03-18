@@ -411,7 +411,15 @@
       "duration": "Duración",
       "confirmButton": "Confirmar Inversión",
       "cancelButton": "Cancelar",
-      "processing": "Procesando..."
+      "processing": "Procesando...",
+      "progressTitle": "Procesando inversión",
+      "steps": {
+        "registeringPayment": "Registrando pago",
+        "confirmingPayment": "Confirmando pago",
+        "processingDeposit": "Procesando depósito",
+        "mintingShares": "Minteando acciones en Starknet"
+      },
+      "viewTransaction": "Ver transacción en Voyager"
     },
     "investmentSuccess": {
       "title": "¡Inversión Exitosa!",
