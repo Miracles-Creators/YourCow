@@ -1,5 +1,7 @@
-import { Body, Controller, Get, Param, Post, Req, UnauthorizedException } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Req, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { Request } from "express";
+
+import { AdminGuard } from "../auth/admin.guard";
 
 import { ApproveLotDto, CreateLotDto, DeployLotDto } from "./dto/lots.dto";
 import { LotsService } from "./lots.service";
@@ -38,6 +40,7 @@ export class LotsController {
     return this.lotsService.deployLot(Number(id), body);
   }
 
+  @UseGuards(AdminGuard)
   @Post(":id/approve")
   async approveLot(@Param("id") id: string, @Body() body: ApproveLotDto) {
     return this.lotsService.approveAndDeployLot(Number(id), body);

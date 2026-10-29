@@ -230,7 +230,7 @@ export class MarketplaceService {
 
     // Get user account and verify fiat balance
     const userAccount = await this.custodyService.getOrCreateAccount(userId);
-    const vaultAccount = await this.custodyService.getOrCreateSystemAccount("PROTOCOL_VAULT");
+    await this.custodyService.getOrCreateSystemAccount("PROTOCOL_VAULT");
 
     //TODO: review this Assume lot uses ARS for now (could be made configurable)
     const currency = "ARS";

@@ -1,10 +1,13 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+
+import { AdminGuard } from "../../core/auth/admin.guard";
 
 import { LotFactoryService } from "./lot-factory.service";
 import { CreateLotOnChainDto, SetLotStatusDto } from "./dto/lot-factory.dto";
 import { LotStatus } from "../../../starknet/types";
 import { toBigInt } from "../../../utils/bigint";
 
+@UseGuards(AdminGuard)
 @Controller("contracts/lot-factory")
 export class LotFactoryController {
   constructor(private readonly lotFactoryService: LotFactoryService) {}

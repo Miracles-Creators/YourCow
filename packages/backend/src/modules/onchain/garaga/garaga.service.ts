@@ -153,7 +153,7 @@ export class GaragaService {
   private async getGaragaModule() {
     if (!this.garagaModulePromise) {
       this.garagaModulePromise = (async () => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const garaga = require("garaga");
         await garaga.init();
         return garaga;

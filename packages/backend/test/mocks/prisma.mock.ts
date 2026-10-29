@@ -1,63 +1,54 @@
 import { vi } from "vitest";
 
-// In-memory store for tests
-const stores = {
-  producer: new Map<string, unknown>(),
-  lot: new Map<string, unknown>(),
-  investor: new Map<string, unknown>(),
-  animal: new Map<string, unknown>(),
-  payment: new Map<string, unknown>(),
-  settlement: new Map<string, unknown>(),
-  traceabilityEvent: new Map<string, unknown>(),
-};
+type Row = Record<string, unknown> & { id: number };
 
-function createMockModel<T>(store: Map<string, unknown>) {
+function createMockModel(
+  store: Map<number, Row>,
+  withRelations: (row: Row) => Row = (row) => row,
+  defaults: Record<string, unknown> = {},
+) {
+  let nextId = 1;
+
   return {
-    create: vi.fn(async ({ data }: { data: T }) => {
-      const id = crypto.randomUUID();
-      const record = {
-        id,
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      store.set(id, record);
+    create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => {
+      const record: Row = { ...defaults, ...data, id: nextId++, createdAt: new Date(), updatedAt: new Date() };
+      store.set(record.id, record);
       return record;
     }),
-    findUnique: vi.fn(async ({ where }: { where: { id?: string } }) => {
-      if (where.id) return store.get(where.id) || null;
-      return null;
+    findUnique: vi.fn(async ({ where, include }: { where: { id: number }; include?: unknown }) => {
+      const row = store.get(where.id);
+      if (!row) return null;
+      return include ? withRelations(row) : row;
     }),
-    findMany: vi.fn(async () => Array.from(store.values())),
+    findMany: vi.fn(async ({ include }: { include?: unknown } = {}) =>
+      Array.from(store.values()).map((row) => (include ? withRelations(row) : row)),
+    ),
     update: vi.fn(
-      async ({ where, data }: { where: { id: string }; data: Partial<T> }) => {
+      async ({ where, data, include }: { where: { id: number }; data: Record<string, unknown>; include?: unknown }) => {
         const existing = store.get(where.id);
         if (!existing) throw new Error("Record not found");
-        const updated = { ...existing, ...data, updatedAt: new Date() };
+        const updated: Row = { ...existing, ...data, updatedAt: new Date() };
         store.set(where.id, updated);
-        return updated;
-      }
+        return include ? withRelations(updated) : updated;
+      },
     ),
-    delete: vi.fn(async ({ where }: { where: { id: string } }) => {
-      const existing = store.get(where.id);
-      store.delete(where.id);
-      return existing;
-    }),
   };
 }
 
 export function createPrismaMock() {
-  // Clear stores before each use
-  Object.values(stores).forEach((store) => store.clear());
+  const producers = new Map<number, Row>();
+  const lots = new Map<number, Row>();
+
+  const producerProfile = createMockModel(producers);
+  const withProducer = (lot: Row): Row => ({ ...lot, producer: producers.get(lot.producerId as number) ?? null });
 
   return {
-    producer: createMockModel(stores.producer),
-    lot: createMockModel(stores.lot),
-    investor: createMockModel(stores.investor),
-    animal: createMockModel(stores.animal),
-    payment: createMockModel(stores.payment),
-    settlement: createMockModel(stores.settlement),
-    traceabilityEvent: createMockModel(stores.traceabilityEvent),
+    producerProfile,
+    lot: createMockModel(lots, withProducer, { status: "DRAFT" }),
+    balance: {
+      groupBy: vi.fn(async () => []),
+      aggregate: vi.fn(async () => ({ _sum: { available: null, locked: null } })),
+    },
     $connect: vi.fn(),
     $disconnect: vi.fn(),
   };

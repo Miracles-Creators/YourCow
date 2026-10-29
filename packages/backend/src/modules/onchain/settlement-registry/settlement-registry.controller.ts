@@ -1,9 +1,12 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+
+import { AdminGuard } from "../../core/auth/admin.guard";
 
 import { SettlementRegistryService } from "./settlement-registry.service";
 import { SettleLotDto } from "./dto/settle-lot.dto";
 import { toBigInt } from "../../../utils/bigint";
 
+@UseGuards(AdminGuard)
 @Controller("contracts/settlement-registry")
 export class SettlementRegistryController {
   constructor(

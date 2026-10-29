@@ -235,7 +235,7 @@ export class AuthService {
       })) as unknown as { result?: string[] } | string[];
       const value = Array.isArray(result) ? result[0] : result?.result?.[0];
       return value !== "0x0";
-    } catch (error) {
+    } catch {
       const result = (await provider.callContract({
         contractAddress: address,
         entrypoint: "isValidSignature",

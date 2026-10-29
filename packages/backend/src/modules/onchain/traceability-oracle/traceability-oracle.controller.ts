@@ -1,4 +1,6 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+
+import { AdminGuard } from "../../core/auth/admin.guard";
 
 import { TraceabilityOracleService } from "./traceability-oracle.service";
 import {
@@ -8,6 +10,7 @@ import {
 } from "./dto/traceability-oracle.dto";
 import { toBigInt } from "../../../utils/bigint";
 
+@UseGuards(AdminGuard)
 @Controller("contracts/traceability-oracle")
 export class TraceabilityOracleController {
   constructor(

@@ -54,6 +54,7 @@
     "supertest": "^7.2.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.2",
     "unplugin-swc": "^1.5.9",
     "vitest": "^4.0.17"
   },

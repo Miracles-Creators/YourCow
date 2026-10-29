@@ -1,4 +1,6 @@
-import { BadRequestException, Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+
+import { AdminGuard } from "../auth/admin.guard";
 
 import { CreateSettlementDto } from "./dto/create-settlement.dto";
 import { SettlementsService } from "./settlements.service";
@@ -17,6 +19,7 @@ export class SettlementsController {
     return this.settlementsService.listSettlements();
   }
 
+  @UseGuards(AdminGuard)
   @Post(":id/confirm")
   async confirmSettlement(@Param("id") id: string) {
     const parsedId = Number(id);

@@ -1,4 +1,6 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+
+import { AdminGuard } from "../../core/auth/admin.guard";
 
 import { AnimalRegistryService } from "./animal-registry.service";
 import {
@@ -14,6 +16,7 @@ import {
 import { AnimalStatus } from "../../../starknet/types";
 import { toBigInt } from "../../../utils/bigint";
 
+@UseGuards(AdminGuard)
 @Controller("contracts/animal-registry")
 export class AnimalRegistryController {
   constructor(private readonly animalRegistryService: AnimalRegistryService) {}

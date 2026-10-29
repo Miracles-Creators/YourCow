@@ -1,9 +1,12 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+
+import { AdminGuard } from "../../core/auth/admin.guard";
 
 import { LotSharesTokenService } from "./lot-shares-token.service";
 import { MintDto } from "./dto/mint.dto";
 import { toBigInt } from "../../../utils/bigint";
 
+@UseGuards(AdminGuard)
 @Controller("contracts/lot-shares-token")
 export class LotSharesTokenController {
   constructor(private readonly lotSharesTokenService: LotSharesTokenService) {}

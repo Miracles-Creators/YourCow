@@ -1,4 +1,6 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+
+import { AdminGuard } from "../auth/admin.guard";
 
 import { AnimalsApprovalService } from "./animals-approval.service";
 import { RegisterAnimalDto } from "./dto/register-animal.dto";
@@ -32,6 +34,7 @@ export class AnimalsController {
     return this.animalsService.listByLot(Number(lotId));
   }
 
+  @UseGuards(AdminGuard)
   @Post("approve-batch")
   async approveBatch(@Body() body: ApproveAnimalsBatchDto) {
     return this.animalsApprovalService.approveBatch({

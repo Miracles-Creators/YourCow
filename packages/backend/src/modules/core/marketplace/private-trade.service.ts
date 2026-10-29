@@ -98,7 +98,7 @@ export class PrivateTradeService {
         where: { id: tradeId },
         data: { status: TradeStatus.TONGO_SETTLED, tongoTxHash: txHash },
       });
-    } catch (error) {
+    } catch {
       // Transfer failed — safe to unlock shares (money never moved)
       await this.failTrade(tradeId);
       return;
@@ -107,7 +107,7 @@ export class PrivateTradeService {
     // Step 2c: Rollover separately — transfer already succeeded (C5)
     try {
       await this.tongoService.rollover(offer.sellerId);
-    } catch (error) {
+    } catch {
       this.logger.warn(
         `Rollover failed for seller ${offer.sellerId}, trade ${tradeId} — pending balance`,
       );

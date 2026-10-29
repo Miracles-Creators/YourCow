@@ -128,10 +128,16 @@ export class SettlementsService {
   async confirmSettlement(id: number): Promise<Settlement> {
     const settlement = await this.prisma.settlement.findUnique({
       where: { id },
+      include: { lot: { select: { onChainLotId: true } } },
     });
 
     if (!settlement) {
       throw new NotFoundException("Settlement not found");
+    }
+
+    const { onChainLotId } = settlement.lot;
+    if (onChainLotId == null) {
+      throw new BadRequestException("Lot is not deployed on-chain");
     }
 
     if (settlement.onChainStatus === OnChainSyncStatus.SYNCED) {
@@ -170,7 +176,7 @@ export class SettlementsService {
 
     try {
       const txHash = await this.settlementRegistryService.settleLot({
-        lotId: BigInt(settlement.lotId),
+        lotId: BigInt(onChainLotId),
         finalReportHash: settlement.finalReportHash,
         totalProceeds: BigInt(settlement.totalProceeds),
       });
